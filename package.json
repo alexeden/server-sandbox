@@ -5,7 +5,7 @@
   "main": "sandbox.js",
   "scripts": {
     "watch": "nodemon --debug --exec \"npm run start\"",
-    "start": "node --es_staging --strong_this --use_strict --harmony_modules --harmony_destructuring --harmony_default_parameters .",
+    "start": "sudo node --es_staging --strong_this --use_strict --harmony_modules --harmony_destructuring --harmony_default_parameters .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,9 +18,15 @@
     "url": "https://github.com/alexeden/server-sandbox/issues"
   },
   "homepage": "https://github.com/alexeden/server-sandbox#readme",
+  "devDependencies": {
+      "chalk": "^1.1.1"
+  },
   "dependencies": {
     "firmata": "^0.10.0",
+    "johnny-five": "^0.9.32",
+    "node-pixel": "^0.6.0",
     "nodemon": "^1.9.1",
+    "ramda": "^0.19.1",
     "serialport": "^2.0.6"
   }
 }
