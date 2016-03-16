@@ -1,0 +1,20 @@
+{
+    "name": "server-sandbox",
+    "version": "1.0.0",
+    "description": "Server-side-only sandbox.",
+    "main": "index.js",
+    "scripts": {
+        "start": "node --es_staging --strong_this --use_strict --harmony_modules --harmony_destructuring --harmony_default_parameters sandbox.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/alexeden/server-sandbox.git"
+    },
+    "author": "Alex Eden",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/alexeden/server-sandbox/issues"
+    },
+    "homepage": "https://github.com/alexeden/server-sandbox#readme"
+}
