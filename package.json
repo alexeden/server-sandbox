@@ -4,8 +4,8 @@
   "description": "Server-side-only sandbox.",
   "main": "sandbox.js",
   "scripts": {
-    "watch": "nodemon --debug --exec \"npm run start\"",
-    "start": "sudo node --es_staging --strong_this --use_strict --harmony_modules --harmony_destructuring --harmony_default_parameters .",
+    "watch": "nodemon --exec \"npm run start\"",
+    "start": "sudo node --es_staging --strong_this --harmony_modules --harmony_sloppy_let --harmony_destructuring --harmony_default_parameters .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,14 +19,21 @@
   },
   "homepage": "https://github.com/alexeden/server-sandbox#readme",
   "devDependencies": {
-      "chalk": "^1.1.1"
+    "chalk": "^1.1.1"
   },
   "dependencies": {
+    "color": "^0.11.1",
+    "d3": "^3.5.16",
     "firmata": "^0.10.0",
+    "immutable": "^3.7.6",
     "johnny-five": "^0.9.32",
+    "leapjs": "^0.6.4",
     "node-pixel": "^0.6.0",
     "nodemon": "^1.9.1",
+    "pi-spi": "^1.0.1",
     "ramda": "^0.19.1",
-    "serialport": "^2.0.6"
+    "serialport": "^2.0.6",
+    "websocket": "^1.0.22",
+    "ws": "^1.0.1"
   }
 }
