@@ -3,7 +3,7 @@ const R = require('ramda');
 /**
 *   Program settings
 */
-const settings = JSON.parse(require('fs').readFileSync('./light-strip.config.json', { encoding: 'utf8' }));
+const settings = JSON.parse(require('fs').readFileSync('./config.json', { encoding: 'utf8' }));
 
 
 

@@ -2,6 +2,9 @@
     "BOARD": {
         "repl": false
     },
+    "SOCKET_SERVER": {
+      "PORT": 6767
+    },
     "SPI_PORT": "/dev/spidev0.0",
     "STRIP": {
         "pin": 6,
