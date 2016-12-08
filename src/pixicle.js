@@ -2,7 +2,6 @@ const R = require('ramda');
 const {sum} = R;
 const util = require('util');
 const assert = require('assert');
-const d3 = require('d3');
 const {tap, log} = require('./debug-helpers.js');
 const {PIXICLE, PHYSICS} = require('./config-loader.js');
 
