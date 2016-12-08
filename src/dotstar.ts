@@ -1,22 +1,15 @@
-const R = require('ramda');
+import * as R from 'ramda';
+import { TimeKeeper } from './util';
+import { settings } from './config-loader';
 const SPI = require('pi-spi');
 const Osci = require('./oscillator.js');
-const { TimeKeeper } = require('./mark.js');
-const {
-  SPI_PORT,
-  // COLORS,
-  FPS,
-  // N: number of LEDs in the strip
-  // FRAME_SIZE: frame size in bytes of each LED frame and the start and end frames
-  // LED_FRAME_OFFSET: the offset in bytes of each LED frame
-  DOTSTAR: { N, FRAME_SIZE, LED_FRAME_OFFSET, START_FRAME_BYTE, LED_CONTROL_BYTE, END_FRAME_BYTE, CHANNELS, CHANNEL_MIN, CHANNEL_MAX }
-} = require('./config-loader.js');
+const { SPI_PORT, FPS, DOTSTAR: { N, FRAME_SIZE, START_FRAME_BYTE, END_FRAME_BYTE } } = settings;
 
-const clamp = R.compose(R.min(CHANNEL_MAX), R.max(CHANNEL_MIN), parseInt);
-const OsciRandomInits = () => ({ z: 255*Math.random(), v: (10000*Math.random())-5000 });
+// const clamp = R.compose(R.min(CHANNEL_MAX), R.max(CHANNEL_MIN), parseInt);
+// const OsciRandomInits = () => ({ z: 255*Math.random(), v: (10000*Math.random())-5000 });
 
 // The master time keeper
-const timeKeeper = TimeKeeper(R.always(FPS));
+const timeKeeper = TimeKeeper(FPS);
 
 // Number of bytes needed for a complete update signal
 const startFrameSize = R.always(FRAME_SIZE);
@@ -25,16 +18,17 @@ const bufferSize = R.always(FRAME_SIZE * N + endFrameSize() + startFrameSize());
 
 
 // Create an array of offsets values in bytes of each led frame in the buffer
-const ledFrameOffsets = R.compose(
-  R.map(R.add(R.__, startFrameSize())),
-  R.map(R.multiply(FRAME_SIZE)),
-  R.range(0)
-);
+const ledFrameOffsets
+  = R.compose(
+      R.map(R.add(startFrameSize())),
+      R.map(R.multiply(FRAME_SIZE)),
+      R.range(0)
+    );
 
 // The raw binary buffer and terminal frames
 const binaryBuffer = new ArrayBuffer(bufferSize());
-const startFrame = new Uint8ClampedArray(binaryBuffer, 0, startFrameSize()).fill(START_FRAME_BYTE);
-const endFrame = new Uint8ClampedArray(binaryBuffer, startFrameSize() + N*FRAME_SIZE, endFrameSize()).fill(END_FRAME_BYTE);
+// const startFrame = new Uint8ClampedArray(binaryBuffer, 0, startFrameSize()).fill(START_FRAME_BYTE);
+// const endFrame = new Uint8ClampedArray(binaryBuffer, startFrameSize() + N*FRAME_SIZE, endFrameSize()).fill(END_FRAME_BYTE);
 const buffer = new Buffer(binaryBuffer);
 
 
@@ -60,8 +54,10 @@ const ledFrames = R.zip(oscis, offsets).map(([osci, offset]) => {
 const spi = SPI.initialize(SPI_PORT);
 
 function write() {
-  spi.write(new Buffer(buffer), () => { });
+  spi.write(new Buffer(buffer), () => { /* no-op */ });
 }
 // console.log(`first buffer: `, new Buffer(buffer));
-// console.log(`ledFrames: `, ledFrames);
+console.log(`ledFrames: `, ledFrames);
 setInterval(write, 1);
+
+export const m = {};

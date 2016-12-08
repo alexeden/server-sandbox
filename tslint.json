@@ -1,0 +1,80 @@
+{
+  "rules": {
+    "align": [
+      true,
+      "parameters",
+      "statements",
+      "arguments"
+    ],
+    "comment-format": [
+      true,
+      "check-space"
+    ],
+    "curly": true,
+    "indent": [
+      true,
+      "spaces"
+    ],
+    "no-attribute-parameter-decorator": true,
+    "no-conditional-assignment": true,
+    "no-construct": true,
+    "no-duplicate-variable": true,
+    "no-empty": true,
+    "no-forward-ref": true,
+    "no-input-rename": true,
+    "no-invalid-this": true,
+    "no-output-rename": true,
+    "no-shadowed-variable": true,
+    "no-trailing-whitespace": true,
+    "no-unreachable": true,
+    "no-unused-expression": true,
+    "no-var-keyword": true,
+    "no-unused-variable": [
+      true,
+      {
+        "ignore-pattern": "^R"
+      }
+    ],
+    "object-literal-sort-keys": true,
+    "one-variable-per-declaration": true,
+    "quotemark": [
+      true,
+      "single"
+    ],
+    "semicolon": [
+      true,
+      "always",
+      "ignore-interfaces"
+    ],
+    "trailing-comma": [
+      true,
+      {
+        "multiline": "never",
+        "singleline": "never"
+      }
+    ],
+    "triple-equals": true,
+    "typedef-whitespace": [
+      true,
+      {
+        "call-signature": "nospace",
+        "index-signature": "nospace",
+        "parameter": "nospace",
+        "property-declaration": "nospace",
+        "variable-declaration": "nospace"
+      },
+      {
+        "call-signature": "onespace",
+        "index-signature": "onespace",
+        "parameter": "onespace",
+        "property-declaration": "onespace",
+        "variable-declaration": "onespace"
+      }
+    ],
+    "use-host-property-decorator": true,
+    "use-input-property-decorator": true,
+    "use-life-cycle-interface": true,
+    "use-output-property-decorator": true,
+    "use-pipe-transform-interface": true
+  }
+}

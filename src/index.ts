@@ -1,2 +1,2 @@
 // require('./dotstar.js');
-import * as path from 'path';
+import * as Dotstar from './dotstar';
