@@ -18,41 +18,30 @@ const unitsToRgb = R.map(valToColor);
 const colorDiff = R.compose(R.map(colorToVal), R.map(([x, y]) => x - y), R.zip);
 
 const MemPixel = {
-    init(pixel) {
-        this.pixel = pixel;
-        this.pixicles = [Pixicle.create(), Pixicle.create(), Pixicle.create()];
-        return this;
-    },
-    override(c1) {
-        this.pixel.color(c1);
-    },
-    // next(c1) {
-    //     const c0 = pixelColorToRgbArray(this.pixel.color());
-    //     const nextColor = R.zip(rgbToUnits(c0), rgbToUnits(c1))
-    //         .map(([x0, x1]) => interpolate(x0, x1))
-    //         .map(valToColor)
-    //         .map(Math.round);
-    //     // log(`nextColor: ${nextColor}`);
-    //     this.pixel.color(nextColor);
-    // }
-    next(c1) {
-        const t = millis();
-        const next = this.pixicles.map((pix, i) => {
-            return pix.tick(t, c1[i]).x0;
-        });
-        // console.log(`${t} ms: `, ...next);
-        const c0 = pixelColorToRgbArray(this.pixel.color());
+  init(pixel) {
+    this.pixel = pixel;
+    this.pixicles = [Pixicle.create(), Pixicle.create(), Pixicle.create()];
+    return this;
+  },
+  override(c1) {
+    this.pixel.color(c1);
+  },
+  next(c1) {
+    const t = millis();
+    const next = this.pixicles.map((pix, i) => {
+      return pix.tick(t, c1[i]).x0;
+    });
+    const c0 = pixelColorToRgbArray(this.pixel.color());
 
-        const nextColor = next
-            .map(x => Math.max(x, 0))
-            .map(Math.round);
-        // log(`nextColor: ${nextColor}`);
-        this.pixel.color(nextColor);
-    }
+    const nextColor = next
+      .map(x => Math.max(x, 0))
+      .map(Math.round);
+    this.pixel.color(nextColor);
+  }
 }
 
 module.exports = function(controller) {
-    return R.range(0, controller.stripLength()).map(i => {
-        return Object.create(MemPixel).init(controller.pixel(i));
-    });
+  return R.range(0, controller.stripLength()).map(i => {
+    return Object.create(MemPixel).init(controller.pixel(i));
+  });
 }

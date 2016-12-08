@@ -22,7 +22,8 @@
   "homepage": "https://github.com/alexeden/dotstar-node#readme",
   "devDependencies": {
     "chalk": "^1.1.1",
-    "nodemon": "^1.9.2"
+    "nodemon": "^1.9.2",
+    "resolve-url-loader": "^1.6.0"
   },
   "dependencies": {
     "color": "^0.11.1",
@@ -34,9 +35,9 @@
     "leapjs": "^0.6.4",
     "node-pixel": "^0.6.0",
     "nodemon": "^1.9.1",
+    "pi-gpio": "0.0.8",
     "pi-spi": "^1.0.1",
     "ramda": "^0.19.1",
-    "serialport": "^2.0.6",
     "websocket": "^1.0.22",
     "ws": "^1.0.1"
   }

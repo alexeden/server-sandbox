@@ -53,7 +53,7 @@
     "indent": [1, 2, { "SwitchCase": 1 }],
     "strict": 1,
     "no-underscore-dangle": 0,
-    "no-unused-vars": [1, {"args": "none", "varsIgnorePattern": "tag|debug"}],
+    "no-unused-vars": [0, {"args": "none", "varsIgnorePattern": "tag|debug"}],
     "no-console": 0,
     "quotes": [ 2, "single" ]
   }
