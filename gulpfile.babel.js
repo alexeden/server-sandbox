@@ -23,7 +23,7 @@ export const typescript
 export const autorun
   = () =>
       nodemon({
-        exec: './node_modules/.bin/electron dist/main.js',
+        exec: 'node dist/index.js',
         ext: 'json js',
         quiet: true,
         watch: 'dist',
@@ -37,4 +37,4 @@ export const autobuild = () => {
 
 export const build = gulp.series(clean, typescript);
 
-export default gulp.series(build, gulp.parallel(autobuild, autorun));
+export default gulp.series(clean, build, gulp.parallel(autobuild, autorun));

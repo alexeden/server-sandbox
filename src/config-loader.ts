@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import { readFileSync } from 'fs';
 /**
 *   Program settings
