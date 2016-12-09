@@ -14,57 +14,51 @@ const END_FRAME_REPS = 1; // Math.ceil(N/2);
 const END_FRAME_OFFSET = FRAME_SIZE * (N + 1);
 const BUFFER_LENGTH = FRAME_SIZE * (N + 2);
 // The raw binary buffer and terminal frames
-// const binaryBuffer = new ArrayBuffer(BUFFER_LENGTH);
-// const startFrame = new Uint8ClampedArray(binaryBuffer, 0, FRAME_SIZE).fill(START_FRAME_BYTE);
-// const endFrame = new Uint8ClampedArray(binaryBuffer, END_FRAME_OFFSET, FRAME_SIZE).fill(END_FRAME_BYTE);
+const binaryBuffer = new ArrayBuffer(BUFFER_LENGTH);
+const startFrame = new Uint8ClampedArray(binaryBuffer, 0, FRAME_SIZE).fill(START_FRAME_BYTE);
+const endFrame = new Uint8ClampedArray(binaryBuffer, END_FRAME_OFFSET, FRAME_SIZE).fill(END_FRAME_BYTE);
 
 //
-// const rgb = (i: number): number[] => {
-//   switch(i % 3) {
-//     case 0:
-//       return [0xFF, 0x00, 0x00];
-//     case 1:
-//       return [0x00, 0xFF, 0x00];
-//     case 2:
-//       return [0x00, 0x00, 0xFF];
-//   };
-// };
+const rgb =
+  (i: number): number[] => {
+    switch(i % 3) {
+      case 0:
+        return [0x00, 0x00, 0x00];
+      case 1:
+        return [0x00, 0x77, 0x00];
+      default:
+        return [0x00, 0x00, 0xFF];
+    }
+  };
 //
-// const ledFrames
-//   = range(0, N)
-//       .map(n => startFrame.byteLength * (n + 1))
-//       .map((byteOffset, n) =>
-//         new Uint8ClampedArray(binaryBuffer, byteOffset, FRAME_SIZE)
-//           // .set( <Uint8ClampedArray>([0xFF, ...rgb(n)]))
-//           // .set([1])
-//       )
-//       .map((frame, n) => {
-//         frame[0] = 0xFF;
-//         rgb(n).map((c, i) => frame[i + 1] = c);
-//
-//         console.log(frame.byteLength, frame.byteOffset, frame);
-//         return frame;
-//       });
-      //
+const ledFrames
+  = range(0, N)
+      .map(n => startFrame.byteLength * (n + 1))
+      .map((byteOffset, n) =>
+        new Uint8ClampedArray(binaryBuffer, byteOffset, FRAME_SIZE)
+      )
+      .map((frame, n) => {
+        frame[0] = 0xFF;
+        rgb(n).map((c, i) => frame[i + 1] = c);
+        return frame;
+      });
+
 
 // const buffer = new Buffer(binaryBuffer);
 const spi = SPI.initialize(SPI_PORT);
 spi.clockSpeed(800000);
-console.log('clock speed: ', spi.clockSpeed());
 
-const buf =
-  flatten(
-    [ ...range(0, 4).map(_ => START_FRAME_BYTE)
-    , ...range(0, N).map(_ => [0xFF, 0xFF, 0x00, 0xFF])
-    , ...range(0, 4).map(_ => [0xFF, 0xFF, 0xFF, 0xFF])
-    ]
-  );
+// const buf =
+//   flatten(
+//     [ ...range(0, 4).map(_ => START_FRAME_BYTE)
+//     , ...range(0, N).map((_, i) => [0xFF, ...rgb(i)])
+//     , ...range(0, 4).map(_ => 0xFF)
+//     ]
+//   );
 
-console.log(buf);
+const buffer = Buffer.from(binaryBuffer);
 
-const buffer = Buffer.from(buf);
-
-export const write = () => spi.write(buffer, (error, data) => error ? console.error('error: ', error) : write());
+export const write = () => spi.write(buffer, (error, data) => error ? console.error('error: ', error) : setTimeout(write, 5000));
     // spi.write(new Buffer(binaryBuffer), (error, data) => error ? console.error(error) : write());
 
 // const Osci = require('./oscillator.js');
