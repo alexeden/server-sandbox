@@ -1,4 +1,4 @@
 // require('./dotstar.js');
-import * as Dotstar from './dotstar';
+import { write } from './dotstar';
 
-console.log(Dotstar);
+write();
