@@ -1,0 +1,1 @@
+SUBSYSTEM=="spidev",KERNEL=="spidev*",GROUP="tty"
