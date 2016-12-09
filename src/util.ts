@@ -15,7 +15,6 @@ export const TimeKeeper = (fps: number) => {
   };
 
   // Start it up
-  // setTimeout(() => tick(timer()), 1000);
   tick(timer());
 
   // Function to register time observers
@@ -23,9 +22,4 @@ export const TimeKeeper = (fps: number) => {
     observe: o => observers.add(o),
     unobserve: uo => observers.delete(uo)
   };
-}
-
-
-module.exports = {
-  TimeKeeper
 };
