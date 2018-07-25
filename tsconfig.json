@@ -4,10 +4,11 @@
     "baseUrl": "src",
     "module": "commonjs",
     "moduleResolution": "node",
+    "noImplicitAny": true,
     "pretty": true,
     "paths": { "*": [ "*" ] },
-    "removeComments": true,
     "sourceMap": true,
+    "strictNullChecks": true,
     "target": "es2015"
   },
   "include": [

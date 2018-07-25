@@ -35,8 +35,8 @@ const Osci
 
 // Curry the oscillator model with its physics model before exporting
 module.exports = Osci({
-  c: always(c),
-  fps: always(fps),
-  k: always(k),
-  m: always(m)
+  c: () => c,
+  fps: () => fps,
+  k: () => k,
+  m: () => m
 });
