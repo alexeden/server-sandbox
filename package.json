@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "rimraf dist && tsc -p src",
-    "sync": "nodemon --exec \"npm run build && node sync\"",
+    "dev": "nodemon -w dist -d 1 --exec \"node dist\"",
+    "sync": "nodemon -w src --exec \"npm run build && node sync\"",
     "test": "ts-node -P src/tsconfig.json example/server.ts"
   },
   "repository": {
@@ -36,11 +37,10 @@
   },
   "nodemonConfig": {
     "ext": "ts",
-    "exec": "npm run build && npm run test",
+    "exec": "node dist/index.js",
     "events": {},
     "watch": [
-      "src/",
-      "example/server.ts"
+      "dist/"
     ]
   }
 }
