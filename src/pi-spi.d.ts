@@ -4,12 +4,12 @@ export = __PI_SPI;
 
 declare namespace __PI_SPI {
 
-  enum Mode {
+  enum mode {
     CPHA = 0x01,
     CPOL = 0x02,
   }
 
-  enum Order {
+  enum order {
     MSB_FIRST = 0,
     LSB_FIRST = 1,
   }

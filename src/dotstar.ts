@@ -2,46 +2,46 @@ import { range, flatten } from 'ramda';
 import * as SPI from 'pi-spi';
 
 const START_FRAME_BYTE = 0x00;
-const END_FRAME_BYTE = 0xFF;
 const SPI_PORT = '/dev/spidev0.0';
 const N = 145;
-const FREQ = 800000;
-const FRAME_SIZE = 4;
-const END_FRAME_OFFSET = FRAME_SIZE * (N + 1);
-const BUFFER_LENGTH = FRAME_SIZE * (N + 2);
-const BUFFER = new ArrayBuffer(BUFFER_LENGTH);
-const START_FRAME = new Uint8ClampedArray(BUFFER, 0, FRAME_SIZE).fill(START_FRAME_BYTE);
-const END_FRAME = new Uint8ClampedArray(BUFFER, END_FRAME_OFFSET, FRAME_SIZE).fill(END_FRAME_BYTE);
-const binaryBuffer = new ArrayBuffer(BUFFER_LENGTH);
-const startFrame = new Uint8ClampedArray(binaryBuffer, 0, FRAME_SIZE).fill(START_FRAME_BYTE);
-const endFrame = new Uint8ClampedArray(binaryBuffer, END_FRAME_OFFSET, FRAME_SIZE).fill(END_FRAME_BYTE);
 
-// const rgb = (i: number): number[] => {
-//   switch (i % 3) {
-//     case 0:
-//       return [0x00, 0x00, 0x00];
-//     case 1:
-//       return [0x00, 0x77, 0x00];
-//     default:
-//       return [0x00, 0x00, 0xFF];
-//   }
-// };
+export interface DotstarConfig {
+  clockSpeed: number;
+  devicePath: string;
+  n: number;
+}
 
-// const ledFrames
-//   = range(0, N)
-//       .map(n => START_FRAME.byteLength * (n + 1))
-//       .map((byteOffset, n) =>
-//         new Uint8ClampedArray(BUFFER, byteOffset, FRAME_SIZE)
-//       )
-//       .map((frame, n) => {
-//         frame[0] = 0xFF;
-//         rgb(n).map((c, i) => frame[i + 1] = c);
-//         return frame;
-//       });
+export class Dotstar {
 
 
-// const buffer = new Buffer(BUFFER);
-const spi = SPI.initialize(SPI_PORT);
+
+  static async create(config: Partial<DotstarConfig> = {}): Promise<Dotstar> {
+    const spi = SPI.initialize(config.devicePath || '/dev/spidev0.0');
+    spi.clockSpeed(config.clockSpeed || 4e6);
+    return new Dotstar(spi);
+  }
+
+  private readonly buffer: Buffer;
+
+  private constructor(
+    private spi: SPI.SPI
+  ) {
+    this.buffer = Buffer.from([]);
+  }
+
+
+  async push(): Promise<any> {
+    return new Promise((ok, err) => {
+      this.spi.write(this.buffer, (error, data) => {
+        if (error) err(error);
+        else ok(data);
+      });
+    });
+  }
+
+}
+
+export const spi = SPI.initialize(SPI_PORT);
 spi.clockSpeed(800000);
 
 const toFrame = (r: number, g: number, b: number) => flatten([
@@ -53,13 +53,6 @@ const toFrame = (r: number, g: number, b: number) => flatten([
 export const write = ([r, g, b]: [number, number, number]) => {
   const frame = toFrame(r, g, b);
   spi.write(Buffer.from(frame), (error, data) => {
-    // console.log(error, data);
-    if (error) {
-      console.error('error: ', error);
-    }
-    else {
-      console.log(`${data && data.length || 0} bytes written to SPI`);
-      // write();
-    }
+    if (error) console.error('error: ', error);
   });
 };
