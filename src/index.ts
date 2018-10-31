@@ -1,3 +1,3 @@
-import { write } from './dotstar';
+// import { write } from './dotstar';
 
-write();
+// write();
