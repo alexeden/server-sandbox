@@ -1,4 +1,5 @@
 {
+  "extends": "tslint:latest",
   "rules": {
     "align": [
       true,
@@ -6,40 +7,52 @@
       "statements",
       "arguments"
     ],
+    "arrow-parens": [true, "ban-single-arg-parens"],
     "comment-format": [
       true,
       "check-space"
     ],
-    "curly": true,
+    "curly": false,
     "indent": [
       true,
       "spaces"
     ],
-    "no-attribute-parameter-decorator": true,
+    "interface-name": [true, "never-prefix"],
+    "import-spacing": false,
+    "max-classes-per-file": false,
+    "max-line-length": false,
+    "member-access": [true, "no-public"],
+    "member-ordering": false,
+    // "no-any": true,
+    "no-bitwise": false,
     "no-conditional-assignment": true,
+    "no-consecutive-blank-lines": [true, 3],
+    "no-console": false,
     "no-construct": true,
     "no-duplicate-variable": true,
-    "no-empty": true,
-    "no-forward-ref": true,
-    "no-input-rename": true,
+    "no-implicit-dependencies": false,
     "no-invalid-this": true,
-    "no-output-rename": true,
+    "no-namespace": false,
+    "no-object-literal-type-assertion": false,
     "no-shadowed-variable": true,
+    "no-string-literal": false,
+    "no-submodule-imports": false,
     "no-trailing-whitespace": true,
-    "no-unreachable": true,
-    "no-unused-expression": true,
+    "no-unused-expression": false,
     "no-var-keyword": true,
-    "no-unused-variable": [
+    "object-literal-key-quotes": [false, "as-needed"],
+    "object-literal-sort-keys": false,
+    "one-line": [
       true,
-      {
-        "ignore-pattern": "^R"
-      }
+      "check-open-brace",
+      "check-whitespace"
     ],
-    "object-literal-sort-keys": true,
     "one-variable-per-declaration": true,
+    "ordered-imports": false,
     "quotemark": [
       true,
-      "single"
+      "single",
+      "jsx-double"
     ],
     "semicolon": [
       true,
@@ -49,7 +62,14 @@
     "trailing-comma": [
       true,
       {
-        "multiline": "never",
+        "multiline": {
+          "arrays": "always",
+          "objects": "always",
+          "functions": "never",
+          "imports": "always",
+          "exports": "always",
+          "typeLiterals": "always"
+        },
         "singleline": "never"
       }
     ],
@@ -71,10 +91,18 @@
         "variable-declaration": "onespace"
       }
     ],
-    "use-host-property-decorator": true,
-    "use-input-property-decorator": true,
-    "use-life-cycle-interface": true,
-    "use-output-property-decorator": true,
-    "use-pipe-transform-interface": true
+    "whitespace": [
+      true,
+      "check-branch",
+      "check-decl",
+      "check-module",
+      "check-operator",
+      "check-preblock",
+      "check-rest-spread",
+      "check-separator",
+      "check-type",
+      "check-typecast",
+      "check-type-operator"
+    ]
   }
 }
