@@ -1,10 +1,14 @@
 import { Dotstar } from './dotstar';
 import * as OS from 'os';
+import chalk from 'chalk';
 
+(async () => {
+  const dotstar = await Dotstar.create({
+    devicePath: OS.type() !== 'Linux' ? '/dev/null' : undefined,
+  });
 
-const dotstar = Dotstar.create({
-  devicePath: OS.type() !== 'Linux' ? '/dev/null' : undefined,
-});
+  console.log(chalk.blue(dotstar.printBuffer()));
+})();
 
 
 
