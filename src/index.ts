@@ -1,13 +1,20 @@
 import { Dotstar } from './dotstar';
+import { Colors } from './colors';
 import * as OS from 'os';
 import chalk from 'chalk';
 
 (async () => {
   const dotstar = await Dotstar.create({
     devicePath: OS.type() !== 'Linux' ? '/dev/null' : undefined,
+    startFrames: 4,
+    endFrames: 4,
   });
 
+  dotstar.setAll(Colors.Black);
   console.log(chalk.blue(dotstar.printBuffer()));
+  dotstar.apply((c, i) => i % 2 === 0 ? Colors.White : c);
+  console.log(chalk.blue(dotstar.printBuffer()));
+
 })();
 
 
