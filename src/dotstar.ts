@@ -38,7 +38,7 @@ export class Dotstar {
 
     this.ledSlices = range(0, this.leds)
       .map(i => (i + this.startFrames) * APA102C.FRAME_SIZE)
-      .map(offset => this.buffer.slice(offset, offset + 3));
+      .map(offset => this.buffer.slice(offset + 1, offset + 4));
   }
 
   get clockSpeed() {
@@ -57,7 +57,7 @@ export class Dotstar {
 
   private write(led: Buffer, color: number) {
     color = color > 0xffffff ? 0 : color < 0 ? 0xffffff : color;
-    led.writeUIntBE(color, 0, 3);
+    led.writeUIntLE(color, 0, 3);
   }
 
   apply(fn: (color: number, index: number) => number) {

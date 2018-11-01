@@ -7,7 +7,7 @@ import chalk from 'chalk';
   const dotstar = await Dotstar.create({
     devicePath: OS.type() !== 'Linux' ? '/dev/null' : undefined,
     // startFrames: 1,
-    endFrames: 1,
+    // endFrames: 4,
   });
 
   const colors = Object.values(Colors).filter(c => typeof c === 'number');
@@ -21,8 +21,9 @@ import chalk from 'chalk';
   //   50
   // );
 
-  const set = (cs: number[]) => {
+  const set = async (cs: number[]) => {
     if (cs.length <= 0) {
+      console.log(chalk.blue(dotstar.printBuffer()));
       dotstar.off();
       // dotstar.off();
       return;
@@ -30,13 +31,14 @@ import chalk from 'chalk';
     // dotstar.apply((c, i) => colors[Math.floor(Math.random() * colors.length)]);
     console.log(`Setting color to "${Colors[cs[0]]}": 0x${cs[0].toString(16)}`);
     dotstar.setAll(cs[0]);
-    dotstar.sync();
+    await dotstar.sync();
     if (cs.length > 0) {
-      setTimeout(() => set(cs.slice(1)), 500);
+      setTimeout(() => set(cs.slice(1)), 2000);
     }
   };
 
-  set(colors);
+  console.log(`writing these colors: ${colors.map(c => Colors[c]).join(', ')}`);
+  set([...colors]); // , ...colors, ...colors, ...colors, ...colors, ...colors, ...colors, ...colors, ...colors, ...colors]);
   // )
   // setTimeout(
   //   () => {

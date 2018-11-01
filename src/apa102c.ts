@@ -7,5 +7,5 @@ export class APA102C {
   static readonly FRAME_SIZE  = 4; // bytes
   static readonly startFrame = () => Buffer.allocUnsafe(APA102C.FRAME_SIZE).fill(APA102C.START_BYTE);
   static readonly endFrame = () => Buffer.allocUnsafe(APA102C.FRAME_SIZE).fill(APA102C.END_BYTE);
-  static readonly ledFrame = () => Buffer.allocUnsafe(APA102C.FRAME_SIZE).fill(APA102C.GLOBAL_BYTE, 3);
+  static readonly ledFrame = () => Buffer.allocUnsafe(APA102C.FRAME_SIZE).fill(APA102C.GLOBAL_BYTE, 0, 1);
 }
