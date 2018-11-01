@@ -6,28 +6,47 @@ import chalk from 'chalk';
 (async () => {
   const dotstar = await Dotstar.create({
     devicePath: OS.type() !== 'Linux' ? '/dev/null' : undefined,
-    startFrames: 4,
-    endFrames: 4,
+    // startFrames: 1,
+    endFrames: 1,
   });
 
+  const colors = Object.values(Colors).filter(c => typeof c === 'number');
 
-  const testInterval = setInterval(
-    () => {
-      dotstar.apply((c, i) => c + 1);
-      dotstar.sync();
-    },
-    1000
-  );
+  console.log(colors);
+  // const testInterval = setInterval(
+  //   () => {
+  //     dotstar.apply((c, i) => colors[Math.floor(Math.random() * colors.length)]);
+  //     dotstar.sync();
+  //   },
+  //   50
+  // );
 
-  setTimeout(
-    () => {
-      clearInterval(testInterval);
+  const set = (cs: number[]) => {
+    if (cs.length <= 0) {
       dotstar.off();
-      console.log(chalk.blue(dotstar.printBuffer()));
-      console.log(chalk.green('done! everything should be off'));
-    },
-    15000
-  );
+      // dotstar.off();
+      return;
+    }
+    // dotstar.apply((c, i) => colors[Math.floor(Math.random() * colors.length)]);
+    console.log(`Setting color to "${Colors[cs[0]]}": 0x${cs[0].toString(16)}`);
+    dotstar.setAll(cs[0]);
+    dotstar.sync();
+    if (cs.length > 0) {
+      setTimeout(() => set(cs.slice(1)), 500);
+    }
+  };
+
+  set(colors);
+  // )
+  // setTimeout(
+  //   () => {
+  //     // clearInterval(testInterval);
+  //     dotstar.off();
+  //     console.log(chalk.blue(dotstar.printBuffer()));
+  //     console.log(chalk.green('done! everything should be off'));
+  //   },
+  //   15000
+  // );
 
 })();
 
