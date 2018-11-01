@@ -25,8 +25,10 @@ export class Dotstar {
   ) {
     this.frames = this.leds + 2;
     this.bufferSize = APA102C.FRAME_SIZE * this.frames;
-    this.buffer = Buffer.alloc(this.bufferSize);
-
+    this.buffer = Buffer.concat([
+      APA102C.startFrame(),
+      APA102C.endFrame(),
+    ]);
   }
 
   get clockSpeed() {
@@ -43,6 +45,22 @@ export class Dotstar {
     });
   }
 
+
+  printBuffer(): string {
+    const segments: string[] = [];
+    let segment: string[] = [];
+
+    for (let i = 0; i <= this.buffer.byteLength; i++) {
+      if (i > 0 && i % 4 === 0) {
+        segments.push(segment.join('\t'));
+        segment = [];
+      }
+
+      segment.push(`0x${this.buffer.slice(i, i + 1).toString('hex')}`);
+    }
+
+    return segments.join('\n');
+  }
 }
 
 // export const spi = SPI.initialize(SPI_PORT);
