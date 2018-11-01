@@ -4,7 +4,7 @@
     "allowSyntheticDefaultImports": false,
     "alwaysStrict": true,
     "declaration": true,
-    "diagnostics": true,
+    "diagnostics": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": false,
