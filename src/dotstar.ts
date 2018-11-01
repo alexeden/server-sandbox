@@ -47,20 +47,30 @@ export class Dotstar {
 
   set(color: number, ...is: number[]) {
     is.filter(i => i >= 0 && i < this.leds).forEach(i => {
-      this.ledSlices[i].writeUIntBE(color, 0, 3);
+      this.write(this.ledSlices[i], color);
     });
   }
 
   setAll(color: number) {
-    this.ledSlices.forEach(slice => slice.writeUIntBE(color, 0, 3));
+    this.ledSlices.forEach(slice => this.write(slice, color));
+  }
+
+  private write(led: Buffer, color: number) {
+    color = color > 0xffffff ? 0 : color < 0 ? 0xffffff : color;
+    led.writeUIntBE(color, 0, 3);
   }
 
   apply(fn: (color: number, index: number) => number) {
     this.ledSlices.forEach((led, i) => {
       const color = led.readUIntBE(0, 3);
       const newColor = fn(color, i);
-      led.writeUIntBE(newColor, 0, 3);
+      this.write(led, newColor);
     });
+  }
+
+  off() {
+    this.setAll(0);
+    return this.sync();
   }
 
   async sync(): Promise<any> {

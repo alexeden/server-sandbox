@@ -10,10 +10,24 @@ import chalk from 'chalk';
     endFrames: 4,
   });
 
-  dotstar.setAll(Colors.Black);
-  console.log(chalk.blue(dotstar.printBuffer()));
-  dotstar.apply((c, i) => i % 2 === 0 ? Colors.White : c);
-  console.log(chalk.blue(dotstar.printBuffer()));
+
+  const testInterval = setInterval(
+    () => {
+      dotstar.apply((c, i) => c + 1);
+      dotstar.sync();
+    },
+    1000
+  );
+
+  setTimeout(
+    () => {
+      clearInterval(testInterval);
+      dotstar.off();
+      console.log(chalk.blue(dotstar.printBuffer()));
+      console.log(chalk.green('done! everything should be off'));
+    },
+    15000
+  );
 
 })();
 
