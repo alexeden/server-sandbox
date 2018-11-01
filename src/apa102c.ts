@@ -1,12 +1,10 @@
 export class APA102C {
-  static readonly CLK_MIN    =  800_000; // Hz
-  static readonly CLK_MAX    =  1_200_000; // Hz
-  static readonly FRAME_SIZE =  4; // bytes
-  static startFrame() {
-    return Buffer.from([0x00, 0x00, 0x00, 0x00]);
-  }
-  static endFrame() {
-    return Buffer.from([0xff, 0xff, 0xff, 0xff]);
-  }
+  static readonly CLK_MIN     = 800_000; // Hz
+  static readonly CLK_MAX     = 1_200_000; // Hz
+  static readonly START_BYTE  = 0x00;
+  static readonly END_BYTE    = 0xFF;
+  static readonly FRAME_SIZE  = 4; // bytes
 
+  static readonly startFrame = () => Buffer.allocUnsafe(APA102C.FRAME_SIZE).fill(APA102C.START_BYTE);
+  static readonly endFrame = () => Buffer.allocUnsafe(APA102C.FRAME_SIZE).fill(APA102C.END_BYTE);
 }
