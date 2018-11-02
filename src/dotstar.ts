@@ -1,15 +1,7 @@
 import { range } from 'ramda';
 import * as SPI from 'pi-spi';
+import { DotstarConfig } from './types';
 import { APA102C } from './apa102c';
-
-export interface DotstarConfig {
-  clockSpeed: number;
-  dataMode: SPI.mode;
-  devicePath: string;
-  endFrames: number
-  leds: number;
-  startFrames: number,
-}
 
 export class Dotstar {
   static async create(config: Partial<DotstarConfig> = {}): Promise<Dotstar> {
@@ -30,6 +22,9 @@ export class Dotstar {
   private readonly ledSlices: Buffer[];
   readonly totalFrames: number;
   readonly bufferSize: number;
+
+  private syncing = false;
+  private closed = false;
 
   private constructor(
     private readonly spi: SPI.SPI,
@@ -70,6 +65,9 @@ export class Dotstar {
 
   private write(led: Buffer, color: number) {
     color = color > 0xffffff ? 0 : color < 0 ? 0xffffff : color;
+    // if (this.syncing) {
+    //   console.warn('writing to buffer while still syncing!');
+    // }
     led.writeUIntLE(color, 0, 3);
   }
 
@@ -81,27 +79,30 @@ export class Dotstar {
     });
   }
 
-  off() {
+  async shutdown() {
     this.setAll(0);
     this.syncing = false;
-    return this.sync();
+    await this.sync();
+    this.spi.close();
+    this.closed = true;
   }
-
-  private syncing = false;
 
   async sync(): Promise<any> {
     if (this.syncing) return;
+    if (this.closed) console.warn('attempted to sync when SPI is closed!');
     this.syncing = true;
-    return new Promise((ok, err) => {
-      this.spi.write(this.buffer, (error, data) => {
+    const bufferCopy = Buffer.from(this.buffer);
+
+    return new Promise((ok, err) =>
+      this.spi.write(bufferCopy, (error, data) => {
         this.syncing = false;
         if (error) {
           console.error(error);
           err(error);
         }
         else ok(data);
-      });
-    });
+      })
+    );
   }
 
   printBuffer(): string {

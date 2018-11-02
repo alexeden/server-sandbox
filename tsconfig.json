@@ -13,7 +13,7 @@
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "noUnusedLocals": false,
+    "noUnusedLocals": true,
     "skipLibCheck": true,
     "sourceMap": false,
     "strictNullChecks": true,
