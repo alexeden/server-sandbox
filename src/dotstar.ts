@@ -14,9 +14,16 @@ export interface DotstarConfig {
 export class Dotstar {
   static async create(config: Partial<DotstarConfig> = {}): Promise<Dotstar> {
     const spi = SPI.initialize(config.devicePath || '/dev/spidev0.0');
+
     spi.clockSpeed(Math.max(APA102C.CLK_MIN, config.clockSpeed || APA102C.CLK_MIN));
     spi.dataMode(typeof config.dataMode === 'number' ? config.dataMode : 0);
-    return new Dotstar(spi, Math.max(0, config.leds || 144), config.startFrames || 1, config.endFrames || 1);
+
+    return new Dotstar(
+      spi,
+      Math.max(0, config.leds || 144),
+      config.startFrames || 1,
+      config.endFrames || 4
+    );
   }
 
   private readonly buffer: Buffer;

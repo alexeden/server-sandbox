@@ -9,7 +9,6 @@ import { APA102C } from './apa102c';
     const dotstar = await Dotstar.create({
       devicePath: OS.type() !== 'Linux' ? '/dev/null' : undefined,
       clockSpeed: APA102C.CLK_MAX,
-      endFrames: 4,
     });
 
 
