@@ -21,24 +21,46 @@ using namespace v8;
 uv_mutex_t spiAccess;
 
 class SpiTransfer : public Nan::AsyncWorker {
+private:
+	int fd;
+	int err;
+	uint32_t speed;
+	uint8_t mode;
+	uint8_t order;
+	uint32_t readcount;
+	size_t buflen;
+	uint8_t* buffer;
+
 public:
-	SpiTransfer(Nan::Callback *cb, int fd, uint32_t speed, uint8_t mode, uint8_t order, v8::Handle<v8::Value> _writebuf, size_t readcount) :
-		Nan::AsyncWorker(cb), fd(fd), speed(speed), mode(mode), order(order), readcount(readcount)
+	SpiTransfer(
+		Nan::Callback *cb,
+		int fd,
+		uint32_t speed,
+		uint8_t mode,
+		uint8_t order,
+		v8::Handle<v8::Value> _writebuf,
+		size_t readcount
+	) : Nan::AsyncWorker(cb),
+		fd(fd),
+		speed(speed),
+		mode(mode),
+		order(order),
+		readcount(readcount)
 	{
 		size_t writelen;
 		char* writedata;
-		if (_writebuf->IsObject()) {
-			Local<Object> writebuf = _writebuf->ToObject();
+		if (_writebuf -> IsObject()) {
+			Local<Object> writebuf = _writebuf -> ToObject();
 			writelen = node::Buffer::Length(writebuf);
-			assert(writelen <= 0xffffffff /*std::numeric_limits<T>::max()*/);
+			assert(writelen <= 0xffffffff);
 			writedata = node::Buffer::Data(writebuf);
 		}
-        else {
+		else {
 			writelen = 0;
 			writedata = NULL;
 		}
 
-		buflen = (readcount > writelen) ? readcount : writelen /* std::max(readcount,writelen) */;
+		buflen = (readcount > writelen) ? readcount : writelen;
 		buffer = (uint8_t*)malloc(buflen);
 		if (writelen) memcpy(buffer, writedata, writelen);
 		if (readcount > writelen) memset(buffer+writelen, 0, readcount-writelen);
@@ -46,6 +68,7 @@ public:
 		//printf("fd: %i, speed: %u, mode: %i, order: %i\n", fd, speed, mode, order);
 		//printf("writelen: %u, readcount: %u, buflen=%u\n", (uint32_t)writelen, readcount, buflen);
 	}
+
 	~SpiTransfer() {
 		if (buffer) free(buffer);
 	}
@@ -55,26 +78,27 @@ public:
 		// http://lxr.free-electrons.com/source/include/uapi/linux/spi/spidev.h#L53
 		// https://www.kernel.org/doc/Documentation/spi/spidev
 		int ret = 0;
-	  #ifdef SPI_IOC_MESSAGE
-		uv_mutex_lock(&spiAccess);
-		ret = ioctl(fd, SPI_IOC_WR_MODE, &mode);
-		if (ret != -1) {
-			ret = ioctl(fd, SPI_IOC_WR_LSB_FIRST, &order);
+
+		#ifdef SPI_IOC_MESSAGE
+			uv_mutex_lock(&spiAccess);
+			ret = ioctl(fd, SPI_IOC_WR_MODE, &mode);
 			if (ret != -1) {
-				struct spi_ioc_transfer msg = {};
-				msg.tx_buf = (uintptr_t)buffer;
-				msg.rx_buf = (uintptr_t)buffer;
-				msg.len = buflen;
-				msg.speed_hz = speed;
-				ret = ioctl(fd, SPI_IOC_MESSAGE(1), &msg);
+				ret = ioctl(fd, SPI_IOC_WR_LSB_FIRST, &order);
+				if (ret != -1) {
+					struct spi_ioc_transfer msg = {};
+					msg.tx_buf = (uintptr_t)buffer;
+					msg.rx_buf = (uintptr_t)buffer;
+					msg.len = buflen;
+					msg.speed_hz = speed;
+					ret = ioctl(fd, SPI_IOC_MESSAGE(1), &msg);
+				}
 			}
-		}
-		uv_mutex_unlock(&spiAccess);
-	  #else
-		#ifdef __GNUC__
-		  #warning "Building without SPI support"
+			uv_mutex_unlock(&spiAccess);
 		#else
-		  #pragma message("Building without SPI support")
+		#ifdef __GNUC__
+			#warning "Building without SPI support"
+		#else
+			#pragma message("Building without SPI support")
 		#endif
 		(void)fd;
 		(void)speed;
@@ -85,7 +109,7 @@ public:
 		(void)buffer;
 		ret = -1;
 		errno = ENOSYS;
-	  #endif
+		#endif
 		err = (ret == -1) ? errno : 0;
 	}
 
@@ -98,7 +122,7 @@ public:
 			snprintf(msg, sizeof(msg), "SPI error: %s (errno %i)", strerror(err), err);
 			e = Nan::Error(msg);
 		}
-        else {
+		else {
 			e = Nan::Null();
 		}
 
@@ -107,54 +131,43 @@ public:
 			d = Nan::NewBuffer((char*)buffer, readcount).ToLocalChecked();
 			buffer = NULL;    // `d` has now taken ownership of the memory
 		}
-        else {
+		else {
 			d = Nan::Null();
 		}
 
 		Nan::TryCatch try_catch;
 		if (0 && err) {
 			Local<Value> v[] = {e};
-			callback->Call(1, v);
+			Nan::Call(*callback, 1, v);
 		}
-        else {
+		else {
 			Local<Value> v[] = {e,d};
-			callback->Call(2, v);
+			Nan::Call(*callback, 2, v);
 		}
 
 		if (try_catch.HasCaught()) {
 			Nan::FatalException(try_catch);
 		}
 	};
-
-private:
-	int fd;
-	uint32_t speed;
-	uint8_t mode;
-	uint8_t order;
-	uint32_t readcount;
-	size_t buflen;
-	uint8_t* buffer;
-
-	int err;
 };
 
 NAN_METHOD(Transfer) {
 	// (fd, speed, mode, order, writebuf, readcount, cb)
 	assert(info.Length() == 7);
-	assert(info[0]->IsNumber());
-	assert(info[1]->IsNumber());
-	assert(info[2]->IsNumber());
-	assert(info[3]->IsNumber());
-	assert(info[4]->IsNull() || node::Buffer::HasInstance(info[4]));
-	assert(info[5]->IsNumber());
-	assert(info[6]->IsFunction());
+	assert(info[0] -> IsNumber());
+	assert(info[1] -> IsNumber());
+	assert(info[2] -> IsNumber());
+	assert(info[3] -> IsNumber());
+	assert(info[4] -> IsNull() || node::Buffer::HasInstance(info[4]));
+	assert(info[5] -> IsNumber());
+	assert(info[6] -> IsFunction());
 
-	int fd = info[0]->Int32Value();
-	uint32_t speed = info[1]->Uint32Value();
-	uint8_t mode = info[2]->Uint32Value();
-	uint8_t order = info[3]->Uint32Value();
+	int fd = info[0].As<Int32>() -> Value();
+	uint32_t speed = info[1].As<Uint32>() -> Value();
+	uint8_t mode = info[2].As<Uint32>() -> Value();
+	uint8_t order = info[3].As<Uint32>() -> Value();
 	v8::Handle<v8::Value> writebuf = info[4];
-	size_t readcount = info[5]->Uint32Value();
+	size_t readcount = info[5].As<Uint32>() -> Value();
 	Nan::Callback* cb = new Nan::Callback(info[6].As<Function>());
 
 	Nan::AsyncQueueWorker(new SpiTransfer(cb, fd, speed, mode, order, writebuf, readcount));
