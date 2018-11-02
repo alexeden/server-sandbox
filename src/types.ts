@@ -1,8 +1,8 @@
-import * as SPI from 'pi-spi';
+import { Mode } from './spi';
 
 export interface DotstarConfig {
   clockSpeed: number;
-  dataMode: SPI.mode;
+  dataMode: Mode;
   devicePath: string;
   endFrames: number
   leds: number;

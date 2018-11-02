@@ -1,4 +1,4 @@
-export { mode, order } from 'pi-spi';
+export { Mode, Order } from './spi';
 export { DotstarConfig } from './types';
 export { Dotstar } from './dotstar';
 export { Colors } from './colors';
