@@ -1,17 +1,16 @@
 import { range } from 'ramda';
-import * as SPI from 'pi-spi';
+import { SPI } from './spi';
 import { DotstarConfig } from './types';
 import { APA102C } from './apa102c';
 
 export class Dotstar {
   static async create(config: Partial<DotstarConfig> = {}): Promise<Dotstar> {
-    const spi = SPI.initialize(config.devicePath || '/dev/spidev0.0');
-
-    spi.clockSpeed(Math.max(APA102C.CLK_MIN, config.clockSpeed || APA102C.CLK_MIN));
-    spi.dataMode(typeof config.dataMode === 'number' ? config.dataMode : 0);
-
     return new Dotstar(
-      spi,
+      new SPI(
+        config.devicePath || '/dev/spidev0.0',
+        Math.max(APA102C.CLK_MIN, config.clockSpeed || APA102C.CLK_MIN),
+        typeof config.dataMode === 'number' ? config.dataMode : 0
+      ),
       Math.max(0, config.leds || 144),
       config.startFrames || 1,
       config.endFrames || 4
@@ -27,7 +26,7 @@ export class Dotstar {
   private closed = false;
 
   private constructor(
-    private readonly spi: SPI.SPI,
+    private readonly spi: SPI,
     readonly leds: number,
     readonly startFrames: number,
     readonly endFrames: number
@@ -46,11 +45,11 @@ export class Dotstar {
   }
 
   get clockSpeed() {
-    return this.spi.clockSpeed();
+    return this.spi.clockSpeed;
   }
 
   get dataMode() {
-    return this.spi.dataMode();
+    return this.spi.dataMode;
   }
 
   set(color: number, ...is: number[]) {
@@ -92,17 +91,8 @@ export class Dotstar {
     if (this.closed) console.warn('attempted to sync when SPI is closed!');
     this.syncing = true;
     const bufferCopy = Buffer.from(this.buffer);
-
-    return new Promise((ok, err) =>
-      this.spi.write(bufferCopy, (error, data) => {
-        this.syncing = false;
-        if (error) {
-          console.error(error);
-          err(error);
-        }
-        else ok(data);
-      })
-    );
+    await this.spi.write(bufferCopy);
+    this.syncing = false;
   }
 
   printBuffer(): string {
