@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "chalk": "^2.4.1",
+    "gradient-string": "^1.2.0",
     "pi-spi": "^1.0.3",
     "ramda": "^0.25.0",
     "rxjs": "^6.3.3"
