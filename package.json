@@ -2,11 +2,12 @@
   "name": "dotstar-node",
   "version": "1.0.0",
   "description": "Interacting with Dotstar LEDs via Node.js",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "rimraf dist && tsc -p src",
     "dev": "nodemon -w dist -d 1 --exec \"node dist\"",
     "sync": "nodemon -w src --exec \"npm run build && node sync\"",
+    "postinstall": "npm run build",
     "test": "ts-node -P src/tsconfig.json example/server.ts"
   },
   "repository": {
@@ -20,14 +21,14 @@
   },
   "homepage": "https://github.com/alexeden/dotstar-node#readme",
   "devDependencies": {
-    "@types/node": "^8.10.36",
-    "@types/ramda": "^0.24.18",
+    "@types/node": "^10.12.2",
+    "@types/ramda": "^0.26.0",
     "nodemon": "^1.18.5",
     "rimraf": "^2.6.2",
     "rsync": "^0.6.1",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
-    "typescript": "^2.9.2"
+    "typescript": "^3.1.6"
   },
   "dependencies": {
     "chalk": "^2.4.1",
