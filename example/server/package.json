@@ -1,0 +1,20 @@
+{
+  "name": "@example/dotstar-node-server",
+  "main": "dist/index.js",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "rimraf dist && tsc -p src",
+    "postinstall": "npm run build"
+  },
+  "dependencies": {
+    "dotstar-node": "file:../..",
+    "ws": "^6.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^10.12.2",
+    "@types/ramda": "^0.26.0",
+    "nodemon": "^1.18.5",
+    "rimraf": "^2.6.2",
+    "typescript": "^3.1.6"
+  }
+}
