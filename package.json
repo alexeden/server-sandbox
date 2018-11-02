@@ -33,9 +33,7 @@
     "chalk": "^2.4.1",
     "gradient-string": "^1.2.0",
     "nan": "^2.11.1",
-    "pi-spi": "^1.0.3",
-    "ramda": "^0.25.0",
-    "rxjs": "^6.3.3"
+    "ramda": "^0.25.0"
   },
   "nodemonConfig": {
     "ext": "ts,json",
