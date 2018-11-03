@@ -5,6 +5,7 @@ import {
   MatCheckboxModule,
   MatExpansionModule,
   MatFormFieldModule,
+  MatInputModule,
 } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -16,6 +17,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     MatCheckboxModule,
     MatExpansionModule,
     MatFormFieldModule,
+    MatInputModule,
   ],
 })
 export class SharedModule { }
