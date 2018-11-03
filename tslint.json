@@ -23,6 +23,7 @@
       "spaces"
     ],
     "interface-name": [true, "never-prefix"],
+    "interface-over-type-literal": false,
     "import-spacing": true,
     "jsdoc-format": false,
     "max-classes-per-file": false,

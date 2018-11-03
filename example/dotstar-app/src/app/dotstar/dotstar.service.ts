@@ -3,9 +3,26 @@ import { Observable, Subject, BehaviorSubject, ConnectableObservable, merge } fr
 import { mapTo, map, pluck, filter, switchMap, retryWhen, takeUntil, publishReplay } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
-type DotstarMessage = any;
-type DotstarMessageWrapper = [ 'event', DotstarMessage ];
+enum DotstarMessageType {
+  Closed = 'closed',
+  Config = 'config',
+  Opened = 'opened',
+  Values = 'values',
+}
 
+interface DotstarValues {
+  values: number[];
+}
+
+interface DotstarConfig {
+  length: number;
+}
+
+type DotstarMessage
+  = { type: DotstarMessageType.Closed }
+  | { type: DotstarMessageType.Config, data: DotstarConfig }
+  | { type: DotstarMessageType.Opened }
+  | { type: DotstarMessageType.Values, data: DotstarValues };
 
 @Injectable()
 export class DotstarService {
@@ -18,23 +35,26 @@ export class DotstarService {
   socket: WebSocketSubject<DotstarMessage> | null = null;
 
   readonly message: ConnectableObservable<DotstarMessage>;
-  readonly latestSocket = new BehaviorSubject<WebSocketSubject<DotstarMessageWrapper> | null>(null);
-
-  readonly disconnected = new Subject<any>();
+  readonly latestSocket = new BehaviorSubject<WebSocketSubject<DotstarMessage> | null>(null);
+  private readonly disconnected = new Subject<any>();
+  readonly isConnected: Observable<boolean>;
 
 
   constructor(
 
   ) {
     this.message = this.url.pipe(
-      switchMap(url => {
-        const socket = webSocket<DotstarMessageWrapper>(url);
+      switchMap<string, DotstarMessage>(url => {
+        const socket = webSocket<DotstarMessage>(url);
         this.socket = socket;
 
         return socket.multiplex(
+          // On open
           () => console.log('multiplex sub!'),
+          // On close
           () => this.disconnected.next(true),
-          msg => true
+          // Message filter
+          () => true
         )
         .pipe(
           retryWhen(error => {
@@ -44,9 +64,9 @@ export class DotstarService {
           takeUntil(this.stopSocket)
         );
       }),
-      map(wrapped => wrapped[1]),
       publishReplay(500)
     ) as ConnectableObservable<DotstarMessage>;
+
 
     this.message.connect();
   }
