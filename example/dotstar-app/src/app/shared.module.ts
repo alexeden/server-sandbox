@@ -6,6 +6,7 @@ import {
   MatExpansionModule,
   MatFormFieldModule,
   MatInputModule,
+  MatSnackBarModule,
 } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -18,6 +19,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     MatExpansionModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSnackBarModule,
   ],
 })
 export class SharedModule { }

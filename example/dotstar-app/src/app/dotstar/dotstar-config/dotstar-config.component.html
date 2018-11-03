@@ -1,13 +1,13 @@
 <mat-expansion-panel>
   <!-- Header  -->
   <mat-expansion-panel-header>
-    <mat-panel-title>Socket URL</mat-panel-title>
+    <mat-panel-title>Dotstar Configuration</mat-panel-title>
   </mat-expansion-panel-header>
 
   <!-- Panel content  -->
-  <div [formGroup]="configForm">
+  <div [formGroup]="configForm" class="row gap-10">
     <mat-form-field class="grow">
-      <input matInput placeholder="socket_url" formControlName="socketUrl">
+      <input matInput placeholder="URL" formControlName="socketUrl">
     </mat-form-field>
   </div>
 
