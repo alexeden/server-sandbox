@@ -1,0 +1,26 @@
+<mat-expansion-panel>
+  <!-- Header  -->
+  <mat-expansion-panel-header>
+    <mat-panel-title>Socket URL</mat-panel-title>
+  </mat-expansion-panel-header>
+
+  <!-- Panel content  -->
+  <div [formGroup]="configForm">
+    <mat-form-field class="grow">
+      <input matInput placeholder="socket_url" formControlName="socketUrl">
+    </mat-form-field>
+    <mat-form-field class="grow">
+      <input matInput placeholder="app_id" formControlName="appId">
+    </mat-form-field>
+    <mat-form-field class="grow">
+      <input matInput placeholder="api_version" formControlName="apiVersion">
+    </mat-form-field>
+  </div>
+
+  <!-- Footer  -->
+  <mat-action-row>
+    <pre class="spacer">{{ myoUrl | async }}</pre>
+    <button mat-button color="primary" (click)="disconnect()">Disconnect</button>
+    <button mat-button color="primary" (click)="connect()">Connect</button>
+  </mat-action-row>
+</mat-expansion-panel>
