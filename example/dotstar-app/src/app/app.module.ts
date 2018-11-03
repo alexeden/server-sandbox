@@ -3,6 +3,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
 import { BrowserModule } from '@angular/platform-browser';
+import { DotstarModule } from './dotstar/dotstar.module';
 
 @NgModule({
   declarations: [
@@ -14,6 +15,7 @@ import { BrowserModule } from '@angular/platform-browser';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    DotstarModule,
   ],
 })
 export class AppModule { }
