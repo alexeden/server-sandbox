@@ -1,4 +1,4 @@
-<mat-expansion-panel>
+<mat-expansion-panel [expanded]="true">
   <!-- Header  -->
   <mat-expansion-panel-header>
     <mat-panel-title>Dotstar Configuration</mat-panel-title>
@@ -7,13 +7,15 @@
   <!-- Panel content  -->
   <div [formGroup]="configForm" class="row gap-10">
     <mat-form-field class="grow">
-      <input matInput placeholder="URL" formControlName="socketUrl">
+      <input matInput placeholder="URL" formControlName="url">
+    </mat-form-field>
+    <mat-form-field class="grow">
+      <input matInput type="number" placeholder="Length" formControlName="length" min="1" max="1024">
     </mat-form-field>
   </div>
 
   <!-- Footer  -->
   <mat-action-row>
-    <pre class="spacer">{{ myoUrl | async }}</pre>
     <button mat-button color="primary" (click)="disconnect()">Disconnect</button>
     <button mat-button color="primary" (click)="connect()">Connect</button>
   </mat-action-row>

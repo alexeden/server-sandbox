@@ -18,7 +18,8 @@ export class DotstarConfigComponent implements OnInit, OnDestroy {
     private dotstarService: DotstarService
   ) {
     this.configForm = this.fb.group({
-      socketUrl: this.fb.control('ws://127.0.0.1:10138/myo/'),
+      url: this.fb.control('ws://127.0.0.1:10138/myo/'),
+      length: this.fb.control(144),
     });
   }
 
@@ -30,8 +31,8 @@ export class DotstarConfigComponent implements OnInit, OnDestroy {
   }
 
   connect() {
-    const { socketUrl } = this.configForm.value;
-    this.dotstarService.connect(socketUrl);
+    const { url } = this.configForm.value;
+    this.dotstarService.connect(url);
   }
 
   ngOnDestroy() {
