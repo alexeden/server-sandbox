@@ -1,0 +1,16 @@
+/* You can add global styles to this file, and also import other style files */
+@import '~@angular/material/theming';
+@import "~@angular/material/prebuilt-themes/deeppurple-amber.css";
+
+@import 'variables';
+@import 'utility-class-mixins/colors';
+@import 'utility-class-mixins/elevation';
+@import 'utility-class-mixins/flexbox';
+@import 'utility-class-mixins/position';
+@import 'utility-class-mixins/spacing';
+
+@include color-utility-classes($app-color-map);
+@include elevation-utility-classes();
+@include flexbox-utility-classes($app-unit-size, $app-unit-ratios);
+@include position-utility-classes();
+@include spacing-utility-classes($app-unit-size, $app-unit-ratios, $app-direction-map);

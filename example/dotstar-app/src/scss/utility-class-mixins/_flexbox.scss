@@ -1,0 +1,83 @@
+@mixin flexbox-utility-classes(
+  $unit-size,
+  $unit-ratios
+) {
+
+  .spacer { flex: 1 1 auto !important; }
+  .no-grow { flex-grow: 0 !important; }
+  .no-shrink { flex-shrink: 0 !important; }
+  .grow { flex-grow: 1 !important; }
+  .shrink { flex-shrink: 1 !important; }
+  .wrap { flex-wrap: wrap; }
+  .no-wrap { flex-wrap: nowrap; }
+
+  $flex-directions: (
+    column:  ( column, margin-bottom ),
+    row:     ( row, margin-right ),
+    column-reverse: ( column-reverse, margin-top ),
+    row-reverse:    ( row-reverse, margin-left ),
+  );
+
+  @each $class, $props in $flex-directions {
+    $direction: nth($props, 1);
+    $margin: nth($props, 2);
+
+    .#{$class} {
+      display: flex !important;
+      flex-direction: $direction !important;
+
+      @each $size-label, $ratio in $unit-ratios {
+        $size: $ratio * $unit-size;
+
+        &.gap-#{$size-label} {
+          & > *:not(:last-child) {
+            #{$margin}: $size; // !important;
+          }
+        }
+      }
+    }
+  }
+
+  $flex-alignments: (
+    -baseline: baseline,
+    -center: center,
+    -end: flex-end,
+    -left: flex-start,
+    -right: flex-end,
+    -safe: safe,
+    -space-around: space-around,
+    -space-between: space-between,
+    -space-evenly: space-evenly,
+    -start: flex-start,
+    -stretch: stretch
+  );
+
+  @each $modifier, $value in $flex-alignments {
+    .justify#{$modifier} {
+      justify-content: $value !important;
+    }
+
+    .justify-self#{$modifier} {
+      justify-self: $value !important;
+    }
+
+    .align#{$modifier} {
+      align-items: $value !important;
+    }
+
+    .align-self#{$modifier} {
+      align-self: $value !important;
+    }
+  }
+
+  @for $x from 0 through 5 {
+    .grow-#{$x} {
+      flex-grow: $x !important;
+    }
+
+    .shrink-#{$x} {
+      flex-shrink: $x !important;
+    }
+  }
+
+}

@@ -1,0 +1,13 @@
+@mixin color-utility-classes(
+  $color-map
+) {
+  @each $name, $value in $color-map {
+    .c-#{$name} {
+      color: $value !important;
+    }
+
+    .bgc-#{$name} {
+      background-color: $value !important;
+    }
+  }
+}

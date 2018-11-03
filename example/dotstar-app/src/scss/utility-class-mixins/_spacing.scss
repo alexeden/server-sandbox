@@ -1,0 +1,23 @@
+@mixin spacing-utility-classes(
+  $unit-size,
+  $unit-ratios,
+  $direction-label-map
+) {
+  @each $size-label, $ratio in $unit-ratios {
+    $size: $ratio * $unit-size;
+
+    @each $dir-label, $dir-props in $direction-label-map {
+      .m-#{$dir-label}#{$size-label} {
+        @each $dir in $dir-props {
+          margin-#{$dir}: $size !important;
+        }
+      }
+
+      .p-#{$dir-label}#{$size-label} {
+        @each $dir in $dir-props {
+          padding-#{$dir}: $size !important;
+        }
+      }
+    }
+  }
+}

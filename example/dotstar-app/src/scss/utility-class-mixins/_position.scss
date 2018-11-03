@@ -1,0 +1,31 @@
+%zero-sides {
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+}
+
+@mixin position-utility-classes() {
+  $positions: (
+    '-absolute': absolute,
+    '-fixed': fixed,
+    '-relative': relative,
+    '-sticky': sticky,
+  );
+
+  @each $modifier, $value in $positions {
+    .pos#{$modifier} {
+      position: $value !important;
+    }
+  }
+
+  .fill-fixed {
+    @extend %zero-sides;
+    position: fixed !important;
+  }
+
+  .fill-absolute, .fill {
+    @extend %zero-sides;
+    position: absolute !important;
+  }
+}

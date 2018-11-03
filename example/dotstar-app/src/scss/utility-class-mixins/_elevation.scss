@@ -1,0 +1,11 @@
+@import '~@angular/material/theming';
+
+@mixin elevation-utility-classes(
+  $depth: 24
+) {
+  @for $x from 0 through $depth {
+    .elevation-#{$x} {
+      @include mat-elevation($x);
+    }
+  }
+}

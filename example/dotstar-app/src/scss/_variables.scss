@@ -1,0 +1,56 @@
+$app-unit-size: 1rem;
+
+$app-unit-ratios: (
+  0: 0,
+  2: .2,
+  5: .5,
+  10: 1,
+  20: 2,
+  30: 3,
+  40: 4,
+  60: 6,
+  100: 10
+);
+
+$app-direction-map: (
+  '': left right top bottom,
+  'l-': left,
+  'r-': right,
+  't-': top,
+  'b-': bottom,
+  'x-': left right,
+  'y-': top bottom,
+);
+
+
+$black: #000000;
+$white: #ffffff;
+$gray-darkest: #212121 !default;
+$gray-dark: #161313 !default;
+$gray: #424242 !default;
+$gray-light: #636c72 !default;
+$gray-lighter: #dcdedf !default;
+$gray-lightest: #f7f7f9 !default;
+$black7: rgba($black, .07) !default;
+$black14: rgba($black, .14) !default;
+$black12: rgba($black, .12) !default;
+$black20: rgba($black, .2) !default;
+$black30: rgba($black, .3) !default;
+$white14: rgba($white, .14) !default;
+$white12: rgba($white, .12) !default;
+$white20: rgba($white, .2) !default;
+$white30: rgba($white, .3) !default;
+
+$pink: #ff006a;
+$green: #76ff03;
+$red: #ff2b35;;
+$blue: #00e4ff;
+
+$app-color-map: (
+  'white': $white,
+  'black': $black,
+  'pink': $pink,
+  'green': $green,
+  'blue': $blue,
+  'red': $red,
+);
