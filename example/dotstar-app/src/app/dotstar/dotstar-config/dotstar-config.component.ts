@@ -3,6 +3,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DotstarSocketService } from '../dotstar-socket.service';
 import { DotstarConstants } from '../lib';
 import { FormGroup, FormBuilder } from '@angular/forms';
+import { takeUntil, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'dotstar-config',
@@ -20,11 +21,27 @@ export class DotstarConfigComponent implements OnInit, OnDestroy {
   ) {
     this.configForm = this.fb.group({
       url: this.fb.control(DotstarConstants.url),
+      devicePath: this.fb.control(DotstarConstants.devicePath),
       length: this.fb.control(144),
     });
   }
 
+  get connectionUrl() {
+    const { url, ...params } = this.configForm.value;
+    const query = Object.entries(params || {}).map(([k, v]) => `${k}=${v}`).join('&');
+    return `${url}?${query}`;
+  }
+
   ngOnInit() {
+    this.dotstarService.connected.pipe(
+      takeUntil(this.unsubscribe$),
+      tap(connected =>
+        connected
+        ? this.configForm.disable()
+        : this.configForm.enable()
+      )
+    )
+    .subscribe();
   }
 
   disconnect() {
@@ -32,8 +49,7 @@ export class DotstarConfigComponent implements OnInit, OnDestroy {
   }
 
   connect() {
-    const { url } = this.configForm.value;
-    this.dotstarService.connect(url);
+    this.dotstarService.connect(this.connectionUrl);
   }
 
   ngOnDestroy() {

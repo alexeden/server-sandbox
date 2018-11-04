@@ -10,12 +10,16 @@
       <input matInput placeholder="URL" formControlName="url">
     </mat-form-field>
     <mat-form-field class="grow">
+      <input matInput placeholder="Device Path" formControlName="devicePath">
+    </mat-form-field>
+    <mat-form-field class="grow">
       <input matInput type="number" placeholder="Length" formControlName="length" min="1" max="1024">
     </mat-form-field>
   </div>
 
   <!-- Footer  -->
-  <mat-action-row>
+  <mat-action-row class="row gap-10">
+    <pre class="grow">{{ connectionUrl }}</pre>
     <button mat-button color="primary" *ngIf="dotstarService.connected | async" (click)="disconnect()">Disconnect</button>
     <button mat-raised-button color="primary" *ngIf="!(dotstarService.connected | async)" (click)="connect()">Connect</button>
   </mat-action-row>
