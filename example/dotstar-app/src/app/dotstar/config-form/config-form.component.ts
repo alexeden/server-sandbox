@@ -8,11 +8,11 @@ import { DotstarSocketService } from '../dotstar-socket.service';
 import { DotstarConfigService } from '../dotstar-config.service';
 
 @Component({
-  selector: 'dotstar-config',
-  templateUrl: './dotstar-config.component.html',
-  styleUrls: ['./dotstar-config.component.scss'],
+  selector: 'dotstar-config-form',
+  templateUrl: './config-form.component.html',
+  styleUrls: ['./config-form.component.scss'],
 })
-export class DotstarConfigComponent implements OnInit, OnDestroy {
+export class DotstarConfigFormComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
 
   readonly configForm: FormGroup;

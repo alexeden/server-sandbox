@@ -38,7 +38,7 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.space.setup({
-      bgcolor: '#ffffff',
+      bgcolor: '#fafafa',
       resize: true,
       retina: true,
     });
