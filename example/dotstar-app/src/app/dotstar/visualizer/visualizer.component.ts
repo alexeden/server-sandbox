@@ -1,15 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef } from '@angular/core';
+import { CanvasSpace } from 'pts';
 
 @Component({
   selector: 'dotstar-visualizer',
-  templateUrl: './visualizer.component.html',
+  // templateUrl: './visualizer.component.html',
+  template: '',
   styleUrls: ['./visualizer.component.scss'],
 })
 export class DotstarVisualizerComponent implements OnInit {
-
-  constructor() { }
+  readonly space: CanvasSpace;
+  constructor(
+    readonly elRef: ElementRef
+  ) {
+    console.log(this.elRef.nativeElement);
+    this.space = new CanvasSpace(this.elRef.nativeElement);
+  }
 
   ngOnInit() {
+    this.space.setup({
+      bgcolor: '#ffffff',
+      resize: true,
+      retina: true,
+    });
   }
 
 }
