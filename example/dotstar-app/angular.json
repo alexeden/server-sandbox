@@ -80,7 +80,13 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "dotstar-app:build"
+            "browserTarget": "dotstar-app:build",
+            "port": 4200,
+            "host": "0.0.0.0",
+            "ssl": true,
+            "sslKey": "server.key",
+            "sslCert": "server.crt",
+            "proxyConfig": "proxy.config.json"
           },
           "configurations": {
             "production": {
