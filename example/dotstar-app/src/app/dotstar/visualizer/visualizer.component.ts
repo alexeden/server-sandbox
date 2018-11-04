@@ -11,7 +11,7 @@ enum Colors {
 
 @Component({
   selector: 'dotstar-visualizer',
-  template: '',
+  templateUrl: './visualizer.component.html',
   styleUrls: ['./visualizer.component.scss'],
 })
 export class DotstarVisualizerComponent implements OnInit, OnDestroy {
@@ -67,7 +67,7 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
           b: distribution.clone(),
         };
       },
-      animate: () => {
+      animate: t => {
         const pointer = this.space.pointer;
         // const pointerMag = pointer.magnitude();
         // const redPoints = points.r.map((p: Pt) => {
@@ -82,7 +82,7 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       },
     });
 
-    this.space.bindMouse().play();
+    this.space.bindMouse().play(1000);
 
   }
 
