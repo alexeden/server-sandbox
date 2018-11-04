@@ -2,7 +2,8 @@ import { Subject } from 'rxjs';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DotstarSocketService } from '../dotstar-socket.service';
 import { DotstarConstants } from '../lib';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { APA102C } from 'dotstar-node/dist/apa102c';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { takeUntil, tap } from 'rxjs/operators';
 
 @Component({
@@ -23,6 +24,12 @@ export class DotstarConfigComponent implements OnInit, OnDestroy {
       url: this.fb.control(DotstarConstants.url),
       devicePath: this.fb.control(DotstarConstants.devicePath),
       length: this.fb.control(144),
+      clockSpeed: this.fb.control(APA102C.CLK_MAX, [
+        Validators.min(APA102C.CLK_MIN),
+        Validators.max(APA102C.CLK_MAX),
+      ]),
+      startFrames: this.fb.control(1),
+      endFrames: this.fb.control(4),
     });
   }
 
