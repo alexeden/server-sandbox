@@ -2,9 +2,10 @@ import { range } from 'ramda';
 import { SPI } from './spi';
 import { DotstarConfig } from './types';
 import { APA102C } from './apa102c';
+import * as gradientString from 'gradient-string';
 
 export class Dotstar {
-  static async create(config: Partial<DotstarConfig> = {}): Promise<Dotstar> {
+  static create(config: Partial<DotstarConfig> = {}): Dotstar {
     return new Dotstar(
       new SPI(
         config.devicePath || '/dev/spidev0.0',
@@ -21,8 +22,6 @@ export class Dotstar {
   private readonly ledSlices: Buffer[];
   readonly totalFrames: number;
   readonly bufferSize: number;
-
-  private syncing = false;
   private closed = false;
 
   private constructor(
@@ -44,12 +43,31 @@ export class Dotstar {
       .map(offset => this.buffer.slice(offset + 1, offset + 4));
   }
 
+  private write(led: Buffer, color: number) {
+    color = color > 0xffffff ? 0 : color < 0 ? 0xffffff : color;
+    led.writeUIntLE(color, 0, 3);
+  }
+
+  get devicePath(): string {
+    return this.spi.devicePath;
+  }
+
   get clockSpeed() {
     return this.spi.clockSpeed;
   }
 
   get dataMode() {
     return this.spi.dataMode;
+  }
+
+  apply(fn: (color: number, index: number) => number) {
+    this.ledSlices.forEach((led, i) => {
+      this.write(led, fn(led.readUIntBE(0, 3), i));
+    });
+  }
+
+  read(): number[] {
+    return this.ledSlices.map(led => led.readUIntBE(0, 3));
   }
 
   set(color: number, ...is: number[]) {
@@ -62,52 +80,20 @@ export class Dotstar {
     this.ledSlices.forEach(slice => this.write(slice, color));
   }
 
-  private write(led: Buffer, color: number) {
-    color = color > 0xffffff ? 0 : color < 0 ? 0xffffff : color;
-    // if (this.syncing) {
-    //   console.warn('writing to buffer while still syncing!');
-    // }
-    led.writeUIntLE(color, 0, 3);
-  }
-
-  apply(fn: (color: number, index: number) => number) {
-    this.ledSlices.forEach((led, i) => {
-      const color = led.readUIntBE(0, 3);
-      const newColor = fn(color, i);
-      this.write(led, newColor);
-    });
-  }
-
   async shutdown() {
     this.setAll(0);
-    this.syncing = false;
     await this.sync();
     this.spi.close();
     this.closed = true;
   }
 
   async sync(): Promise<any> {
-    if (this.syncing) return;
     if (this.closed) console.warn('attempted to sync when SPI is closed!');
-    this.syncing = true;
-    const bufferCopy = Buffer.from(this.buffer);
-    await this.spi.write(bufferCopy);
-    this.syncing = false;
+    await this.spi.write(this.buffer);
   }
 
   printBuffer(): string {
-    const segments: string[] = [];
-    let segment: string[] = [];
-
-    for (let i = 0; i <= this.bufferSize; i++) {
-      if (i > 0 && i % 4 === 0) {
-        segments.push(segment.join('\t'));
-        segment = [];
-      }
-
-      segment.push(`0x${this.buffer.slice(i, i + 1).toString('hex')}`);
-    }
-
-    return segments.join('\n');
+    const gradientGen = gradientString(this.read());
+    return gradientGen(range(0, this.leds).map(() => '✹').join(''));
   }
 }

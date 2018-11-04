@@ -17,12 +17,12 @@ export class SPI {
   private fd: number;
 
   constructor(
-    readonly path: string,
+    readonly devicePath: string,
     readonly clockSpeed: number = 4e6,
     readonly dataMode: Mode = 0,
     readonly bitOrder: Order = Order.MSB_FIRST
   ) {
-    this.fd = fs.openSync(this.path, 'r+');
+    this.fd = fs.openSync(this.devicePath, 'r+');
   }
 
   private async ffiTransfer(w: Buffer | null, readCount: number) {
