@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "build": "rimraf dist && tsc -p src",
-    "start": "nodemon -w src --exec \"npm run build && node dist\"",
+    "start": "nodemon -w src/ --exec \"rimraf dist && tsc -p src && node dist\"",
     "dev": "nodemon -w dist --delay 1 --exec \"node dist\"",
     "postinstall": "npm run build"
   },

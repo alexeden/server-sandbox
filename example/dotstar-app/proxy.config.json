@@ -1,5 +1,10 @@
 {
   "/api": {
-    "target": "http://0.0.0.0:4000"
+    "target": "wss://0.0.0.0:4000",
+    "secure": false,
+    "ws": true,
+    "pathRewrite": {
+      "^/api": ""
+    }
   }
 }
