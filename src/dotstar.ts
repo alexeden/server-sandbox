@@ -12,7 +12,7 @@ export class Dotstar {
         Math.max(APA102C.CLK_MIN, config.clockSpeed || APA102C.CLK_MIN),
         typeof config.dataMode === 'number' ? config.dataMode : 0
       ),
-      Math.max(0, config.leds || 144),
+      Math.max(0, config.length || 144),
       config.startFrames || 1,
       config.endFrames || 4
     );
@@ -26,19 +26,19 @@ export class Dotstar {
 
   private constructor(
     private readonly spi: SPI,
-    readonly leds: number,
+    readonly length: number,
     readonly startFrames: number,
     readonly endFrames: number
   ) {
-    this.totalFrames = this.leds + this.startFrames + this.endFrames;
+    this.totalFrames = this.length + this.startFrames + this.endFrames;
     this.bufferSize = APA102C.FRAME_SIZE * this.totalFrames;
     this.buffer = Buffer.concat([
       ...range(0, this.startFrames).map(APA102C.startFrame),
-      ...range(0, this.leds).map(APA102C.ledFrame),
+      ...range(0, this.length).map(APA102C.ledFrame),
       ...range(0, this.endFrames).map(APA102C.startFrame),
     ]);
 
-    this.ledSlices = range(0, this.leds)
+    this.ledSlices = range(0, this.length)
       .map(i => (i + this.startFrames) * APA102C.FRAME_SIZE)
       .map(offset => this.buffer.slice(offset + 1, offset + 4));
   }
@@ -71,7 +71,7 @@ export class Dotstar {
   }
 
   set(color: number, ...is: number[]) {
-    is.filter(i => i >= 0 && i < this.leds).forEach(i => {
+    is.filter(i => i >= 0 && i < this.length).forEach(i => {
       this.write(this.ledSlices[i], color);
     });
   }
@@ -94,6 +94,6 @@ export class Dotstar {
 
   printBuffer(): string {
     const gradientGen = gradientString(this.read());
-    return gradientGen(range(0, this.leds).map(() => '✹').join(''));
+    return gradientGen(range(0, this.length).map(() => '✹').join(''));
   }
 }

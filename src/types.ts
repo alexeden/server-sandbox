@@ -5,6 +5,6 @@ export interface DotstarConfig {
   dataMode: Mode;
   devicePath: string;
   endFrames: number;
-  leds: number;
+  length: number;
   startFrames: number;
 }
