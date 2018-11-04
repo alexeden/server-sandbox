@@ -23,6 +23,9 @@ wss.on('connection', socket => {
   console.log('got a connection!');
   liveClients.add(socket);
   socket.on('pong', liveClients.add.bind(liveClients, socket));
+  socket.on('close', (code, reason) => {
+    console.log(`Socket was closed with code ${code} and reason: `, reason);
+  });
 });
 
 setInterval(

@@ -16,7 +16,7 @@
 
   <!-- Footer  -->
   <mat-action-row>
-    <button mat-button color="primary" (click)="disconnect()">Disconnect</button>
-    <button mat-raised-button color="primary" (click)="connect()">Connect</button>
+    <button mat-button color="primary" *ngIf="dotstarService.connected | async" (click)="disconnect()">Disconnect</button>
+    <button mat-raised-button color="primary" *ngIf="!(dotstarService.connected | async)" (click)="connect()">Connect</button>
   </mat-action-row>
 </mat-expansion-panel>

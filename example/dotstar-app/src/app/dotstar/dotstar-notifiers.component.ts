@@ -1,4 +1,4 @@
-import { switchMap, map } from 'rxjs/operators';
+import { switchMap, map, skip } from 'rxjs/operators';
 import { Component } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
 import { DotstarService } from './dotstar.service';
@@ -22,50 +22,22 @@ export class DotstarSocketNotifierComponent {
       switchMap(ref => ref.onAction())
     )
     .subscribe(() => this.dotstar.retryConnect());
+
+    this.dotstar.connected.pipe(
+      skip(1),
+      map(connected =>
+        connected
+        ? this.snackBar.open(`Connected to Dotstar`, '', {
+            panelClass: ['bgc-green', 'c-black'],
+            duration: 3000,
+          })
+        : this.snackBar.open(`Connection closed`, 'Reconnect', {
+            panelClass: ['bgc-red', 'c-white'],
+            duration: 3000,
+          })
+      ),
+      switchMap(ref => ref.onAction())
+    )
+    .subscribe(() => this.dotstar.connect());
   }
 }
-
-// @Component({
-//   selector: 'ape-dotstar-paired-notifier',
-//   template: '',
-// })
-// export class MyoPairedNotifierComponent {
-//   constructor(
-//     private snackBar: MatSnackBar,
-//     private dotstar: DotstarService
-//   ) {
-//     this.dotstar.demuxed.paired.pipe(
-//       map(error =>
-//         this.snackBar.open(`Device has been paired`, '', {
-//           panelClass: ['bgc-blue', 'c-white'],
-//           // verticalPosition: 'top',
-//           duration: 3000,
-//         })
-//       )
-//     )
-//     .subscribe(); // () => this.dotstar.retryConnect());
-//   }
-// }
-
-// @Component({
-//   selector: 'ape-dotstar-disconnected-notifier',
-//   template: '',
-// })
-// export class MyoDisconnectedNotifierComponent {
-//   constructor(
-//     private snackBar: MatSnackBar,
-//     private dotstar: DotstarService
-//   ) {
-//     this.dotstar.disconnected.pipe(
-//       map(() =>
-//         this.snackBar.open(`Device was disconnected`, 'Reconnect', {
-//           panelClass: ['bgc-blue', 'c-white'],
-//           // verticalPosition: 'top',
-//           duration: 3000,
-//         })
-//       ),
-//       switchMap(ref => ref.onAction())
-//     )
-//     .subscribe(() => this.dotstar.connect());
-//   }
-// }

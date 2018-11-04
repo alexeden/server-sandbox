@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, Subject, BehaviorSubject, ConnectableObservable, merge } from 'rxjs';
 import { mapTo, map, pluck, filter, switchMap, retryWhen, takeUntil, publishReplay } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import { DotstarConstants } from './lib';
 
 enum DotstarMessageType {
   Closed = 'closed',
@@ -35,14 +36,12 @@ export class DotstarService {
   socket: WebSocketSubject<DotstarMessage> | null = null;
 
   readonly message: ConnectableObservable<DotstarMessage>;
-  readonly latestSocket = new BehaviorSubject<WebSocketSubject<DotstarMessage> | null>(null);
-  private readonly disconnected = new Subject<any>();
-  readonly isConnected: Observable<boolean>;
-
+  readonly connected = new BehaviorSubject<boolean>(false);
 
   constructor(
 
   ) {
+    (window as any).dotstar = this;
     this.message = this.url.pipe(
       switchMap<string, DotstarMessage>(url => {
         const socket = webSocket<DotstarMessage>(url);
@@ -50,9 +49,9 @@ export class DotstarService {
 
         return socket.multiplex(
           // On open
-          () => console.log('multiplex sub!'),
+          () => this.connected.next(true),
           // On close
-          () => this.disconnected.next(true),
+          () => this.connected.next(false),
           // Message filter
           () => true
         )
@@ -64,7 +63,7 @@ export class DotstarService {
           takeUntil(this.stopSocket)
         );
       }),
-      publishReplay(500)
+      publishReplay(1)
     ) as ConnectableObservable<DotstarMessage>;
 
 
@@ -76,8 +75,10 @@ export class DotstarService {
     this.stopSocket.next('disconnect!');
   }
 
-  connect(url = 'ws://127.0.0.1:10138/myo/3?appid=com.myo.ape') {
-    this.url.next(url);
+  connect(url = DotstarConstants.url) {
+    if (!this.connected.getValue()) {
+      this.url.next(url);
+    }
   }
 
   retryConnect() {

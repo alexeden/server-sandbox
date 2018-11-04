@@ -1,6 +1,7 @@
 import { Subject } from 'rxjs';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DotstarService } from '../dotstar.service';
+import { DotstarConstants } from '../lib';
 import { FormGroup, FormBuilder } from '@angular/forms';
 
 @Component({
@@ -18,7 +19,7 @@ export class DotstarConfigComponent implements OnInit, OnDestroy {
     private dotstarService: DotstarService
   ) {
     this.configForm = this.fb.group({
-      url: this.fb.control('ws://127.0.0.1:10138/myo/'),
+      url: this.fb.control(DotstarConstants.url),
       length: this.fb.control(144),
     });
   }
