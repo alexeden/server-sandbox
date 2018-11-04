@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 
 import { SharedModule } from '@app/shared.module';
-import { DotstarService } from './dotstar.service';
+import { DotstarSocketService } from './dotstar-socket.service';
 import { DotstarMainComponent } from './dotstar-main.component';
 import { DotstarConfigComponent } from './dotstar-config/dotstar-config.component';
 import { DotstarSocketNotifierComponent } from './dotstar-notifiers.component';
@@ -19,7 +19,7 @@ import { DotstarSocketNotifierComponent } from './dotstar-notifiers.component';
     DotstarMainComponent,
   ],
   providers: [
-    DotstarService,
+    DotstarSocketService,
   ],
 })
 export class DotstarModule { }

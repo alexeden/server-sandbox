@@ -26,7 +26,7 @@ type DotstarMessage
   | { type: DotstarMessageType.Values, data: DotstarValues };
 
 @Injectable()
-export class DotstarService {
+export class DotstarSocketService {
   private readonly url = new Subject<string>();
   private readonly stopSocket = new Subject<any>();
   private readonly retrySocket = new Subject<any>();

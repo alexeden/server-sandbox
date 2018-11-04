@@ -1,7 +1,7 @@
 import { switchMap, map, skip } from 'rxjs/operators';
 import { Component } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
-import { DotstarService } from './dotstar.service';
+import { DotstarSocketService } from './dotstar-socket.service';
 
 @Component({
   selector: 'dotstar-socket-notifier',
@@ -10,7 +10,7 @@ import { DotstarService } from './dotstar.service';
 export class DotstarSocketNotifierComponent {
   constructor(
     private snackBar: MatSnackBar,
-    private dotstar: DotstarService
+    private dotstar: DotstarSocketService
   ) {
     this.dotstar.socketError.pipe(
       map(error =>
