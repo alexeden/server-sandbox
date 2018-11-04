@@ -44,32 +44,45 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
     });
 
     let points: any;
+    let temp: any;
 
     this.space.add({
       start: (bound, space) => {
+        const distribution = Create.distributeLinear(
+          [
+            new Pt(this.space.width * 0.02, this.space.height - 10),
+            new Pt(this.space.width * 0.98, this.space.height - 10),
+          ],
+          144
+        );
+
         points = {
-          r: Create.distributeLinear(
-            [ new Pt(this.space.width * 0.02, 10), new Pt(this.space.width * 0.98, this.space.center.y) ],
-            144
-          ),
-          g: Create.distributeLinear(
-            [ new Pt(this.space.width * 0.02, this.space.height - 30), new Pt(this.space.width * 0.98, 50) ],
-            144
-          ),
-          b: Create.distributeLinear(
-            [ new Pt(this.space.width * 0.02, this.space.center.y + 20), new Pt(this.space.width * 0.98, this.space.center.y) ],
-            144
-          ),
+          r: distribution.clone(),
+          g: distribution.clone(),
+          b: distribution.clone(),
+        };
+        temp = {
+          r: distribution.clone(),
+          g: distribution.clone(),
+          b: distribution.clone(),
         };
       },
       animate: () => {
+        const pointer = this.space.pointer;
+        // const pointerMag = pointer.magnitude();
+        // const redPoints = points.r.map((p: Pt) => {
+        //   // const mag =
+        //   return p.$to({ y: p.y - })
+        // });
+
         this.form.fill(Colors.Red).stroke(false).points(points.r, 3, 'circle');
         this.form.fill(Colors.Green).stroke(false).points(points.g, 3, 'circle');
         this.form.fill(Colors.Blue).stroke(false).points(points.b, 3, 'circle');
+        this.form.fill('#333').stroke(false).point(pointer, 5, 'square');
       },
     });
 
-    this.space.playOnce();
+    this.space.bindMouse().play();
 
   }
 
