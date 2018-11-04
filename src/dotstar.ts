@@ -93,7 +93,9 @@ export class Dotstar {
   }
 
   printBuffer(): string {
-    const gradientGen = gradientString(this.read());
+    const gradientGen = this.length < 2
+      ? gradientString([...this.read(), ...this.read()])
+      : gradientString(this.read());
     return gradientGen(range(0, this.length).map(() => '✹').join(''));
   }
 }
