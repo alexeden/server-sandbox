@@ -3,6 +3,8 @@ import { Observable, Subject, BehaviorSubject, ConnectableObservable, merge } fr
 import { mapTo, map, pluck, filter, switchMap, retryWhen, takeUntil, publishReplay } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { DotstarConstants } from './lib';
+import { DotstarConfig } from 'dotstar-node/dist/types';
+
 
 enum DotstarMessageType {
   Closed = 'closed',
@@ -13,10 +15,6 @@ enum DotstarMessageType {
 
 interface DotstarValues {
   values: number[];
-}
-
-interface DotstarConfig {
-  length: number;
 }
 
 type DotstarMessage
@@ -38,9 +36,7 @@ export class DotstarSocketService {
   readonly message: ConnectableObservable<DotstarMessage>;
   readonly connected = new BehaviorSubject<boolean>(false);
 
-  constructor(
-
-  ) {
+  constructor() {
     (window as any).dotstar = this;
     this.message = this.url.pipe(
       switchMap<string, DotstarMessage>(url => {
