@@ -4,6 +4,7 @@ import { mapTo, map, pluck, filter, switchMap, retryWhen, takeUntil, publishRepl
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { DotstarConstants } from './lib';
 import { DotstarConfig } from 'dotstar-node/dist/types';
+import { DotstarConfigService } from './dotstar-config.service';
 
 
 enum DotstarMessageType {
@@ -36,7 +37,9 @@ export class DotstarSocketService {
   readonly message: ConnectableObservable<DotstarMessage>;
   readonly connected = new BehaviorSubject<boolean>(false);
 
-  constructor() {
+  constructor(
+    private configService: DotstarConfigService
+  ) {
     (window as any).dotstar = this;
     this.message = this.url.pipe(
       switchMap<string, DotstarMessage>(url => {
@@ -62,10 +65,8 @@ export class DotstarSocketService {
       publishReplay(1)
     ) as ConnectableObservable<DotstarMessage>;
 
-
     this.message.connect();
   }
-
 
   disconnect() {
     this.stopSocket.next('disconnect!');
@@ -73,12 +74,12 @@ export class DotstarSocketService {
 
   connect(url = DotstarConstants.url) {
     if (!this.connected.getValue()) {
-      this.url.next(url);
+      const query = this.configService.getConnectionQuery();
+      this.url.next(`${url}${query}`);
     }
   }
 
   retryConnect() {
     this.retrySocket.next('retrying');
   }
-
 }

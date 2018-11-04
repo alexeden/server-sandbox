@@ -27,4 +27,10 @@ export class DotstarConfigService {
       ...config,
     });
   }
+
+  getConnectionQuery() {
+    const config = this.deviceConfig$.getValue();
+    const query = Object.entries(config).map(([k, v]) => `${k}=${v}`).join('&');
+    return `?${query}`;
+  }
 }

@@ -28,14 +28,18 @@
         <input matInput type="number" placeholder="Clock Speed" formControlName="clockSpeed">
       </mat-form-field>
     </div>
-    <div class="row">
-      <code class="c-gray-light" style="word-break: break-word">{{ connectionUrl }}</code>
-    </div>
   </div>
 
   <!-- Footer  -->
   <mat-action-row>
     <button mat-button color="primary" *ngIf="dotstarService.connected | async" (click)="disconnect()">Disconnect</button>
-    <button mat-raised-button color="primary" *ngIf="!(dotstarService.connected | async)" (click)="connect()">Connect</button>
+    <button
+      mat-raised-button
+      color="primary"
+      *ngIf="!(dotstarService.connected | async)"
+      [disabled]="!configForm.valid"
+      (click)="connect()">
+      Connect
+    </button>
   </mat-action-row>
 </mat-expansion-panel>

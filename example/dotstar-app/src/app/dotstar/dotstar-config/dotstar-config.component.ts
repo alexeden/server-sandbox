@@ -1,10 +1,11 @@
-import { Subject } from 'rxjs';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { DotstarSocketService } from '../dotstar-socket.service';
-import { DotstarConstants } from '../lib';
-import { APA102C } from 'dotstar-node/dist/apa102c';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { takeUntil, tap } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { takeUntil, tap, filter } from 'rxjs/operators';
+import { APA102C } from 'dotstar-node/dist/apa102c';
+import { DotstarConstants } from '../lib';
+import { DotstarSocketService } from '../dotstar-socket.service';
+import { DotstarConfigService } from '../dotstar-config.service';
 
 @Component({
   selector: 'dotstar-config',
@@ -18,6 +19,7 @@ export class DotstarConfigComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
+    private configService: DotstarConfigService,
     private dotstarService: DotstarSocketService
   ) {
     this.configForm = this.fb.group({
@@ -40,13 +42,16 @@ export class DotstarConfigComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.configForm.valueChanges.pipe(
+      takeUntil(this.unsubscribe$),
+      filter(() => this.configForm.valid),
+      tap(config => this.configService.updateConfig(config))
+    )
+    .subscribe();
+
     this.dotstarService.connected.pipe(
       takeUntil(this.unsubscribe$),
-      tap(connected =>
-        connected
-        ? this.configForm.disable()
-        : this.configForm.enable()
-      )
+      tap(connected => connected ? this.configForm.disable() : this.configForm.enable())
     )
     .subscribe();
   }
@@ -56,7 +61,7 @@ export class DotstarConfigComponent implements OnInit, OnDestroy {
   }
 
   connect() {
-    this.dotstarService.connect(this.connectionUrl);
+    this.dotstarService.connect(this.configForm.get('url').value);
   }
 
   ngOnDestroy() {
