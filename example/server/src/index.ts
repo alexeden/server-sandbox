@@ -46,10 +46,8 @@ wss.on('connection', (socket, req) => {
   socket.on('close', async (code, reason) => {
     console.log(`Socket was closed with code ${code} and reason: `, reason);
     if (wss.clients.size < 1) {
-
       dotstar && dotstar.setAll(0);
       dotstar = null;
-      console.log('no clients left');
     }
   });
 });
