@@ -1,8 +1,9 @@
 // import { Dotstar, Colors, APA102C } from 'dotstar-node';
 // import * as OS from 'os';
 // import chalk from 'chalk';
-
+import * as http from 'http';
 import * as fs from 'fs';
+import * as net from 'net';
 import * as https from 'https';
 import * as path from 'path';
 import * as websockets from 'ws';
@@ -14,8 +15,6 @@ const httpsServerOptions: https.ServerOptions = {
 };
 
 const app = express();
-const server = https.createServer(httpsServerOptions, app);
-const wss = new websockets.Server({ server });
 
 app.all('*', () => {
   console.log('gotta get request!');
@@ -24,14 +23,24 @@ app.all('*', () => {
   };
 });
 
+const httpsServer = https.createServer(httpsServerOptions, app);
+const wssServer = new websockets.Server({ noServer: true });
 
-
-wss.on('connection', socket => {
+wssServer.on('connection', socket => {
   console.log('got a connection!');
 });
 
+httpsServer.on('upgrade', (request: http.IncomingMessage, socket: net.Socket, head: Buffer) => {
+  // const pathname = url.parse(request.url!).pathname;
+  wssServer.handleUpgrade(request, socket, head, clientSocket => {
+    wssServer.emit('connection', clientSocket, request);
+  });
+});
 
-server.listen(4000, '0.0.0.0', () => console.log('listening on port 4000'));
+
+httpsServer.listen(4000, '0.0.0.0', () => console.log('listening on port 4000'));
+
+
 // export const videoWsServer = new ws.Server({ noServer: true });
 // export const rcWsServer = new ws.Server({ noServer: true });
 // export const stateWsServer = new ws.Server({ noServer: true });
