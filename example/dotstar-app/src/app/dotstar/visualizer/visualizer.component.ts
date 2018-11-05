@@ -1,17 +1,15 @@
 import { Component, OnInit, ElementRef, HostBinding, Renderer2, OnDestroy } from '@angular/core';
+import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
+import { takeUntil, map } from 'rxjs/operators';
 import { CanvasSpace, Create, Pt, CanvasForm, Num, Color, Bound, Group } from 'pts';
 import { DotstarConfigService } from '../dotstar-config.service';
-import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
-import { AnimationFunctions } from '../animation-form/types';
-import { takeUntil, map } from 'rxjs/operators';
-import { range, Channels } from '../lib';
+import { range, Channels, ChannelAnimationFns } from '../lib';
 
 enum Colors {
   Red = '#ff2b35',
   Green = '#76ff03',
   Blue = '#00e4ff',
 }
-
 
 @Component({
   selector: 'dotstar-visualizer',
@@ -20,7 +18,7 @@ enum Colors {
 })
 export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
-  private readonly animators = new Subject<AnimationFunctions>();
+  private readonly animators = new Subject<ChannelAnimationFns>();
   private readonly clock = new Subject<number>();
   private readonly bounds = new BehaviorSubject<Bound>(new Bound());
   private readonly channelGroups: Observable<Record<Channels, Group>>;
@@ -64,56 +62,33 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       retina: true,
     });
 
-    combineLatest(
-      this.clock,
-      this.animators,
-      this.configService.length.pipe(
-        map(length => range(0, length).fill(0))
-      )
-    ).pipe(
+    combineLatest(this.clock, this.animators, this.channelGroups).pipe(
       takeUntil(this.unsubscribe$),
-      map(([t, { r, g, b }, buffer]) => {
-
+      map(([t, fns, { r, g, b }]) => {
+        return {
+          r: r.map((pt, i) => pt.to([ pt.x, fns.r(t, i, r.length) ])),
+          g: g.map((pt, i) => pt.to([ pt.x, fns.g(t, i, r.length) ])),
+          b: b.map((pt, i) => pt.to([ pt.x, fns.b(t, i, r.length) ])),
+        };
       })
     )
-    .subscribe();
-
-    let points: any;
+    .subscribe(({ r, g, b }) => {
+      (window as any).r = r;
+      this.form.fill(Colors.Red).stroke(false).points(r, 3, 'circle');
+      this.form.fill(Colors.Green).stroke(false).points(g, 3, 'circle');
+      this.form.fill(Colors.Blue).stroke(false).points(b, 3, 'circle');
+    });
 
     this.space.add({
-      start: (bounds, space) => {
-        this.bounds.next(bounds);
-        const distribution = Create.distributeLinear(
-          [
-            new Pt(this.space.width * 0.02, this.space.height - 10),
-            new Pt(this.space.width * 0.98, this.space.height - 10),
-          ],
-          144
-        );
-
-        points = {
-          r: distribution.clone(),
-          g: distribution.clone(),
-          b: distribution.clone(),
-        };
-      },
-      animate: t => {
-        const pointer = this.space.pointer;
-        const w = Num.cycle((t % 1000) / 1000);
-        points.r.forEach(pt => pt.y = w * this.space.height);
-
-        this.form.fill(Colors.Red).stroke(false).points(points.r, 3, 'circle');
-        this.form.fill(Colors.Green).stroke(false).points(points.g, 3, 'circle');
-        this.form.fill(Colors.Blue).stroke(false).points(points.b, 3, 'circle');
-        this.form.fill('#333').stroke(false).point(pointer, 5, 'square');
-      },
+      resize: bounds => this.bounds.next(bounds),
+      start: bounds => this.bounds.next(bounds),
+      animate: t => this.clock.next(t),
     });
 
     this.space.bindMouse().play(1000);
-
   }
 
-  handleFunctionUpdate(fns: AnimationFunctions) {
+  handleFunctionUpdate(fns: ChannelAnimationFns) {
     this.animators.next(fns);
   }
 
