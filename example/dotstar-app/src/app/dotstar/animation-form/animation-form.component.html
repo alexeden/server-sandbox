@@ -1,3 +1,23 @@
-<p>
-  animation-form works!
-</p>
+<div class="row gap-10" [formGroup]="animationForm">
+  <mat-form-field class="grow" appearance="standard">
+    <span matPrefix class="m-r-5">
+      <code>(t, i) =></code>
+    </span>
+    <mat-label>Red</mat-label>
+    <input matInput placeholder="i" formControlName="r">
+  </mat-form-field>
+  <mat-form-field class="grow" appearance="standard">
+    <span matPrefix class="m-r-5">
+      <code>(t, i) =></code>
+    </span>
+    <mat-label>Green</mat-label>
+    <input matInput placeholder="i" formControlName="g">
+  </mat-form-field>
+  <mat-form-field class="grow" appearance="standard">
+    <span matPrefix class="m-r-5">
+      <code>(t, i) =></code>
+    </span>
+    <mat-label>Blue</mat-label>
+    <input matInput placeholder="i" formControlName="b">
+  </mat-form-field>
+</div>
