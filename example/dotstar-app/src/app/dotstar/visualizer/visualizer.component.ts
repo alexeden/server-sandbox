@@ -1,16 +1,17 @@
 import { Component, OnInit, ElementRef, HostBinding, Renderer2, OnDestroy } from '@angular/core';
-import { CanvasSpace, Create, Pt, CanvasForm, Num, Color, Bound } from 'pts';
+import { CanvasSpace, Create, Pt, CanvasForm, Num, Color, Bound, Group } from 'pts';
 import { DotstarConfigService } from '../dotstar-config.service';
-import { Subject, combineLatest, BehaviorSubject } from 'rxjs';
+import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
 import { AnimationFunctions } from '../animation-form/types';
 import { takeUntil, map } from 'rxjs/operators';
-import { range } from '../lib';
+import { range, Channels } from '../lib';
 
 enum Colors {
   Red = '#ff2b35',
   Green = '#76ff03',
   Blue = '#00e4ff',
 }
+
 
 @Component({
   selector: 'dotstar-visualizer',
@@ -22,6 +23,7 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   private readonly animators = new Subject<AnimationFunctions>();
   private readonly clock = new Subject<number>();
   private readonly bounds = new BehaviorSubject<Bound>(new Bound());
+  private readonly channelGroups: Observable<Record<Channels, Group>>;
 
   readonly space: CanvasSpace;
   readonly form: CanvasForm;
@@ -41,7 +43,18 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
     this.space = new CanvasSpace(this.canvas, () => console.log('READYYYYYYYYYY'));
     this.form = new CanvasForm(this.space);
 
-
+    this.channelGroups = combineLatest(this.bounds, this.configService.length).pipe(
+      map(([ bounds, length ]) => {
+        const p1 = new Pt(bounds.width * 0.02, bounds.height);
+        const p2 = new Pt(bounds.width * 0.98, bounds.height);
+        const distribution = Create.distributeLinear([p1, p2], length);
+        return {
+          r: distribution.clone(),
+          g: distribution.clone(),
+          b: distribution.clone(),
+        };
+      })
+    );
   }
 
   ngOnInit() {
