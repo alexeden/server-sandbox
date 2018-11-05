@@ -12,6 +12,9 @@
     "paths": {
       "@app/*": [
         "src/app/*"
+      ],
+      "@shared/*": [
+        "src/shared/*"
       ]
     },
     "target": "es5",
