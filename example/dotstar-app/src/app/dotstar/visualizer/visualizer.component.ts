@@ -3,7 +3,7 @@ import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
 import { takeUntil, map } from 'rxjs/operators';
 import { CanvasSpace, Create, Pt, CanvasForm, Num, Color, Bound, Group } from 'pts';
 import { DotstarConfigService } from '../dotstar-config.service';
-import { range, Channels, ChannelAnimationFns } from '../lib';
+import { range, Channels, ChannelAnimationFns, AnimationFn } from '../lib';
 
 enum Colors {
   Red = '#ff2b35',
@@ -88,8 +88,13 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
     this.space.bindMouse().play(1000);
   }
 
-  handleFunctionUpdate(fns: ChannelAnimationFns) {
-    this.animators.next(fns);
+  handleFunctionUpdate({ r, g, b }: ChannelAnimationFns) {
+    const clampWrap = (fn: AnimationFn) => (...args: Parameters<AnimationFn>) => Num.clamp(fn(...args), 0x00, 0xff);
+    this.animators.next({
+      r: clampWrap(r),
+      g: clampWrap(g),
+      b: clampWrap(b),
+    });
   }
 
   ngOnDestroy() {
