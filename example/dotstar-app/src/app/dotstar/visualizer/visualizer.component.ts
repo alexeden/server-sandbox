@@ -21,6 +21,7 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   private readonly animators = new Subject<ChannelAnimationFns>();
   private readonly clock = new Subject<number>();
   private readonly bounds = new BehaviorSubject<Bound>(new Bound());
+  private readonly mapToCanvasSpace: Observable<(value: number) => number>;
   private readonly channelGroups: Observable<Record<Channels, Group>>;
 
   readonly space: CanvasSpace;
@@ -35,11 +36,16 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
     readonly configService: DotstarConfigService
   ) {
     (window as any).visualizer = this;
+    (window as any).Num = Num;
 
     this.canvas = this.renderer.createElement('canvas');
     this.renderer.appendChild(this.elRef.nativeElement, this.canvas);
     this.space = new CanvasSpace(this.canvas, () => console.log('READYYYYYYYYYY'));
     this.form = new CanvasForm(this.space);
+
+    this.mapToCanvasSpace = this.bounds.pipe(
+      map(bounds => value => bounds.height - Num.mapToRange(value, 0x00, 0xff, 0, bounds.height))
+    );
 
     this.channelGroups = combineLatest(this.bounds, this.configService.length).pipe(
       map(([ bounds, length ]) => {
@@ -62,11 +68,11 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       retina: true,
     });
 
-    combineLatest(this.clock, this.animators, this.channelGroups).pipe(
+    combineLatest(this.clock, this.animators, this.channelGroups, this.mapToCanvasSpace).pipe(
       takeUntil(this.unsubscribe$),
-      map(([t, fns, { r, g, b }]) => {
+      map(([t, fns, { r, g, b }, mapSpace]) => {
         return {
-          r: r.map((pt, i) => pt.to([ pt.x, fns.r(t, i, r.length) ])),
+          r: r.map((pt, i) => pt.to([ pt.x, mapSpace(fns.r(t, i, r.length)) ])),
           g: g.map((pt, i) => pt.to([ pt.x, fns.g(t, i, r.length) ])),
           b: b.map((pt, i) => pt.to([ pt.x, fns.b(t, i, r.length) ])),
         };
