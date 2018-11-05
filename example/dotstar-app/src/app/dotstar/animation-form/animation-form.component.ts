@@ -1,8 +1,8 @@
 // tslint:disable no-eval
-import { Component, OnInit, OnDestroy, Output } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, AfterViewInit } from '@angular/core';
 import { FormGroup, FormBuilder, ValidatorFn, FormControl } from '@angular/forms';
 import { Subject, BehaviorSubject } from 'rxjs';
-import { takeUntil, filter, map } from 'rxjs/operators';
+import { takeUntil, filter, map, startWith } from 'rxjs/operators';
 import { ChannelAnimationFns, animationFnHead } from '../lib';
 
 const functionBodyValidator = (args: string): ValidatorFn => {
@@ -24,7 +24,7 @@ const functionBodyValidator = (args: string): ValidatorFn => {
   templateUrl: './animation-form.component.html',
   styleUrls: ['./animation-form.component.scss'],
 })
-export class DotstarAnimationFormComponent implements OnInit, OnDestroy {
+export class DotstarAnimationFormComponent implements OnInit, OnDestroy, AfterViewInit {
   @Output() functionUpdate = new BehaviorSubject<ChannelAnimationFns>({
     r: () => 0,
     g: () => 0,
@@ -46,6 +46,7 @@ export class DotstarAnimationFormComponent implements OnInit, OnDestroy {
 
     this.animationForm.valueChanges.pipe(
       takeUntil(this.unsubscribe$),
+      startWith(this.animationForm.value),
       filter(() => this.animationForm.valid),
       map(({ r, g, b }): ChannelAnimationFns => ({
         r: eval(`${animationFnHead}${r}`),
@@ -57,6 +58,11 @@ export class DotstarAnimationFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+  }
+
+  ngAfterViewInit() {
+    this.functionUpdate.next(this.functionUpdate.getValue());
+    // setTimeout(() => this.functionUpdate.next(this.functionUpdate.getValue()), 1000);
   }
 
   ngOnDestroy() {
