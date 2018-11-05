@@ -24,6 +24,7 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   private readonly mapToCanvasSpace: Observable<(value: number) => number>;
   private readonly channelValues: Observable<Record<Channels, number[]>>;
   private readonly channelGroups: Observable<Record<Channels, Group>>;
+  readonly colorStrings: Observable<string[]>;
 
   readonly space: CanvasSpace;
   readonly form: CanvasForm;
@@ -45,7 +46,11 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
     this.form = new CanvasForm(this.space);
 
     this.mapToCanvasSpace = this.bounds.pipe(
-      map(bounds => value => bounds.height - Num.mapToRange(value, 0x00, 0xff, bounds.height * 0.02, bounds.height * 0.98))
+      map(bounds => value => {
+        const offset = 20;
+        const height = bounds.height - offset;
+        return height + (offset / 2) - Num.mapToRange(value, 0x00, 0xff, 0, height - offset);
+      })
     );
 
     this.channelValues = combineLatest(
@@ -54,12 +59,21 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       this.animators
     ).pipe(
       map(([t, buffer, { r, g, b }]) => {
+        t /= 1000;
         return {
           r: buffer.map((_, i) => r(t, i, buffer.length)),
           g: buffer.map((_, i) => g(t, i, buffer.length)),
           b: buffer.map((_, i) => b(t, i, buffer.length)),
         };
       })
+    );
+
+    this.colorStrings = this.channelValues.pipe(
+      map(({ r, g, b }) =>
+        range(0, r.length).map((_, i) =>
+          `rgb(${r[i]}, ${g[i]}, ${b[i]})`
+        )
+      )
     );
 
     this.channelGroups = combineLatest(this.bounds, this.configService.length).pipe(
@@ -83,22 +97,28 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       retina: true,
     });
 
-    combineLatest(this.clock, this.animators, this.channelGroups, this.mapToCanvasSpace).pipe(
+    combineLatest(this.channelValues, this.channelGroups, this.mapToCanvasSpace, this.colorStrings).pipe(
       takeUntil(this.unsubscribe$),
-      map(([t, fns, { r, g, b }, mapSpace]) => {
-        t /= 1000;
+      map(([values, { r, g, b }, mapSpace, colorStrings]) => {
         return {
-          r: r.map((pt, i) => pt.to([ pt.x, mapSpace(fns.r(t, i, r.length)) ])),
-          g: g.map((pt, i) => pt.to([ pt.x, mapSpace(fns.g(t, i, r.length)) ])),
-          b: b.map((pt, i) => pt.to([ pt.x, mapSpace(fns.b(t, i, r.length)) ])),
+          r: r.map((pt, i) => pt.to([ pt.x, mapSpace(values.r[i]) ])),
+          g: g.map((pt, i) => pt.to([ pt.x, mapSpace(values.g[i]) ])),
+          b: b.map((pt, i) => pt.to([ pt.x, mapSpace(values.b[i]) ])),
+          colorStrings,
         };
       })
     )
-    .subscribe(({ r, g, b }) => {
+    .subscribe(({ r, g, b, colorStrings }) => {
       (window as any).r = r;
-      this.form.fill(Colors.Red).stroke(false).points(r, 3, 'square');
-      this.form.fill(Colors.Green).stroke(false).points(g, 3, 'square');
-      this.form.fill(Colors.Blue).stroke(false).points(b, 3, 'square');
+      this.form.fill(Colors.Red).stroke(false).points(r, 3, 'circle');
+      this.form.fill(Colors.Green).stroke(false).points(g, 3, 'circle');
+      this.form.fill(Colors.Blue).stroke(false).points(b, 3, 'circle');
+
+      const p1 = new Pt(this.space.width * 0.02, 3);
+      const p2 = new Pt(this.space.width * 0.98, 3);
+      const distribution = Create.distributeLinear([p1, p2], r.length);
+      distribution.map((pt, i) => this.form.fill(colorStrings[i]).stroke(false).point(pt, 4, 'square'));
+      // colorStrings.map(str => t)
     });
 
     this.space.add({
