@@ -22,6 +22,7 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   private readonly clock = new Subject<number>();
   private readonly bounds = new BehaviorSubject<Bound>(new Bound());
   private readonly mapToCanvasSpace: Observable<(value: number) => number>;
+  private readonly channelValues: Observable<Record<Channels, number[]>>;
   private readonly channelGroups: Observable<Record<Channels, Group>>;
 
   readonly space: CanvasSpace;
@@ -45,6 +46,20 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
 
     this.mapToCanvasSpace = this.bounds.pipe(
       map(bounds => value => bounds.height - Num.mapToRange(value, 0x00, 0xff, bounds.height * 0.02, bounds.height * 0.98))
+    );
+
+    this.channelValues = combineLatest(
+      this.clock,
+      this.configService.length.pipe(map(n => range(0, n).fill(0))),
+      this.animators
+    ).pipe(
+      map(([t, buffer, { r, g, b }]) => {
+        return {
+          r: buffer.map((_, i) => r(t, i, buffer.length)),
+          g: buffer.map((_, i) => g(t, i, buffer.length)),
+          b: buffer.map((_, i) => b(t, i, buffer.length)),
+        };
+      })
     );
 
     this.channelGroups = combineLatest(this.bounds, this.configService.length).pipe(
@@ -81,9 +96,9 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
     )
     .subscribe(({ r, g, b }) => {
       (window as any).r = r;
-      this.form.fill(Colors.Red).stroke(false).points(r, 3, 'circle');
-      this.form.fill(Colors.Green).stroke(false).points(g, 3, 'circle');
-      this.form.fill(Colors.Blue).stroke(false).points(b, 3, 'circle');
+      this.form.fill(Colors.Red).stroke(false).points(r, 3, 'square');
+      this.form.fill(Colors.Green).stroke(false).points(g, 3, 'square');
+      this.form.fill(Colors.Blue).stroke(false).points(b, 3, 'square');
     });
 
     this.space.add({
