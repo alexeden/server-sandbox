@@ -47,6 +47,7 @@ wss.on('connection', (socket, req) => {
     if (typeof data === 'string' && data.length > 0 && data !== 'undefined') {
       const { buffer }: { buffer: number[] } = JSON.parse(JSON.parse(data));
       if (dotstar) {
+        // console.log(buffer);
         buffer.map((v, i) => dotstar && dotstar.set(v, i));
         // dotstar.sync();
       }
@@ -69,8 +70,7 @@ setInterval(
     socket.ping(() => {});
     if (dotstar) {
       console.log(dotstar.printBuffer());
-      console.log(dotstar.read());
     }
   }),
-  5000
+  1000
 );

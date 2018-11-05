@@ -66,19 +66,18 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
         const r = buffer.map((_, i) => fns.r(t, i, buffer.length));
         const g = buffer.map((_, i) => fns.g(t, i, buffer.length));
         const b = buffer.map((_, i) => fns.b(t, i, buffer.length));
-        return {
-          r, g, b,
-          rgb: buffer.map((_, i) => (r[i] << 32) | (g[i] << 16) | b[i]),
-        };
+        const rgb = buffer.map((_, i) => (r[i] << 16) | (g[i] << 8) | b[i]);
+        (window as any).rgb = rgb;
+        return { r, g, b, rgb };
       })
     );
 
     this.bufferedChannels = this.channelValues.pipe(pluck('rgb'));
 
     this.colorStrings = this.channelValues.pipe(
-      map(({ r, g, b }) =>
+      map(({ r, g, b, rgb }) =>
         range(0, r.length).map((_, i) =>
-          `rgb(${r[i]}, ${g[i]}, ${b[i]})`
+          `rgb(${rgb[i] >> 16 & 0xFF}, ${(rgb[i] >> 8) & 0xFF}, ${rgb[i] & 0xFF})`
         )
       )
     );

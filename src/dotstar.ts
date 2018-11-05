@@ -93,9 +93,10 @@ export class Dotstar {
   }
 
   printBuffer(): string {
+    const colors = this.read().map(c => `rgb(${c >> 16 & 0xFF}, ${(c >> 8) & 0xFF}, ${c && 0xFF})`);
     const gradientGen = this.length < 2
       ? gradientString([...this.read(), ...this.read()])
-      : gradientString(this.read());
+      : gradientString(colors);
     return gradientGen(range(0, this.length).map(() => '✹').join(''));
   }
 }
