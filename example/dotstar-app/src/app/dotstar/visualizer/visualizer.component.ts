@@ -2,6 +2,7 @@ import { Component, OnInit, ElementRef, HostBinding, Renderer2, OnDestroy } from
 import { CanvasSpace, Create, Pt, CanvasForm, Color } from 'pts';
 import { DotstarConfigService } from '../dotstar-config.service';
 import { Subject } from 'rxjs';
+import { AnimationFunctions } from '../animation-form/types';
 
 enum Colors {
   Red = '#ff2b35',
@@ -84,6 +85,10 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
 
     this.space.bindMouse().play(1000);
 
+  }
+
+  handleFunctionUpdate(fns: AnimationFunctions) {
+    console.log(fns);
   }
 
   ngOnDestroy() {

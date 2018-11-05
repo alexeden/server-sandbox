@@ -4,7 +4,7 @@
       <code>(t, i) =></code>
     </span>
     <mat-label>Red</mat-label>
-    <input matInput placeholder="i" formControlName="r">
+    <input matInput formControlName="r">
     <mat-error *ngIf="animationForm.get('r').invalid">Invalid function</mat-error>
   </mat-form-field>
   <mat-form-field class="grow" appearance="standard">
@@ -12,7 +12,7 @@
       <code>(t, i) =></code>
     </span>
     <mat-label>Green</mat-label>
-    <input matInput placeholder="i" formControlName="g">
+    <input matInput formControlName="g">
     <mat-error  *ngIf="animationForm.get('g').invalid">Invalid function</mat-error>
   </mat-form-field>
   <mat-form-field class="grow" appearance="standard">
@@ -20,7 +20,7 @@
       <code>(t, i) =></code>
     </span>
     <mat-label>Blue</mat-label>
-    <input matInput placeholder="i" formControlName="b">
+    <input matInput formControlName="b">
     <mat-error *ngIf="animationForm.get('b').invalid">Invalid function</mat-error>
   </mat-form-field>
 </div>
