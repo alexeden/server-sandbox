@@ -1,8 +1,10 @@
 import { Component, OnInit, ElementRef, HostBinding, Renderer2, OnDestroy } from '@angular/core';
-import { CanvasSpace, Create, Pt, CanvasForm, Color } from 'pts';
+import { CanvasSpace, Create, Pt, CanvasForm, Num, Color, Bound } from 'pts';
 import { DotstarConfigService } from '../dotstar-config.service';
-import { Subject } from 'rxjs';
+import { Subject, combineLatest, BehaviorSubject } from 'rxjs';
 import { AnimationFunctions } from '../animation-form/types';
+import { takeUntil, map } from 'rxjs/operators';
+import { range } from '../lib';
 
 enum Colors {
   Red = '#ff2b35',
@@ -17,6 +19,9 @@ enum Colors {
 })
 export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
+  private readonly animators = new Subject<AnimationFunctions>();
+  private readonly clock = new Subject<number>();
+  private readonly bounds = new BehaviorSubject<Bound>(new Bound());
 
   readonly space: CanvasSpace;
   readonly form: CanvasForm;
@@ -35,6 +40,8 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
     this.renderer.appendChild(this.elRef.nativeElement, this.canvas);
     this.space = new CanvasSpace(this.canvas, () => console.log('READYYYYYYYYYY'));
     this.form = new CanvasForm(this.space);
+
+
   }
 
   ngOnInit() {
@@ -44,11 +51,25 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       retina: true,
     });
 
+    combineLatest(
+      this.clock,
+      this.animators,
+      this.configService.length.pipe(
+        map(length => range(0, length).fill(0))
+      )
+    ).pipe(
+      takeUntil(this.unsubscribe$),
+      map(([t, { r, g, b }, buffer]) => {
+
+      })
+    )
+    .subscribe();
+
     let points: any;
-    let temp: any;
 
     this.space.add({
-      start: (bound, space) => {
+      start: (bounds, space) => {
+        this.bounds.next(bounds);
         const distribution = Create.distributeLinear(
           [
             new Pt(this.space.width * 0.02, this.space.height - 10),
@@ -62,19 +83,11 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
           g: distribution.clone(),
           b: distribution.clone(),
         };
-        temp = {
-          r: distribution.clone(),
-          g: distribution.clone(),
-          b: distribution.clone(),
-        };
       },
       animate: t => {
         const pointer = this.space.pointer;
-        // const pointerMag = pointer.magnitude();
-        // const redPoints = points.r.map((p: Pt) => {
-        //   // const mag =
-        //   return p.$to({ y: p.y - })
-        // });
+        const w = Num.cycle((t % 1000) / 1000);
+        points.r.forEach(pt => pt.y = w * this.space.height);
 
         this.form.fill(Colors.Red).stroke(false).points(points.r, 3, 'circle');
         this.form.fill(Colors.Green).stroke(false).points(points.g, 3, 'circle');
@@ -88,7 +101,7 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   }
 
   handleFunctionUpdate(fns: AnimationFunctions) {
-    console.log(fns);
+    this.animators.next(fns);
   }
 
   ngOnDestroy() {

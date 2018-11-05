@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { APA102C } from 'dotstar-node/dist/apa102c';
 import { DotstarConfig } from 'dotstar-node/dist/types';
+import { pluck } from 'rxjs/operators';
 
 @Injectable()
 export class DotstarConfigService {
@@ -14,11 +15,12 @@ export class DotstarConfigService {
     startFrames: 1,
     endFrames: 4,
   });
-
   readonly deviceConfig: Observable<DotstarConfig>;
+  readonly length: Observable<number>;
 
   constructor() {
     this.deviceConfig = this.deviceConfig$.asObservable();
+    this.length = this.deviceConfig.pipe(pluck('length'));
   }
 
   updateConfig(config: Partial<DotstarConfig>) {

@@ -1,2 +1,19 @@
+<div class="row gap-10">
+  <button
+    mat-icon-button
+    color="primary"
+    (click)="space.resume()"
+    [disabled]="space.isPlaying">
+    <mat-icon>play_arrow</mat-icon>
+  </button>
+  <button
+    mat-icon-button
+    color="warn"
+    (click)="space.pause()"
+    [disabled]="!space.isPlaying">
+    <mat-icon>pause</mat-icon>
+  </button>
+</div>
+
 <dotstar-animation-form (functionUpdate)="handleFunctionUpdate($event)">
 </dotstar-animation-form>

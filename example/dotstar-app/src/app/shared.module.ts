@@ -5,6 +5,7 @@ import {
   MatCheckboxModule,
   MatExpansionModule,
   MatFormFieldModule,
+  MatIconModule,
   MatInputModule,
   MatSnackBarModule,
 } from '@angular/material';
@@ -18,6 +19,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     MatCheckboxModule,
     MatExpansionModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     MatSnackBarModule,
   ],
