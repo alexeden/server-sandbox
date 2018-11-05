@@ -44,7 +44,7 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
     this.form = new CanvasForm(this.space);
 
     this.mapToCanvasSpace = this.bounds.pipe(
-      map(bounds => value => bounds.height - Num.mapToRange(value, 0x00, 0xff, 0, bounds.height))
+      map(bounds => value => bounds.height - Num.mapToRange(value, 0x00, 0xff, bounds.height * 0.02, bounds.height * 0.98))
     );
 
     this.channelGroups = combineLatest(this.bounds, this.configService.length).pipe(
@@ -71,10 +71,11 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
     combineLatest(this.clock, this.animators, this.channelGroups, this.mapToCanvasSpace).pipe(
       takeUntil(this.unsubscribe$),
       map(([t, fns, { r, g, b }, mapSpace]) => {
+        t /= 1000;
         return {
           r: r.map((pt, i) => pt.to([ pt.x, mapSpace(fns.r(t, i, r.length)) ])),
-          g: g.map((pt, i) => pt.to([ pt.x, fns.g(t, i, r.length) ])),
-          b: b.map((pt, i) => pt.to([ pt.x, fns.b(t, i, r.length) ])),
+          g: g.map((pt, i) => pt.to([ pt.x, mapSpace(fns.g(t, i, r.length)) ])),
+          b: b.map((pt, i) => pt.to([ pt.x, mapSpace(fns.b(t, i, r.length)) ])),
         };
       })
     )
@@ -95,7 +96,7 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   }
 
   handleFunctionUpdate({ r, g, b }: ChannelAnimationFns) {
-    const clampWrap = (fn: AnimationFn) => (...args: Parameters<AnimationFn>) => Num.clamp(fn(...args), 0x00, 0xff);
+    const clampWrap = (fn: AnimationFn) => (...args: Parameters<AnimationFn>) => Math.floor(Num.clamp(fn(...args), 0x00, 0xff));
     this.animators.next({
       r: clampWrap(r),
       g: clampWrap(g),
