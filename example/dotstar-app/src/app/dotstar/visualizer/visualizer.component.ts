@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, HostBinding, Renderer2, OnDestroy } from '@angular/core';
 import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
-import { takeUntil, map } from 'rxjs/operators';
+import { takeUntil, map, pluck } from 'rxjs/operators';
 import { CanvasSpace, Create, Pt, CanvasForm, Num, Color, Bound, Group } from 'pts';
 import { DotstarConfigService } from '../dotstar-config.service';
 import { range, Channels, ChannelAnimationFns, AnimationFn } from '../lib';
@@ -22,8 +22,9 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   private readonly clock = new Subject<number>();
   private readonly bounds = new BehaviorSubject<Bound>(new Bound());
   private readonly mapToCanvasSpace: Observable<(value: number) => number>;
-  private readonly channelValues: Observable<Record<Channels, number[]>>;
+  private readonly channelValues: Observable<Record<Channels | 'rgb', number[]>>;
   private readonly channelGroups: Observable<Record<Channels, Group>>;
+  private readonly bufferedChannels: Observable<number[]>;
   readonly colorStrings: Observable<string[]>;
 
   readonly space: CanvasSpace;
@@ -58,15 +59,24 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       this.configService.length.pipe(map(n => range(0, n).fill(0))),
       this.animators
     ).pipe(
-      map(([t, buffer, { r, g, b }]) => {
+      map(([t, buffer, fns]) => {
         t /= 1000;
+        const r = buffer.map((_, i) => fns.r(t, i, buffer.length));
+        const g = buffer.map((_, i) => fns.g(t, i, buffer.length));
+        const b = buffer.map((_, i) => fns.b(t, i, buffer.length));
         return {
-          r: buffer.map((_, i) => r(t, i, buffer.length)),
-          g: buffer.map((_, i) => g(t, i, buffer.length)),
-          b: buffer.map((_, i) => b(t, i, buffer.length)),
+          r, g, b,
+          rgb: buffer.map((_, i) => (r[i] << 32) | (g[i] << 16) | b[i]),
         };
       })
     );
+
+    this.bufferedChannels = this.channelValues.pipe(pluck('rgb'));
+    // pipe(
+    //   map(({ r, g, b }) => {
+
+    //   })
+    // );
 
     this.colorStrings = this.channelValues.pipe(
       map(({ r, g, b }) =>
@@ -118,7 +128,6 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       const p2 = new Pt(this.space.width * 0.98, 3);
       const distribution = Create.distributeLinear([p1, p2], r.length);
       distribution.map((pt, i) => this.form.fill(colorStrings[i]).stroke(false).point(pt, 4, 'square'));
-      // colorStrings.map(str => t)
     });
 
     this.space.add({
