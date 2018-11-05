@@ -32,7 +32,7 @@ export class DotstarSocketService {
 
   readonly socketError = new Subject<Event>();
 
-  socket: WebSocketSubject<DotstarMessage> | null = null;
+  socket: WebSocketSubject<any> | null = null;
 
   readonly message: ConnectableObservable<DotstarMessage>;
   readonly connected = new BehaviorSubject<boolean>(false);
@@ -70,6 +70,12 @@ export class DotstarSocketService {
 
   disconnect() {
     this.stopSocket.next('disconnect!');
+  }
+
+  sendBuffer(buffer: number[]) {
+    if (this.socket) {
+      this.socket.next(JSON.stringify({ buffer }));
+    }
   }
 
   connect(url = DotstarConstants.url) {

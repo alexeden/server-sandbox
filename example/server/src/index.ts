@@ -43,6 +43,16 @@ wss.on('connection', (socket, req) => {
 
   socket.on('pong', liveClients.add.bind(liveClients, socket));
 
+  socket.on('message', (data: string = '{}') => {
+    if (typeof data === 'string' && data.length > 0 && data !== 'undefined') {
+      const { buffer }: { buffer: number[] } = JSON.parse(JSON.parse(data));
+      if (dotstar) {
+        buffer.map((v, i) => dotstar && dotstar.set(v, i));
+        // dotstar.sync();
+      }
+    }
+  });
+
   socket.on('close', async (code, reason) => {
     console.log(`Socket was closed with code ${code} and reason: `, reason);
     if (wss.clients.size < 1) {
@@ -57,6 +67,10 @@ setInterval(
     if (!liveClients.has(socket)) socket.terminate();
     liveClients.delete(socket);
     socket.ping(() => {});
+    if (dotstar) {
+      console.log(dotstar.printBuffer());
+      console.log(dotstar.read());
+    }
   }),
   5000
 );

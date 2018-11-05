@@ -4,6 +4,7 @@ import { takeUntil, map, pluck } from 'rxjs/operators';
 import { CanvasSpace, Create, Pt, CanvasForm, Num, Color, Bound, Group } from 'pts';
 import { DotstarConfigService } from '../dotstar-config.service';
 import { range, Channels, ChannelAnimationFns, AnimationFn } from '../lib';
+import { DotstarSocketService } from '../dotstar-socket.service';
 
 enum Colors {
   Red = '#ff2b35',
@@ -36,7 +37,8 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   constructor(
     readonly elRef: ElementRef,
     readonly renderer: Renderer2,
-    readonly configService: DotstarConfigService
+    readonly configService: DotstarConfigService,
+    readonly socketService: DotstarSocketService
   ) {
     (window as any).visualizer = this;
     (window as any).Num = Num;
@@ -72,11 +74,6 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
     );
 
     this.bufferedChannels = this.channelValues.pipe(pluck('rgb'));
-    // pipe(
-    //   map(({ r, g, b }) => {
-
-    //   })
-    // );
 
     this.colorStrings = this.channelValues.pipe(
       map(({ r, g, b }) =>
@@ -128,6 +125,14 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       const p2 = new Pt(this.space.width * 0.98, 3);
       const distribution = Create.distributeLinear([p1, p2], r.length);
       distribution.map((pt, i) => this.form.fill(colorStrings[i]).stroke(false).point(pt, 4, 'square'));
+    });
+
+    this.channelValues.pipe(
+      takeUntil(this.unsubscribe$),
+      map(({ rgb }) => rgb)
+    )
+    .subscribe(buffer => {
+      this.socketService.sendBuffer(buffer);
     });
 
     this.space.add({
