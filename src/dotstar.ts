@@ -89,6 +89,7 @@ export class Dotstar {
 
   async sync(): Promise<any> {
     if (this.closed) console.warn('attempted to sync when SPI is closed!');
+    if (this.devicePath === '/dev/null') return;
     await this.spi.write(this.buffer);
   }
 

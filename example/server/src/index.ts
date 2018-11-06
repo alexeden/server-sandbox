@@ -51,6 +51,7 @@ wss.on('connection', (socket, req) => {
           const value = ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
           dotstar && dotstar.set(value, i);
         });
+        dotstar.sync();
       }
     }
   });
@@ -70,7 +71,6 @@ setInterval(
     liveClients.delete(socket);
     socket.ping(() => {});
     if (dotstar) {
-      // console.log(dotstar.read().map(c => `rgb(${c >> 16 & 0xFF}, ${(c >> 8) & 0xFF}, ${c & 0xFF})`));
       console.log(dotstar.printBuffer());
     }
   }),
