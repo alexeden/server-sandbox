@@ -9,6 +9,5 @@
     "**/*.spec.ts"
   ],
   "angularCompilerOptions": {
-    "enableIvy": "ngtsc"
   }
 }

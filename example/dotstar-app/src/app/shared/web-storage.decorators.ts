@@ -21,7 +21,7 @@ class WebStorageUtility {
 }
 
 
-const WebStorage = (storage: Storage, overrideKey?: string): PropertyDecorator => {
+function WebStorage(storage: Storage, overrideKey?: string): PropertyDecorator {
   return (target: {}, propertyName: string): void => {
     const key = overrideKey || propertyName;
 
@@ -39,7 +39,11 @@ const WebStorage = (storage: Storage, overrideKey?: string): PropertyDecorator =
       },
     });
   };
-};
+}
 
-export const LocalStorage = (key?: string): PropertyDecorator => WebStorage(localStorage, key);
-export const SessionStorage = (key?: string): PropertyDecorator => WebStorage(sessionStorage, key);
+export function LocalStorage(key?: string): PropertyDecorator {
+  return WebStorage(localStorage, key);
+}
+export function SessionStorage(key?: string): PropertyDecorator {
+  return WebStorage(sessionStorage, key);
+}

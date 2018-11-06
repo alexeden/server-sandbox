@@ -32,11 +32,17 @@
 
   <!-- Footer  -->
   <mat-action-row>
-    <button mat-button color="primary" *ngIf="dotstarService.connected | async" (click)="disconnect()">Disconnect</button>
+    <button
+      mat-button
+      color="primary"
+      *ngIf="connected | async"
+      (click)="disconnect()">
+      Disconnect
+    </button>
     <button
       mat-raised-button
       color="primary"
-      *ngIf="!(dotstarService.connected | async)"
+      *ngIf="!(connected | async)"
       [disabled]="!configForm.valid"
       (click)="connect()">
       Connect

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Subject } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
 import { takeUntil, tap, filter } from 'rxjs/operators';
 import { APA102C } from 'dotstar-node/dist/apa102c';
 import { DotstarConstants } from '../lib';
@@ -14,7 +14,7 @@ import { DotstarConfigService } from '../dotstar-config.service';
 })
 export class DotstarConfigFormComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
-
+  readonly connected: Observable<boolean>;
   readonly configForm: FormGroup;
 
   constructor(
@@ -22,6 +22,8 @@ export class DotstarConfigFormComponent implements OnInit, OnDestroy {
     private configService: DotstarConfigService,
     private dotstarService: DotstarSocketService
   ) {
+    this.connected = this.dotstarService.connected;
+
     this.configForm = this.fb.group({
       url: this.fb.control(DotstarConstants.url),
       devicePath: this.fb.control(DotstarConstants.devicePath),
