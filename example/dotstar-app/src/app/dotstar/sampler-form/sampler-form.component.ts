@@ -63,11 +63,11 @@ export class DotstarSamplerFormComponent implements OnDestroy {
         this.gFn = g;
         this.bFn = b;
       }),
-      map(({ r, g, b }): ChannelSamplers => ({
-        r: eval(`${samplerFnHead}${r}`),
-        g: eval(`${samplerFnHead}${g}`),
-        b: eval(`${samplerFnHead}${b}`),
-      }))
+      map(({ r, g, b }): ChannelSamplers => [
+        eval(`${samplerFnHead}${r}`),
+        eval(`${samplerFnHead}${g}`),
+        eval(`${samplerFnHead}${b}`),
+      ])
     )
     .subscribe(samplers => this.bufferService.updateSamplers(samplers));
 

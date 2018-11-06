@@ -1,9 +1,9 @@
 import { Component, OnInit, ElementRef, HostBinding, Renderer2, OnDestroy } from '@angular/core';
 import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
-import { takeUntil, map, pluck } from 'rxjs/operators';
-import { CanvasSpace, Create, Pt, CanvasForm, Num, Color, Bound, Group } from 'pts';
+import { takeUntil, map } from 'rxjs/operators';
+import { CanvasSpace, Create, Pt, CanvasForm, Num, Bound, Group } from 'pts';
 import { DotstarConfigService } from '../dotstar-config.service';
-import { range, Channels, ChannelSamplers, Sampler } from '../lib';
+import { range, Sample } from '../lib';
 import { DotstarSocketService } from '../dotstar-socket.service';
 import { DotstarBufferService } from '../dotstar-buffer.service';
 
@@ -23,7 +23,9 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
 
   private readonly bounds = new BehaviorSubject<Bound>(new Bound());
   private readonly mapToCanvasSpace: Observable<(value: number) => number>;
-  private readonly channelPtGroups: Observable<Record<Channels, Group>>;
+  private readonly mappedSamples: Observable<Sample[]>;
+
+  private readonly ptGroups: Observable<[Group, Group, Group]>;
 
   readonly space: CanvasSpace;
   readonly form: CanvasForm;
@@ -52,17 +54,17 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       })
     );
 
-    this.channelPtGroups = combineLatest(this.bounds, this.configService.length).pipe(
-      map(([ bounds, length ]) => {
+    this.ptGroups = combineLatest(this.bounds, this.configService.length).pipe(
+      map(([ bounds, length ]): [Group, Group, Group] => {
         const p1 = new Pt(bounds.width * 0.02, bounds.height);
         const p2 = new Pt(bounds.width * 0.98, bounds.height);
         const distribution = Create.distributeLinear([p1, p2], length);
-        return {
-          r: distribution.clone(),
-          g: distribution.clone(),
-          b: distribution.clone(),
-        };
+        return [ distribution.clone(), distribution.clone(), distribution.clone() ];
       })
+    );
+
+    this.mappedSamples = combineLatest(this.bufferService.channelValues, this.mapToCanvasSpace).pipe(
+      map(([ samples, mapper ]) => samples.map<Sample>(([r, g, b]) => [mapper(r), mapper(g), mapper(b)]))
     );
   }
 
@@ -73,20 +75,13 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       retina: true,
     });
 
-    combineLatest(
-      this.bufferService.channelValues,
-      this.channelPtGroups,
-      this.mapToCanvasSpace
-    )
-    .pipe(
+    combineLatest(this.ptGroups, this.mappedSamples).pipe(
       takeUntil(this.unsubscribe$),
-      map(([values, { r, g, b }, mapSpace]) => {
-        return {
-          r: r.map((pt, i) => pt.to([ pt.x, mapSpace(values.r[i]) ])),
-          g: g.map((pt, i) => pt.to([ pt.x, mapSpace(values.g[i]) ])),
-          b: b.map((pt, i) => pt.to([ pt.x, mapSpace(values.b[i]) ])),
-        };
-      })
+      map(([[r, g, b], samples]) => ({
+        r: r.map((pt, i) => pt.to([ pt.x, samples[i][0] ])),
+        g: g.map((pt, i) => pt.to([ pt.x, samples[i][1] ])),
+        b: b.map((pt, i) => pt.to([ pt.x, samples[i][2] ])),
+      }))
     )
     .subscribe(({ r, g, b }) => {
       if (!this.form.ready) return;
@@ -104,13 +99,13 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       distribution.map((pt, i) => this.form.fill(colorStrings[i]).stroke(false).point(pt, 4, 'square'));
     });
 
-    this.bufferService.channelValues.pipe(
-      takeUntil(this.unsubscribe$),
-      map(({ rgb }) => rgb)
-    )
-    .subscribe(buffer => {
-      this.socketService.sendBuffer(buffer);
-    });
+    // this.bufferService.channelValues.pipe(
+    //   takeUntil(this.unsubscribe$),
+    //   map(({ rgb }) => rgb)
+    // )
+    // .subscribe(buffer => {
+    //   this.socketService.sendBuffer(buffer);
+    // });
 
     this.space.add({
       resize: bounds => this.bounds.next(bounds),
