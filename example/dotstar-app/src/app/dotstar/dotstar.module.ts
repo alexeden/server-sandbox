@@ -9,12 +9,12 @@ import { DotstarVisualizerComponent } from './visualizer/visualizer.component';
 import { DotstarConfigFormComponent } from './config-form/config-form.component';
 import { DotstarBufferService } from './dotstar-buffer.service';
 import { DotstarUiConfigService } from './ui-config.service';
-import { DotstarAnimationFormComponent } from './animation-form/animation-form.component';
+import { DotstarSamplerFormComponent } from './sampler-form/sampler-form.component';
 
 @NgModule({
   declarations: [
     DotstarMainComponent,
-    DotstarAnimationFormComponent,
+    DotstarSamplerFormComponent,
     DotstarConfigFormComponent,
     DotstarSocketNotifierComponent,
     DotstarVisualizerComponent,

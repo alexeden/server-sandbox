@@ -3,7 +3,7 @@ import { Component, OnDestroy, Output, AfterViewInit } from '@angular/core';
 import { FormGroup, FormBuilder, ValidatorFn, FormControl } from '@angular/forms';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { takeUntil, filter, map, startWith, tap } from 'rxjs/operators';
-import { ChannelAnimationFns, animationFnHead } from '../lib';
+import { ChannelSamplers, samplerFnHead } from '../lib';
 import { LocalStorage } from '@app/shared';
 
 const functionBodyValidator = (args: string): ValidatorFn => {
@@ -21,19 +21,19 @@ const functionBodyValidator = (args: string): ValidatorFn => {
 };
 
 @Component({
-  selector: 'dotstar-animation-form',
-  templateUrl: './animation-form.component.html',
-  styleUrls: ['./animation-form.component.scss'],
+  selector: 'dotstar-sampler-form',
+  templateUrl: './sampler-form.component.html',
+  styleUrls: ['./sampler-form.component.scss'],
 })
-export class DotstarAnimationFormComponent implements AfterViewInit, OnDestroy {
-  @Output() functionUpdate = new BehaviorSubject<ChannelAnimationFns>({
+export class DotstarSamplerFormComponent implements AfterViewInit, OnDestroy {
+  @Output() functionUpdate = new BehaviorSubject<ChannelSamplers>({
     r: () => 0,
     g: () => 0,
     b: () => 0,
   });
 
   private readonly unsubscribe$ = new Subject<any>();
-  readonly animationFnHead = animationFnHead;
+  readonly samplerFnHead = samplerFnHead;
   readonly animationForm: FormGroup;
 
   @LocalStorage() rFn: string;
@@ -44,9 +44,9 @@ export class DotstarAnimationFormComponent implements AfterViewInit, OnDestroy {
     private fb: FormBuilder
   ) {
     this.animationForm = this.fb.group({
-      r: this.fb.control(this.rFn || '4 * i', [functionBodyValidator(animationFnHead)]),
-      g: this.fb.control(this.gFn || '30', [functionBodyValidator(animationFnHead)]),
-      b: this.fb.control(this.bFn || '80', [functionBodyValidator(animationFnHead)]),
+      r: this.fb.control(this.rFn || '4 * i', [functionBodyValidator(samplerFnHead)]),
+      g: this.fb.control(this.gFn || '30', [functionBodyValidator(samplerFnHead)]),
+      b: this.fb.control(this.bFn || '80', [functionBodyValidator(samplerFnHead)]),
     });
 
     this.animationForm.valueChanges.pipe(
@@ -58,10 +58,10 @@ export class DotstarAnimationFormComponent implements AfterViewInit, OnDestroy {
         this.gFn = g;
         this.bFn = b;
       }),
-      map(({ r, g, b }): ChannelAnimationFns => ({
-        r: eval(`${animationFnHead}${r}`),
-        g: eval(`${animationFnHead}${g}`),
-        b: eval(`${animationFnHead}${b}`),
+      map(({ r, g, b }): ChannelSamplers => ({
+        r: eval(`${samplerFnHead}${r}`),
+        g: eval(`${samplerFnHead}${g}`),
+        b: eval(`${samplerFnHead}${b}`),
       }))
     )
     .subscribe(this.functionUpdate);

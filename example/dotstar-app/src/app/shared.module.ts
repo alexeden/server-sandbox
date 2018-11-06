@@ -7,6 +7,7 @@ import {
   MatFormFieldModule,
   MatIconModule,
   MatInputModule,
+  MatSliderModule,
   MatSnackBarModule,
 } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -21,6 +22,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatSliderModule,
     MatSnackBarModule,
   ],
 })

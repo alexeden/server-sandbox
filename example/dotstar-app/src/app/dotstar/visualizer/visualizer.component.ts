@@ -3,7 +3,7 @@ import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
 import { takeUntil, map, pluck } from 'rxjs/operators';
 import { CanvasSpace, Create, Pt, CanvasForm, Num, Color, Bound, Group } from 'pts';
 import { DotstarConfigService } from '../dotstar-config.service';
-import { range, Channels, ChannelAnimationFns, AnimationFn } from '../lib';
+import { range, Channels, ChannelSamplers, Sampler } from '../lib';
 import { DotstarSocketService } from '../dotstar-socket.service';
 
 enum Colors {
@@ -19,7 +19,7 @@ enum Colors {
 })
 export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
-  private readonly animators = new Subject<ChannelAnimationFns>();
+  private readonly samplers = new Subject<ChannelSamplers>();
   private readonly clock = new Subject<number>();
   private readonly bounds = new BehaviorSubject<Bound>(new Bound());
   private readonly mapToCanvasSpace: Observable<(value: number) => number>;
@@ -59,7 +59,7 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
     this.channelValues = combineLatest(
       this.clock,
       this.configService.length.pipe(map(n => range(0, n).fill(0))),
-      this.animators
+      this.samplers
     ).pipe(
       map(([t, buffer, fns]) => {
         t /= 1000;
@@ -143,9 +143,9 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
     this.space.bindMouse().play(1000);
   }
 
-  handleFunctionUpdate({ r, g, b }: ChannelAnimationFns) {
-    const clampWrap = (fn: AnimationFn) => (...args: Parameters<AnimationFn>) => Math.floor(Num.clamp(fn(...args), 0x00, 0xff));
-    this.animators.next({
+  handleFunctionUpdate({ r, g, b }: ChannelSamplers) {
+    const clampWrap = (fn: Sampler) => (...args: Parameters<Sampler>) => Math.floor(Num.clamp(fn(...args), 0x00, 0xff));
+    this.samplers.next({
       r: clampWrap(r),
       g: clampWrap(g),
       b: clampWrap(b),
