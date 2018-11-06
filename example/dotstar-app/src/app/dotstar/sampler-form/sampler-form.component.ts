@@ -1,10 +1,11 @@
 // tslint:disable no-eval
-import { Component, OnDestroy, Output, AfterViewInit } from '@angular/core';
-import { FormGroup, FormBuilder, ValidatorFn, FormControl } from '@angular/forms';
-import { Subject, BehaviorSubject } from 'rxjs';
+import { Component, OnDestroy } from '@angular/core';
+import { FormGroup, FormBuilder, ValidatorFn, FormControl, Validators } from '@angular/forms';
+import { Subject } from 'rxjs';
 import { takeUntil, filter, map, startWith, tap } from 'rxjs/operators';
-import { ChannelSamplers, samplerFnHead } from '../lib';
+import { ChannelSamplers, samplerFnHead, DotstarConstants } from '../lib';
 import { LocalStorage } from '@app/shared';
+import { DotstarBufferService } from '../dotstar-buffer.service';
 
 const functionBodyValidator = (args: string): ValidatorFn => {
   return (control: FormControl): {[key: string]: any} | null => {
@@ -25,24 +26,28 @@ const functionBodyValidator = (args: string): ValidatorFn => {
   templateUrl: './sampler-form.component.html',
   styleUrls: ['./sampler-form.component.scss'],
 })
-export class DotstarSamplerFormComponent implements AfterViewInit, OnDestroy {
-  @Output() functionUpdate = new BehaviorSubject<ChannelSamplers>({
-    r: () => 0,
-    g: () => 0,
-    b: () => 0,
-  });
-
+export class DotstarSamplerFormComponent implements OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
+
   readonly samplerFnHead = samplerFnHead;
   readonly animationForm: FormGroup;
+  readonly fpsControl: FormControl;
+  readonly fpsMin = DotstarConstants.fpsMin;
+  readonly fpsMax = DotstarConstants.fpsMax;
 
   @LocalStorage() rFn: string;
   @LocalStorage() gFn: string;
   @LocalStorage() bFn: string;
 
   constructor(
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private bufferService: DotstarBufferService
   ) {
+    this.fpsControl = this.fb.control(5, [
+      Validators.min(this.fpsMin),
+      Validators.max(this.fpsMax),
+    ]);
+
     this.animationForm = this.fb.group({
       r: this.fb.control(this.rFn || '4 * i', [functionBodyValidator(samplerFnHead)]),
       g: this.fb.control(this.gFn || '30', [functionBodyValidator(samplerFnHead)]),
@@ -64,11 +69,15 @@ export class DotstarSamplerFormComponent implements AfterViewInit, OnDestroy {
         b: eval(`${samplerFnHead}${b}`),
       }))
     )
-    .subscribe(this.functionUpdate);
-  }
+    .subscribe(samplers => this.bufferService.updateSamplers(samplers));
 
-  ngAfterViewInit() {
-    this.functionUpdate.next(this.functionUpdate.getValue());
+    this.fpsControl.valueChanges.pipe(
+      takeUntil(this.unsubscribe$),
+      startWith(this.fpsControl.value),
+      filter(() => this.fpsControl.valid)
+    )
+    .subscribe(fps => this.bufferService.setFps(fps));
+
   }
 
   ngOnDestroy() {

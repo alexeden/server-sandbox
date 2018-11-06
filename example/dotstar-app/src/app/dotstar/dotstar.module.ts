@@ -8,7 +8,6 @@ import { DotstarSocketNotifierComponent } from './dotstar-notifiers.component';
 import { DotstarVisualizerComponent } from './visualizer/visualizer.component';
 import { DotstarConfigFormComponent } from './config-form/config-form.component';
 import { DotstarBufferService } from './dotstar-buffer.service';
-import { DotstarUiConfigService } from './ui-config.service';
 import { DotstarSamplerFormComponent } from './sampler-form/sampler-form.component';
 
 @NgModule({
@@ -29,7 +28,6 @@ import { DotstarSamplerFormComponent } from './sampler-form/sampler-form.compone
     DotstarBufferService,
     DotstarConfigService,
     DotstarSocketService,
-    DotstarUiConfigService,
   ],
 })
 export class DotstarModule { }

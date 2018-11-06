@@ -15,5 +15,6 @@
   </button>
 </div>
 
-<dotstar-sampler-form (functionUpdate)="handleFunctionUpdate($event)">
-</dotstar-sampler-form>
+<pre>{{ bufferService.fps | async }}</pre>
+<pre>{{ bufferService.clock | async }}</pre>
+<dotstar-sampler-form></dotstar-sampler-form>
