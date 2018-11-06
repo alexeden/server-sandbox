@@ -15,6 +15,8 @@ export class DotstarConfigService {
     startFrames: 1,
     endFrames: 4,
   });
+
+
   readonly deviceConfig: Observable<DotstarConfig>;
   readonly length: Observable<number>;
 

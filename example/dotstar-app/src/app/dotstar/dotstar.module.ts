@@ -8,15 +8,16 @@ import { DotstarSocketNotifierComponent } from './dotstar-notifiers.component';
 import { DotstarVisualizerComponent } from './visualizer/visualizer.component';
 import { DotstarConfigFormComponent } from './config-form/config-form.component';
 import { DotstarBufferService } from './dotstar-buffer.service';
+import { DotstarUiConfigService } from './ui-config.service';
 import { DotstarAnimationFormComponent } from './animation-form/animation-form.component';
 
 @NgModule({
   declarations: [
     DotstarMainComponent,
+    DotstarAnimationFormComponent,
     DotstarConfigFormComponent,
     DotstarSocketNotifierComponent,
     DotstarVisualizerComponent,
-    DotstarAnimationFormComponent,
   ],
   imports: [
     SharedModule,
@@ -28,6 +29,7 @@ import { DotstarAnimationFormComponent } from './animation-form/animation-form.c
     DotstarBufferService,
     DotstarConfigService,
     DotstarSocketService,
+    DotstarUiConfigService,
   ],
 })
 export class DotstarModule { }
