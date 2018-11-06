@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, Subject, BehaviorSubject, ConnectableObservable, merge } from 'rxjs';
 import { mapTo, map, pluck, filter, switchMap, retryWhen, takeUntil, publishReplay } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { DotstarConstants } from './lib';
+import { DotstarConstants, Sample } from './lib';
 import { DotstarConfig } from 'dotstar-node/dist/types';
 import { DotstarConfigService } from './dotstar-config.service';
 
@@ -72,9 +72,9 @@ export class DotstarSocketService {
     this.stopSocket.next('disconnect!');
   }
 
-  sendBuffer(buffer: number[]) {
+  sendSamples(values: Sample[]) {
     if (this.socket) {
-      this.socket.next(JSON.stringify({ buffer }));
+      this.socket.next({ values });
     }
   }
 

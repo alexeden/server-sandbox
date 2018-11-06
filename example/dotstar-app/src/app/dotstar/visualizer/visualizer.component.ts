@@ -95,17 +95,17 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       const p2 = new Pt(this.space.width * 0.98, 3);
 
       const colorStrings = range(0, r.length).map((_, i) => `rgb(${r[i]}, ${g[i]}, ${b[i]})`);
+      (window as any).colorStrings = colorStrings;
       const distribution = Create.distributeLinear([p1, p2], r.length);
       distribution.map((pt, i) => this.form.fill(colorStrings[i]).stroke(false).point(pt, 4, 'square'));
     });
 
-    // this.bufferService.channelValues.pipe(
-    //   takeUntil(this.unsubscribe$),
-    //   map(({ rgb }) => rgb)
-    // )
-    // .subscribe(buffer => {
-    //   this.socketService.sendBuffer(buffer);
-    // });
+    this.bufferService.channelValues.pipe(
+      takeUntil(this.unsubscribe$)
+    )
+    .subscribe(samples => {
+      this.socketService.sendSamples(samples);
+    });
 
     this.space.add({
       resize: bounds => this.bounds.next(bounds),

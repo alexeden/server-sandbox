@@ -45,11 +45,12 @@ wss.on('connection', (socket, req) => {
 
   socket.on('message', (data: string = '{}') => {
     if (typeof data === 'string' && data.length > 0 && data !== 'undefined') {
-      const { buffer }: { buffer: number[] } = JSON.parse(JSON.parse(data));
-      if (dotstar) {
-        // console.log(buffer);
-        buffer.map((v, i) => dotstar && dotstar.set(v, i));
-        // dotstar.sync();
+      const { values }: { values: Array<[number, number, number]> } = JSON.parse(data);
+      if (dotstar && values) {
+        values.map(([r, g, b], i) => {
+          const value = ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
+          dotstar && dotstar.set(value, i);
+        });
       }
     }
   });
@@ -69,6 +70,7 @@ setInterval(
     liveClients.delete(socket);
     socket.ping(() => {});
     if (dotstar) {
+      // console.log(dotstar.read().map(c => `rgb(${c >> 16 & 0xFF}, ${(c >> 8) & 0xFF}, ${c & 0xFF})`));
       console.log(dotstar.printBuffer());
     }
   }),
