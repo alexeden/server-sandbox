@@ -21,10 +21,23 @@ const wss = new websockets.Server({ noServer: true });
 app.use(express.static(path.resolve(__dirname, '../../dotstar-app/dist/dotstar-app')));
 
 app.get('/dev', (req, res, next) => {
-  res.json({
-    devicePaths: [],
+  fs.readdir('/dev', (err, files) => {
+    if (err) {
+      res.status(400).json({ error: err }).end();
+    }
+    else {
+      res.json({
+        devicePaths: files
+          .filter(f => f.includes('spi') || f.includes('null'))
+          .map(f => `/dev/${f}`),
+      });
+      next();
+    }
   });
-  next();
+  // res.json({
+  //   devicePaths: [],
+  // });
+  // next();
 });
 
 server.on('upgrade', (request: http.IncomingMessage, socket: net.Socket, head: Buffer) => {

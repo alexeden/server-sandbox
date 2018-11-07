@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject, BehaviorSubject, ConnectableObservable, merge, empty, combineLatest } from 'rxjs';
-import { map, switchMap, retryWhen, takeUntil, publishReplay, tap, distinctUntilChanged, sampleTime } from 'rxjs/operators';
+import { map, switchMap, retryWhen, takeUntil, publishReplay, tap, distinctUntilChanged, sampleTime, scan } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { DotstarConstants, Sample } from './lib';
 import { DotstarConfig } from 'dotstar-node/dist/types';
@@ -34,6 +34,9 @@ export class DotstarSocketService {
   private readonly fps$ = new BehaviorSubject<number>(DotstarConstants.fpsMin);
   readonly fps: Observable<number>;
 
+  private readonly socketPaths$ = new BehaviorSubject<string[]>([]);
+  readonly socketPaths: Observable<string[]>;
+
   readonly socketError = new Subject<Event>();
 
   socket: WebSocketSubject<any> | null = null;
@@ -51,6 +54,9 @@ export class DotstarSocketService {
       map(fps => Math.min(DotstarConstants.fpsMax, Math.max(DotstarConstants.fpsMin, fps)))
     );
 
+    this.socketPaths = this.socketPaths$.asObservable().pipe(
+      scan((paths, newPaths) => Array.from(new Set<string[]>([...paths, ...newPaths])), [])
+    );
 
     this.message = this.url.pipe(
       switchMap<string, DotstarMessage>(url => {
@@ -95,6 +101,15 @@ export class DotstarSocketService {
 
   disconnect() {
     this.stopSocket.next('disconnect!');
+  }
+
+  async updateSocketPaths(): Promise<string> {
+    return fetch('/api/dev')
+      .then(res => res.json())
+      .then(({ devicePaths }) => {
+        this.socketPaths$.next(devicePaths);
+        return devicePaths;
+      });
   }
 
   sendSamples(values: Sample[]) {

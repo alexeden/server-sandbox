@@ -16,13 +16,17 @@ export class DotstarConfigFormComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   readonly connected: Observable<boolean>;
   readonly configForm: FormGroup;
+  readonly devicePaths: Observable<string[]>;
 
   constructor(
     private fb: FormBuilder,
     private configService: DotstarConfigService,
+    private socketService: DotstarSocketService,
     private dotstarService: DotstarSocketService
   ) {
     this.connected = this.dotstarService.connected$.asObservable();
+
+    this.devicePaths = this.socketService.socketPaths;
 
     this.configForm = this.fb.group({
       url: this.fb.control(DotstarConstants.url),
@@ -56,6 +60,8 @@ export class DotstarConfigFormComponent implements OnInit, OnDestroy {
       tap(connected => connected ? this.configForm.disable() : this.configForm.enable())
     )
     .subscribe();
+
+    this.socketService.updateSocketPaths();
   }
 
   disconnect() {
