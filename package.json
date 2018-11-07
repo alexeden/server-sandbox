@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "rimraf dist && tsc -p src",
+    "build:all": "npm run build && (cd example/server && npm run build) && (cd example/dotstar-app && npm run build)",
     "sync": "nodemon",
     "postinstall": "npm run build",
     "test": "ts-node -P src/tsconfig.json example/server.ts"
@@ -37,7 +38,7 @@
   },
   "nodemonConfig": {
     "ext": "ts,json",
-    "exec": "npm run build && (cd example/server && npm run build) && node sync",
+    "exec": "npm run build:all && node sync",
     "events": {},
     "watch": [
       "src/",

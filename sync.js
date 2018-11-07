@@ -21,7 +21,7 @@ const rsync = Rsync.build({
   shell: 'ssh',
   flags: 'ahP',
   recursive: true,
-  exclude: ['.git', '.DS_Store', 'node_modules', 'build'],
+  exclude: ['.git', '.DS_Store', 'node_modules', 'build', 'package-lock.json'],
   source: __dirname,
   destination: `${username}@${hostname}:${directory}`,
 });

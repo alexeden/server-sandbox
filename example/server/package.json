@@ -4,8 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "build": "rimraf dist && tsc -p src",
-    "start": "nodemon -w src/ --exec \"rimraf dist && tsc -p src && node dist\"",
-    "dev": "nodemon -w dist --delay 1 --exec \"node dist\"",
+    "start": "nodemon",
     "postinstall": "npm run build"
   },
   "dependencies": {
@@ -21,5 +20,13 @@
     "nodemon": "^1.18.5",
     "rimraf": "^2.6.2",
     "typescript": "^3.1.6"
+  },
+  "nodemonConfig": {
+    "ext": "ts,json",
+    "exec": "rimraf dist && tsc -p src && node dist",
+    "events": {},
+    "watch": [
+      "src/"
+    ]
   }
 }
