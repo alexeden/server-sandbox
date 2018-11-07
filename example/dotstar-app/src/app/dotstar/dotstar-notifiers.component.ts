@@ -18,10 +18,12 @@ export class DotstarSocketNotifierComponent {
         ? this.snackBar.open(`Connection was closed by the server`, 'Reconnect', {
             panelClass: ['bgc-red', 'c-white'],
             duration: 5000,
+            verticalPosition: 'top',
           })
         : this.snackBar.open(`Couldn't connect to the device`, 'Retry', {
             panelClass: ['bgc-red', 'c-white'],
             duration: 5000,
+            verticalPosition: 'top',
           })
       ),
       switchMap(ref => ref.onAction())
@@ -35,10 +37,12 @@ export class DotstarSocketNotifierComponent {
         ? this.snackBar.open(`Connected to Dotstar`, '', {
             panelClass: ['bgc-green', 'c-black'],
             duration: 3000,
+            verticalPosition: 'top',
           })
         : this.snackBar.open(`Connection closed`, 'Reconnect', {
             panelClass: ['bgc-red', 'c-white'],
             duration: 3000,
+            verticalPosition: 'top',
           })
       ),
       switchMap(ref => ref.onAction())
