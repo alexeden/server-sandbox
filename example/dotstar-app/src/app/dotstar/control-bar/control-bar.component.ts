@@ -1,15 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-control-bar',
+  selector: 'dotstar-control-bar',
   templateUrl: './control-bar.component.html',
-  styleUrls: ['./control-bar.component.scss']
+  styleUrls: ['./control-bar.component.scss'],
 })
-export class ControlBarComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
-}
+export class DotstarControlBarComponent {}

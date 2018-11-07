@@ -7,3 +7,55 @@
   </mat-card>
   <dotstar-sampler-form></dotstar-sampler-form>
 </div>
+
+
+<dotstar-control-bar>
+  <div class="row gap-10 grow">
+    <button
+      mat-fab
+      class="no-shadow"
+      color="primary"
+      *ngIf="bufferService.running | async"
+      (click)="bufferService.pause()">
+      <mat-icon>pause</mat-icon>
+    </button>
+    <button
+      mat-fab
+      class="no-shadow"
+      color="accent"
+      *ngIf="!(bufferService.running | async)"
+      (click)="bufferService.resume()">
+      <mat-icon>play_arrow</mat-icon>
+    </button>
+    <div class="column">
+      <h2 class="mat-h2 m-0">Player</h2>
+      <span *ngIf="!(bufferService.running | async)" class="mat-caption">Paused</span>
+      <span *ngIf="bufferService.running | async" class="mat-caption">Running</span>
+    </div>
+  </div>
+  <div class="row gap-10 grow">
+    <button
+      mat-fab
+      class="no-shadow"
+      color="primary"
+      *ngIf="socketService.connected$ | async"
+      (click)="socketService.disconnect()">
+      <mat-icon>sync_disabled</mat-icon>
+    </button>
+    <button
+      mat-fab
+      class="no-shadow"
+      color="accent"
+      *ngIf="!(socketService.connected$ | async)"
+      (click)="socketService.connect()">
+      <mat-icon>sync</mat-icon>
+    </button>
+    <div class="column">
+      <h2 class="mat-h2 m-0">Sync to Device</h2>
+      <span *ngIf="!(socketService.connected$ | async)" class="mat-caption">Not Connected</span>
+      <span *ngIf="socketService.connected$ | async" class="mat-caption">Connected</span>
+    </div>
+  </div>
+
+  <code>{{ bufferService.clock | async }}</code>
+</dotstar-control-bar>

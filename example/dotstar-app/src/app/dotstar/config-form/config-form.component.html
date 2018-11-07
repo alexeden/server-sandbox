@@ -24,21 +24,3 @@
     </mat-form-field>
   </div>
 </div>
-
-<div class="row">
-  <button
-    mat-button
-    color="primary"
-    *ngIf="connected | async"
-    (click)="disconnect()">
-    Disconnect
-  </button>
-  <button
-    mat-raised-button
-    color="primary"
-    *ngIf="!(connected | async)"
-    [disabled]="!configForm.valid"
-    (click)="connect()">
-    Connect
-  </button>
-</div>

@@ -9,6 +9,7 @@ import { DotstarVisualizerComponent } from './visualizer/visualizer.component';
 import { DotstarConfigFormComponent } from './config-form/config-form.component';
 import { DotstarBufferService } from './dotstar-buffer.service';
 import { DotstarSamplerFormComponent } from './sampler-form/sampler-form.component';
+import { DotstarControlBarComponent } from './control-bar/control-bar.component';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,7 @@ import { DotstarSamplerFormComponent } from './sampler-form/sampler-form.compone
     DotstarConfigFormComponent,
     DotstarSocketNotifierComponent,
     DotstarVisualizerComponent,
+    DotstarControlBarComponent,
   ],
   imports: [
     SharedModule,

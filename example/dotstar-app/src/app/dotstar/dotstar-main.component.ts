@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DotstarBufferService } from './dotstar-buffer.service';
 import { DotstarConfigService } from './dotstar-config.service';
+import { DotstarSocketService } from './dotstar-socket.service';
 
 @Component({
   selector: 'dotstar-main',
@@ -11,7 +12,8 @@ export class DotstarMainComponent implements OnInit {
 
   constructor(
     readonly bufferService: DotstarBufferService,
-    readonly configService: DotstarConfigService
+    readonly configService: DotstarConfigService,
+    readonly socketService: DotstarSocketService
   ) { }
 
   ngOnInit() {
