@@ -4,15 +4,19 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as qs from 'querystring';
 import * as url from 'url';
+import * as express from 'express';
 import * as net from 'net';
 import * as websockets from 'ws';
 import { Dotstar } from 'dotstar-node';
 
-const server = https.createServer({
+const httpsOptions: https.ServerOptions = {
   key: fs.readFileSync(path.resolve(__dirname, '..', 'server.key')),
   cert: fs.readFileSync(path.resolve(__dirname, '..', 'server.crt')),
-})
-.listen(4000, '0.0.0.0', () => console.log('listening on port 4000'));
+};
+
+const app = express();
+app.use(express.static(path.resolve(__dirname, '../../dotstar-app/dist/dotstar-app')));
+const server = https.createServer(httpsOptions, app).listen(4000, '0.0.0.0', () => console.log('listening on port 4000'));
 
 const wss = new websockets.Server({ noServer: true });
 
@@ -51,6 +55,7 @@ wss.on('connection', (socket, req) => {
           const value = ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
           dotstar && dotstar.set(value, i);
         });
+        socket.send(JSON.stringify({ values: dotstar.read(), length: dotstar.length }));
         dotstar.sync();
       }
     }
