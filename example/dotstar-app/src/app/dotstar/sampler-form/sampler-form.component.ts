@@ -6,6 +6,7 @@ import { takeUntil, filter, map, startWith, tap } from 'rxjs/operators';
 import { ChannelSamplers, samplerFnHead, DotstarConstants } from '../lib';
 import { LocalStorage } from '@app/shared';
 import { DotstarBufferService } from '../dotstar-buffer.service';
+import { DotstarSocketService } from '../dotstar-socket.service';
 
 const functionBodyValidator = (args: string): ValidatorFn => {
   return (control: FormControl): {[key: string]: any} | null => {
@@ -41,7 +42,8 @@ export class DotstarSamplerFormComponent implements OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private bufferService: DotstarBufferService
+    private bufferService: DotstarBufferService,
+    private socketService: DotstarSocketService
   ) {
     this.fpsControl = this.fb.control(5, [
       Validators.min(this.fpsMin),
@@ -76,7 +78,7 @@ export class DotstarSamplerFormComponent implements OnDestroy {
       startWith(this.fpsControl.value),
       filter(() => this.fpsControl.valid)
     )
-    .subscribe(fps => this.bufferService.setFps(fps));
+    .subscribe(fps => this.socketService.setFps(fps));
 
   }
 

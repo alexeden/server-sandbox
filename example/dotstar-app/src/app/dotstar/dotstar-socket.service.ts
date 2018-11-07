@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject, BehaviorSubject, ConnectableObservable, merge } from 'rxjs';
-import { map, switchMap, retryWhen, takeUntil, publishReplay, tap } from 'rxjs/operators';
+import { Observable, Subject, BehaviorSubject, ConnectableObservable, merge, empty, combineLatest } from 'rxjs';
+import { map, switchMap, retryWhen, takeUntil, publishReplay, tap, distinctUntilChanged, sampleTime } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { DotstarConstants, Sample } from './lib';
 import { DotstarConfig } from 'dotstar-node/dist/types';
 import { DotstarConfigService } from './dotstar-config.service';
+import { DotstarBufferService } from './dotstar-buffer.service';
 
 
 enum DotstarMessageType {
@@ -30,9 +31,8 @@ export class DotstarSocketService {
   private readonly stopSocket = new Subject<any>();
   private readonly retrySocket = new Subject<any>();
 
-  // BPS: Broadcasts per second
-  private readonly bps$ = new BehaviorSubject<number>(DotstarConstants.bpsMin);
-  readonly bps: Observable<number>;
+  private readonly fps$ = new BehaviorSubject<number>(DotstarConstants.fpsMin);
+  readonly fps: Observable<number>;
 
   readonly socketError = new Subject<Event>();
 
@@ -42,12 +42,13 @@ export class DotstarSocketService {
   readonly connected$ = new BehaviorSubject<boolean>(false);
 
   constructor(
-    private configService: DotstarConfigService
+    private configService: DotstarConfigService,
+    private bufferService: DotstarBufferService
   ) {
     (window as any).dotstar = this;
 
-    this.bps = this.bps$.asObservable().pipe(
-      map(bps => Math.min(DotstarConstants.bpsMax, Math.max(DotstarConstants.bpsMin, bps)))
+    this.fps = this.fps$.asObservable().pipe(
+      map(fps => Math.min(DotstarConstants.fpsMax, Math.max(DotstarConstants.fpsMin, fps)))
     );
 
 
@@ -57,12 +58,9 @@ export class DotstarSocketService {
         this.socket = socket;
 
         return socket.multiplex(
-          // On open
-          () => this.connected$.next(true),
-          // On close
-          () => this.connected$.next(false),
-          // Message filter
-          () => true
+          /* On open */   () => this.connected$.next(true),
+          /* On close */  () => this.connected$.next(false),
+          /* Filter */    () => true
         )
         .pipe(
           retryWhen(error => {
@@ -74,6 +72,23 @@ export class DotstarSocketService {
       }),
       publishReplay(1)
     ) as ConnectableObservable<DotstarMessage>;
+
+
+    combineLatest(
+      this.connected$.pipe(distinctUntilChanged()),
+      this.fps.pipe(distinctUntilChanged())
+    ).pipe(
+      switchMap(([connected, fps]) =>
+        !connected
+        ? empty()
+        : this.bufferService.channelValues.pipe(sampleTime(1000 / fps))
+      )
+    )
+    .subscribe(values => {
+      if (this.socket) {
+        this.socket.next({ values });
+      }
+    });
 
     this.message.connect();
   }
@@ -99,7 +114,11 @@ export class DotstarSocketService {
     this.retrySocket.next('retrying');
   }
 
-  setBroadcastsPerSecond(bps: number) {
-    this.bps$.next(bps);
+  setFps(fps: number) {
+    this.fps$.next(fps);
+  }
+
+  setBroadcastsPerSecond(fps: number) {
+    this.fps$.next(fps);
   }
 }

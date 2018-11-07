@@ -1,20 +1,29 @@
 import { Injectable } from '@angular/core';
 import { DotstarConfigService } from './dotstar-config.service';
-import { Observable, ConnectableObservable, BehaviorSubject, interval, combineLatest } from 'rxjs';
-import { publishReplay, map, switchMap } from 'rxjs/operators';
+import {
+  Observable,
+  ConnectableObservable,
+  BehaviorSubject,
+  interval,
+  combineLatest,
+  Scheduler,
+  animationFrameScheduler,
+  empty,
+} from 'rxjs';
+import { publishReplay, map, switchMap, distinctUntilChanged } from 'rxjs/operators';
 import { range, ChannelSamplers, DotstarConstants, Sampler, Sample } from './lib';
 import { Num } from 'pts';
 
 @Injectable()
 export class DotstarBufferService {
   // Time
-  private readonly fps$ = new BehaviorSubject<number>(5);
-  readonly fps: Observable<number>;
+  private readonly running$ = new BehaviorSubject<boolean>(true);
+  readonly running: Observable<boolean>;
   readonly clock: Observable<number>;
 
   // Samplers
-  private readonly samplers$ = new BehaviorSubject<ChannelSamplers>([ () => 0, () => 0, () => 0 ]);
-  readonly samplers: Observable<ChannelSamplers>;
+  private readonly samplerFunctions$ = new BehaviorSubject<ChannelSamplers>([ () => 0, () => 0, () => 0 ]);
+  readonly samplerFunctions: Observable<ChannelSamplers>;
 
   // Values
   readonly channelValues: Observable<Sample[]>;
@@ -24,18 +33,25 @@ export class DotstarBufferService {
     private configService: DotstarConfigService
   ) {
     (window as any).DotstarBufferService = this;
-    this.fps = this.fps$.asObservable().pipe(
-      map(fps => Math.min(DotstarConstants.fpsMax, Math.max(DotstarConstants.fpsMin, fps)))
+    this.running = this.running$.asObservable();
+
+    this.clock = this.running.pipe(
+      distinctUntilChanged(),
+      switchMap(running =>
+        !running
+        ? empty()
+        : (startTime => interval(0, animationFrameScheduler).pipe(
+            map(() => Scheduler.now() - startTime)
+          ))(Scheduler.now())
+      )
     );
 
-    this.clock = this.fps.pipe(switchMap(fps => interval(1000 / fps)));
-
-    this.samplers = this.samplers$.asObservable();
+    this.samplerFunctions = this.samplerFunctions$.asObservable();
 
     this.channelValues = combineLatest(
       this.clock,
       this.configService.length.pipe(map(n => range(0, n).fill(0))),
-      this.samplers
+      this.samplerFunctions
     ).pipe(
       map(([t, emptyBuffer, [r, g, b]]) => {
         t /= 1000;
@@ -57,15 +73,18 @@ export class DotstarBufferService {
 
   updateSamplers([ r, g, b ]: ChannelSamplers) {
     const clampWrap = (fn: Sampler) => (...args: Parameters<Sampler>) => Math.floor(Num.clamp(fn(...args), 0x00, 0xff));
-    this.samplers$.next([
+    this.samplerFunctions$.next([
       clampWrap(r),
       clampWrap(g),
       clampWrap(b),
     ]);
   }
 
-  setFps(fps: number) {
-    console.log('setting FPS to ', fps);
-    this.fps$.next(fps);
+  pause() {
+    this.running$.next(false);
+  }
+
+  resume() {
+    this.running$.next(true);
   }
 }
