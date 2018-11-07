@@ -30,6 +30,10 @@ export class DotstarSocketService {
   private readonly stopSocket = new Subject<any>();
   private readonly retrySocket = new Subject<any>();
 
+  // BPS: Broadcasts per second
+  private readonly bps$ = new BehaviorSubject<number>(DotstarConstants.bpsMin);
+  readonly bps: Observable<number>;
+
   readonly socketError = new Subject<Event>();
 
   socket: WebSocketSubject<any> | null = null;
@@ -41,6 +45,12 @@ export class DotstarSocketService {
     private configService: DotstarConfigService
   ) {
     (window as any).dotstar = this;
+
+    this.bps = this.bps$.asObservable().pipe(
+      map(bps => Math.min(DotstarConstants.bpsMax, Math.max(DotstarConstants.bpsMin, bps)))
+    );
+
+
     this.message = this.url.pipe(
       switchMap<string, DotstarMessage>(url => {
         const socket = webSocket<DotstarMessage>(url);
@@ -87,5 +97,9 @@ export class DotstarSocketService {
 
   retryConnect() {
     this.retrySocket.next('retrying');
+  }
+
+  setBroadcastsPerSecond(bps: number) {
+    this.bps$.next(bps);
   }
 }
