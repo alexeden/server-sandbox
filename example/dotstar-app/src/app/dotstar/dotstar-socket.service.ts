@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject, BehaviorSubject, ConnectableObservable, merge } from 'rxjs';
-import { mapTo, map, pluck, filter, switchMap, retryWhen, takeUntil, publishReplay } from 'rxjs/operators';
+import { map, switchMap, retryWhen, takeUntil, publishReplay, tap } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { DotstarConstants, Sample } from './lib';
 import { DotstarConfig } from 'dotstar-node/dist/types';
@@ -39,7 +39,7 @@ export class DotstarSocketService {
   socket: WebSocketSubject<any> | null = null;
 
   readonly message: ConnectableObservable<DotstarMessage>;
-  readonly connected = new BehaviorSubject<boolean>(false);
+  readonly connected$ = new BehaviorSubject<boolean>(false);
 
   constructor(
     private configService: DotstarConfigService
@@ -58,9 +58,9 @@ export class DotstarSocketService {
 
         return socket.multiplex(
           // On open
-          () => this.connected.next(true),
+          () => this.connected$.next(true),
           // On close
-          () => this.connected.next(false),
+          () => this.connected$.next(false),
           // Message filter
           () => true
         )
@@ -89,7 +89,7 @@ export class DotstarSocketService {
   }
 
   connect(url = DotstarConstants.url) {
-    if (!this.connected.getValue()) {
+    if (!this.connected$.getValue()) {
       const query = this.configService.getConnectionQuery();
       this.url.next(`${url}${query}`);
     }

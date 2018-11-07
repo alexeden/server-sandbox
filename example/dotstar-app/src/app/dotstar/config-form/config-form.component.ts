@@ -22,7 +22,7 @@ export class DotstarConfigFormComponent implements OnInit, OnDestroy {
     private configService: DotstarConfigService,
     private dotstarService: DotstarSocketService
   ) {
-    this.connected = this.dotstarService.connected;
+    this.connected = this.dotstarService.connected$.asObservable();
 
     this.configForm = this.fb.group({
       url: this.fb.control(DotstarConstants.url),
@@ -51,7 +51,7 @@ export class DotstarConfigFormComponent implements OnInit, OnDestroy {
     )
     .subscribe();
 
-    this.dotstarService.connected.pipe(
+    this.dotstarService.connected$.asObservable().pipe(
       takeUntil(this.unsubscribe$),
       tap(connected => connected ? this.configForm.disable() : this.configForm.enable())
     )

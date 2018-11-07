@@ -14,16 +14,21 @@ export class DotstarSocketNotifierComponent {
   ) {
     this.dotstar.socketError.pipe(
       map(error =>
-        this.snackBar.open(`Couldn't connect to the device`, 'Retry', {
-          panelClass: ['bgc-red', 'c-white'],
-          duration: 5000,
-        })
+        (error instanceof CloseEvent)
+        ? this.snackBar.open(`Connection was closed by the server`, 'Reconnect', {
+            panelClass: ['bgc-red', 'c-white'],
+            duration: 5000,
+          })
+        : this.snackBar.open(`Couldn't connect to the device`, 'Retry', {
+            panelClass: ['bgc-red', 'c-white'],
+            duration: 5000,
+          })
       ),
       switchMap(ref => ref.onAction())
     )
     .subscribe(() => this.dotstar.retryConnect());
 
-    this.dotstar.connected.pipe(
+    this.dotstar.connected$.pipe(
       skip(1),
       map(connected =>
         connected
