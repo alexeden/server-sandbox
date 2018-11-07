@@ -15,10 +15,17 @@ const httpsOptions: https.ServerOptions = {
 };
 
 const app = express();
-app.use(express.static(path.resolve(__dirname, '../../dotstar-app/dist/dotstar-app')));
 const server = https.createServer(httpsOptions, app).listen(4000, '0.0.0.0', () => console.log('listening on port 4000'));
-
 const wss = new websockets.Server({ noServer: true });
+
+app.use(express.static(path.resolve(__dirname, '../../dotstar-app/dist/dotstar-app')));
+
+app.get('/dev', (req, res, next) => {
+  res.json({
+    devicePaths: [],
+  });
+  next();
+});
 
 server.on('upgrade', (request: http.IncomingMessage, socket: net.Socket, head: Buffer) => {
   wss.handleUpgrade(request, socket, head, clientSocket => wss.emit('connection', clientSocket, request));
