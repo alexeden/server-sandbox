@@ -21,6 +21,7 @@
     "@angular/router": "~7.0.0",
     "core-js": "^2.5.4",
     "dotstar-node": "file:../..",
+    "hammerjs": "^2.0.8",
     "pts": "^0.6.6",
     "rxjs": "~6.3.3",
     "safer-eval": "^1.2.3",
