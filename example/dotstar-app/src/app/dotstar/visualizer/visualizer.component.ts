@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, HostBinding, Renderer2, OnDestroy } from '@angular/core';
+import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/core';
 import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
 import { takeUntil, map } from 'rxjs/operators';
 import { CanvasSpace, Create, Pt, CanvasForm, Num, Bound, Group } from 'pts';
@@ -21,7 +21,7 @@ enum Colors {
 export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
 
-  private readonly bounds = new BehaviorSubject<Bound>(new Bound());
+  private readonly bounds$ = new BehaviorSubject<Bound>(new Bound());
   private readonly mapToCanvasSpace: Observable<(value: number) => number>;
   private readonly mappedSamples: Observable<Sample[]>;
 
@@ -30,8 +30,6 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   readonly space: CanvasSpace;
   readonly form: CanvasForm;
   readonly canvas: HTMLCanvasElement;
-
-  @HostBinding('style.height') height = '500px';
 
   constructor(
     readonly elRef: ElementRef,
@@ -46,7 +44,7 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
     this.space = new CanvasSpace(this.canvas, (...args: any[]) => console.log('READYYYYYYYYYY', ...args));
     this.form = new CanvasForm(this.space);
 
-    this.mapToCanvasSpace = this.bounds.pipe(
+    this.mapToCanvasSpace = this.bounds$.pipe(
       map(bounds => value => {
         const offset = 20;
         const height = bounds.height - offset;
@@ -54,7 +52,11 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       })
     );
 
-    this.ptGroups = combineLatest(this.bounds, this.configService.length).pipe(
+    this.ptGroups = combineLatest(
+      this.bounds$,
+      this.configService.length
+    )
+    .pipe(
       map(([ bounds, length ]): [Group, Group, Group] => {
         const p1 = new Pt(bounds.width * 0.02, bounds.height);
         const p2 = new Pt(bounds.width * 0.98, bounds.height);
@@ -63,19 +65,25 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       })
     );
 
-    this.mappedSamples = combineLatest(this.bufferService.channelValues, this.mapToCanvasSpace).pipe(
+    this.mappedSamples = combineLatest(
+      this.bufferService.channelValues,
+      this.mapToCanvasSpace
+    ).pipe(
       map(([ samples, mapper ]) => samples.map<Sample>(([r, g, b]) => [mapper(r), mapper(g), mapper(b)]))
     );
   }
 
   ngOnInit() {
     this.space.setup({
-      bgcolor: '#fafafa',
+      bgcolor: '#ffffff',
       resize: true,
       retina: true,
     });
 
-    combineLatest(this.ptGroups, this.mappedSamples).pipe(
+    combineLatest(
+      this.ptGroups,
+      this.mappedSamples
+    ).pipe(
       takeUntil(this.unsubscribe$),
       map(([[r, g, b], samples]) => ({
         r: r.map((pt, i) => pt.to([ pt.x, samples[i][0] ])),
@@ -108,8 +116,8 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
     });
 
     this.space.add({
-      resize: bounds => this.bounds.next(bounds),
-      start: bounds => this.bounds.next(bounds),
+      resize: bounds => this.bounds$.next(bounds),
+      start: bounds => this.bounds$.next(bounds),
     });
   }
 

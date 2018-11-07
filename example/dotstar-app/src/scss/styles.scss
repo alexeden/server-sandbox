@@ -15,3 +15,8 @@
 @include flexbox-utility-classes($app-unit-size, $app-unit-ratios);
 @include position-utility-classes();
 @include spacing-utility-classes($app-unit-size, $app-unit-ratios, $app-direction-map);
+
+body {
+  margin: 0;
+  position: relative;
+}

@@ -1,51 +1,44 @@
-<mat-expansion-panel [expanded]="false">
-  <!-- Header  -->
-  <mat-expansion-panel-header>
-    <mat-panel-title>Dotstar Configuration</mat-panel-title>
-  </mat-expansion-panel-header>
+<h1 class="mat-h1">Configuration</h1>
 
-  <!-- Panel content  -->
-  <div [formGroup]="configForm" class="col gap-10">
-    <div class="row gap-10">
-      <mat-form-field class="grow">
-        <input matInput placeholder="URL" formControlName="url">
-      </mat-form-field>
-      <mat-form-field class="grow">
-        <input matInput placeholder="Device Path" formControlName="devicePath">
-      </mat-form-field>
-      <mat-form-field class="grow">
-        <input matInput type="number" placeholder="Length" formControlName="length" min="1" max="1024">
-      </mat-form-field>
-    </div>
-    <div class="row gap-10">
-      <mat-form-field class="grow">
-        <input matInput type="number" placeholder="Start Frames" formControlName="startFrames" min="1" max="10">
-      </mat-form-field>
-      <mat-form-field class="grow">
-        <input matInput type="number" placeholder="End Frames" formControlName="endFrames" min="1" max="10">
-      </mat-form-field>
-      <mat-form-field class="grow">
-        <input matInput type="number" placeholder="Clock Speed" formControlName="clockSpeed">
-      </mat-form-field>
-    </div>
+<div [formGroup]="configForm" class="col gap-10">
+  <div class="row gap-10">
+    <mat-form-field class="grow">
+      <input matInput placeholder="URL" formControlName="url">
+    </mat-form-field>
+    <mat-form-field class="grow">
+      <input matInput placeholder="Device Path" formControlName="devicePath">
+    </mat-form-field>
+    <mat-form-field class="grow">
+      <input matInput type="number" placeholder="Length" formControlName="length" min="1" max="1024">
+    </mat-form-field>
   </div>
+  <div class="row gap-10">
+    <mat-form-field class="grow">
+      <input matInput type="number" placeholder="Start Frames" formControlName="startFrames" min="1" max="10">
+    </mat-form-field>
+    <mat-form-field class="grow">
+      <input matInput type="number" placeholder="End Frames" formControlName="endFrames" min="1" max="10">
+    </mat-form-field>
+    <mat-form-field class="grow">
+      <input matInput type="number" placeholder="Clock Speed" formControlName="clockSpeed">
+    </mat-form-field>
+  </div>
+</div>
 
-  <!-- Footer  -->
-  <mat-action-row>
-    <button
-      mat-button
-      color="primary"
-      *ngIf="connected | async"
-      (click)="disconnect()">
-      Disconnect
-    </button>
-    <button
-      mat-raised-button
-      color="primary"
-      *ngIf="!(connected | async)"
-      [disabled]="!configForm.valid"
-      (click)="connect()">
-      Connect
-    </button>
-  </mat-action-row>
-</mat-expansion-panel>
+<div class="row">
+  <button
+    mat-button
+    color="primary"
+    *ngIf="connected | async"
+    (click)="disconnect()">
+    Disconnect
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    *ngIf="!(connected | async)"
+    [disabled]="!configForm.valid"
+    (click)="connect()">
+    Connect
+  </button>
+</div>

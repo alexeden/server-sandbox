@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   MatButtonModule,
+  MatCardModule,
   MatCheckboxModule,
   MatExpansionModule,
   MatFormFieldModule,
@@ -17,6 +18,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     CommonModule,
     ReactiveFormsModule,
     MatButtonModule,
+    MatCardModule,
     MatCheckboxModule,
     MatExpansionModule,
     MatFormFieldModule,
