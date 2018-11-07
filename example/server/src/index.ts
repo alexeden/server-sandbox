@@ -39,8 +39,12 @@ wss.on('connection', (socket, req) => {
     {}
   );
 
+  console.log('new connection, client size is ', wss.clients.size);
   if (wss.clients.size === 1) {
     dotstar = Dotstar.create(config);
+    dotstar.setAll(0);
+    dotstar.sync();
+
     console.log(dotstar && dotstar.printBuffer());
   }
   liveClients.add(socket);
@@ -55,7 +59,7 @@ wss.on('connection', (socket, req) => {
           const value = ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
           dotstar && dotstar.set(value, i);
         });
-        socket.send(JSON.stringify({ values: dotstar.read(), length: dotstar.length }));
+        // socket.send(JSON.stringify({ values: dotstar.read(), length: dotstar.length }));
         dotstar.sync();
       }
     }
@@ -63,8 +67,11 @@ wss.on('connection', (socket, req) => {
 
   socket.on('close', async (code, reason) => {
     console.log(`Socket was closed with code ${code} and reason: `, reason);
-    if (wss.clients.size < 1) {
-      dotstar && dotstar.setAll(0);
+    if (wss.clients.size < 1 && dotstar) {
+      console.log('last client closed! turning stuff off');
+      dotstar.setAll(0);
+      await dotstar.sync();
+      console.log(dotstar.printBuffer());
       dotstar = null;
     }
   });
