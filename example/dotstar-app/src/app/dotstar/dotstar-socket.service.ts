@@ -34,9 +34,6 @@ export class DotstarSocketService {
   private readonly fps$ = new BehaviorSubject<number>(DotstarConstants.fpsMin);
   readonly fps: Observable<number>;
 
-  private readonly socketPaths$ = new BehaviorSubject<string[]>([]);
-  readonly socketPaths: Observable<string[]>;
-
   readonly socketError = new Subject<Event>();
 
   socket: WebSocketSubject<any> | null = null;
@@ -52,10 +49,6 @@ export class DotstarSocketService {
 
     this.fps = this.fps$.asObservable().pipe(
       map(fps => Math.min(DotstarConstants.fpsMax, Math.max(DotstarConstants.fpsMin, fps)))
-    );
-
-    this.socketPaths = this.socketPaths$.asObservable().pipe(
-      scan((paths, newPaths) => Array.from(new Set<string[]>([...paths, ...newPaths])), [])
     );
 
     this.message = this.url.pipe(
@@ -101,15 +94,6 @@ export class DotstarSocketService {
 
   disconnect() {
     this.stopSocket.next('disconnect!');
-  }
-
-  async updateSocketPaths(): Promise<string> {
-    return fetch('/api/dev')
-      .then(res => res.json())
-      .then(({ devicePaths }) => {
-        this.socketPaths$.next(devicePaths);
-        return devicePaths;
-      });
   }
 
   sendSamples(values: Sample[]) {

@@ -1,32 +1,30 @@
-<h1 class="mat-h1">Configuration</h1>
-
-<div [formGroup]="configForm" class="col gap-10">
+<div [formGroup]="configForm" class="column gap-10">
   <div class="row gap-10">
-    <mat-form-field class="grow">
+    <mat-form-field>
       <input matInput placeholder="URL" formControlName="url">
     </mat-form-field>
-    <mat-form-field class="grow">
-      <input matInput placeholder="Device Path" formControlName="devicePath">
+    <mat-form-field>
+      <input type="text" placeholder="Device Path" matInput formControlName="devicePath" [matAutocomplete]="auto">
+      <mat-autocomplete #auto="matAutocomplete">
+        <mat-option *ngFor="let path of devicePaths | async" [value]="path">
+          {{path}}
+        </mat-option>
+      </mat-autocomplete>
     </mat-form-field>
     <mat-form-field>
-      <mat-label>Device Paths</mat-label>
-      <mat-select>
-        <mat-option *ngFor="let path of devicePaths | async" [value]="path">{{ path }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field class="grow">
-      <input matInput type="number" placeholder="Length" formControlName="length" min="1" max="1024">
+      <input matInput type="number" placeholder="Number of LEDs" formControlName="length" min="1" max="1024">
     </mat-form-field>
   </div>
   <div class="row gap-10">
-    <mat-form-field class="grow">
-      <input matInput type="number" placeholder="Start Frames" formControlName="startFrames" min="1" max="10">
+    <mat-form-field>
+      <input matInput type="number" placeholder="Number of Start Frames" formControlName="startFrames" min="1" max="10">
     </mat-form-field>
-    <mat-form-field class="grow">
-      <input matInput type="number" placeholder="End Frames" formControlName="endFrames" min="1" max="10">
+    <mat-form-field>
+      <input matInput type="number" placeholder="Number of End Frames" formControlName="endFrames" min="1" max="10">
     </mat-form-field>
-    <mat-form-field class="grow">
+    <mat-form-field>
       <input matInput type="number" placeholder="Clock Speed" formControlName="clockSpeed">
+      <span matSuffix>Hz</span>
     </mat-form-field>
   </div>
 </div>

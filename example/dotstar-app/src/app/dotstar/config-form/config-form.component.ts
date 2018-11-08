@@ -21,16 +21,19 @@ export class DotstarConfigFormComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private configService: DotstarConfigService,
-    private socketService: DotstarSocketService,
-    private dotstarService: DotstarSocketService
+    private socketService: DotstarSocketService
   ) {
-    this.connected = this.dotstarService.connected$.asObservable();
+    this.connected = this.socketService.connected$.asObservable();
 
-    this.devicePaths = this.socketService.socketPaths;
+    this.devicePaths = this.configService.devicePaths;
 
     this.configForm = this.fb.group({
       url: this.fb.control(DotstarConstants.url),
-      devicePath: this.fb.control(DotstarConstants.devicePath),
+      devicePath: this.fb.control(null, [
+        Validators.required,
+        Validators.minLength(1),
+        Validators.pattern(/^\//),
+      ]),
       length: this.fb.control(144),
       clockSpeed: this.fb.control(APA102C.CLK_MAX, [
         Validators.min(APA102C.CLK_MIN),
@@ -55,21 +58,37 @@ export class DotstarConfigFormComponent implements OnInit, OnDestroy {
     )
     .subscribe();
 
-    this.dotstarService.connected$.asObservable().pipe(
+    this.socketService.connected$.asObservable().pipe(
       takeUntil(this.unsubscribe$),
       tap(connected => connected ? this.configForm.disable() : this.configForm.enable())
     )
     .subscribe();
 
-    this.socketService.updateSocketPaths();
+    this.populateDevicePaths();
+  }
+
+  async populateDevicePaths() {
+    try {
+      const paths = await this.configService.getAvailableDevicePaths();
+      console.log('paths: ', paths);
+      if (paths.length > 0 && !this.configForm.get('devicePath').value) {
+        this.configForm.get('devicePath').setValue(
+          // Try to set the device path to a legit SPI path, otherwise settle with the first option
+          paths.reduce((ps, p) => !ps.includes('spi') && p.includes('spi') ? ps : p, paths[0])
+        );
+      }
+    }
+    catch (err) {
+      console.error(err);
+    }
   }
 
   disconnect() {
-    this.dotstarService.disconnect();
+    this.socketService.disconnect();
   }
 
   connect() {
-    this.dotstarService.connect(this.configForm.get('url').value);
+    this.socketService.connect(this.configForm.get('url').value);
   }
 
   ngOnDestroy() {

@@ -28,7 +28,7 @@
       <mat-icon>play_arrow</mat-icon>
     </button>
     <div class="column">
-      <h2 class="mat-h2 m-0">Player</h2>
+      <div class="mat-h3 m-0">Player</div>
       <span *ngIf="!(bufferService.running | async)" class="mat-caption">Paused</span>
       <span *ngIf="bufferService.running | async" class="mat-caption">Running</span>
     </div>
@@ -40,7 +40,7 @@
       color="primary"
       *ngIf="socketService.connected$ | async"
       (click)="socketService.disconnect()">
-      <mat-icon>sync_disabled</mat-icon>
+      <mat-icon>stop</mat-icon>
     </button>
     <button
       mat-fab
@@ -51,7 +51,7 @@
       <mat-icon>sync</mat-icon>
     </button>
     <div class="column">
-      <h2 class="mat-h2 m-0">Sync to Device</h2>
+      <div class="mat-h3 m-0">Sync to Device</div>
       <span *ngIf="!(socketService.connected$ | async)" class="mat-caption">Not Connected</span>
       <span *ngIf="socketService.connected$ | async" class="mat-caption">Connected</span>
     </div>
