@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 
-import { SharedModule } from '@app/shared.module';
+import { SharedModule } from '@app/shared';
 import { DotstarConfigService } from './dotstar-config.service';
 import { DotstarSocketService } from './dotstar-socket.service';
 import { DotstarMainComponent } from './dotstar-main.component';
