@@ -1,5 +1,6 @@
-# dotstar-node
-Control a Dotstar LED strip in Node.
+# Dotstar Node
+
+Control a [Dotstar](https://learn.adafruit.com/adafruit-dotstar-leds/overview) LED ([APA102 Datasheet](https://cdn-shop.adafruit.com/datasheets/APA102.pdf)) strip in Node. 
 
 Includes a sample server and frontend Angular app for easily programming custom effects.
 
