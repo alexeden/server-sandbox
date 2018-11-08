@@ -20,7 +20,7 @@ const wss = new websockets.Server({ noServer: true });
 
 app.use(express.static(path.resolve(__dirname, '../../dotstar-app/dist/dotstar-app')));
 
-app.get('/dev', (req, res, next) => {
+app.get('/api/dev', (req, res, next) => {
   fs.readdir('/dev', (err, files) => {
     if (err) {
       res.status(400).json({ error: err }).end();
