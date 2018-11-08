@@ -17,3 +17,5 @@ Includes a sample server and frontend Angular app for easily programming custom 
 ![In Use GIF](https://github.com/alexeden/dotstar-node/blob/master/doc/demo.gif)
 
 ![In Use Photo](https://github.com/alexeden/dotstar-node/blob/master/doc/demo.jpg)
+
+![Multicolor Photo](https://github.com/alexeden/dotstar-node/blob/master/doc/multicolor-demo.jpg)
