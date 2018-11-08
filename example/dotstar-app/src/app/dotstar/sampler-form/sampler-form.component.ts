@@ -49,11 +49,15 @@ export class DotstarSamplerFormComponent implements OnDestroy {
     });
 
     this.rgbSamplerForm = this.fb.group({
-      r: this.fb.control(this.rgbSamplers[0] || '4 * i', [functionBodyValidator(samplerFnHead)]),
+      r: this.fb.control(this.rgbSamplers[0] || '(255/2) * Math.sin(2 * t) *  Math.sin((Math.PI * 2 / n) * i - t / 2) + (255/2)', [
+        functionBodyValidator(samplerFnHead),
+      ]),
       g: this.fb.control(this.rgbSamplers[1] || '(255 / 2) * Math.sin((Math.PI * 2 / n) * i + 2 * t) + (255 / 2)', [
         functionBodyValidator(samplerFnHead),
       ]),
-      b: this.fb.control(this.rgbSamplers[2] || '80', [functionBodyValidator(samplerFnHead)]),
+      b: this.fb.control(this.rgbSamplers[2] || '255 * Math.sin(i / 15 - (Math.PI * 2 / n) * 50*t)', [
+        functionBodyValidator(samplerFnHead),
+      ]),
     });
 
     this.rgbSamplerForm.valueChanges.pipe(
