@@ -2,11 +2,12 @@
 
 <div class="column gap-10 p-20">
   <dotstar-config-form></dotstar-config-form>
+  <dotstar-sampler-form></dotstar-sampler-form>
   <mat-card>
     <dotstar-visualizer ></dotstar-visualizer>
   </mat-card>
-  <dotstar-sampler-form></dotstar-sampler-form>
 </div>
+
 
 
 <dotstar-control-bar>
@@ -50,8 +51,8 @@
       (click)="socketService.connect()">
       <mat-icon>sync</mat-icon>
     </button>
-    <div class="column">
-      <div class="mat-h3 m-0">Sync to Device</div>
+    <div class="column justify-center">
+      <div class="mat-h3 m-0">Device Connection</div>
       <span *ngIf="!(socketService.connected$ | async)" class="mat-caption">Not Connected</span>
       <span *ngIf="socketService.connected$ | async" class="mat-caption">Connected</span>
     </div>
@@ -59,3 +60,18 @@
 
   <code>{{ bufferService.clock | async }}</code>
 </dotstar-control-bar>
+
+
+<!-- <div class="column p-10">
+  <span class="mat-display-4">.mat-display-4</span>
+  <span class="mat-display-3">.mat-display-3</span>
+  <span class="mat-display-2">.mat-display-2</span>
+  <span class="mat-display-1">.mat-display-1</span>
+  <span class="mat-h1">.mat-h1</span>
+  <span class="mat-h2">.mat-h2</span>
+  <span class="mat-h3">.mat-h3</span>
+  <span class="mat-h4">.mat-h4</span>
+  <span class="mat-body">.mat-body</span>
+  <span class="mat-body-string">.mat-body-string</span>
+  <span class="mat-caption">.mat-caption</span>
+</div> -->
