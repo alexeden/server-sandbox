@@ -70,7 +70,6 @@ export class DotstarConfigFormComponent implements OnInit, OnDestroy {
   async populateDevicePaths() {
     try {
       const paths = await this.configService.getAvailableDevicePaths();
-      console.log('paths: ', paths);
       if (paths.length > 0 && !this.configForm.get('devicePath').value) {
         this.configForm.get('devicePath').setValue(
           // Try to set the device path to a legit SPI path, otherwise settle with the first option

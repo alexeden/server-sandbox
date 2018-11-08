@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/core';
 import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
-import { takeUntil, map } from 'rxjs/operators';
+import { takeUntil, map, tap, share } from 'rxjs/operators';
 import { CanvasSpace, Create, Pt, CanvasForm, Num, Bound, Group } from 'pts';
 import { DotstarConfigService } from '../dotstar-config.service';
 import { Sample } from '../lib';
@@ -26,6 +26,8 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   private readonly mappedSamples: Observable<Sample[]>;
 
   private readonly ptDistribution: Observable<Group>;
+  readonly channelValues: Observable<Sample[]>;
+  readonly colorStrings: Observable<string[]>;
   readonly rgbPoints: Observable<Record<'r' | 'g' | 'b', Pt[]>>;
   readonly clock = new Subject<number>();
   readonly space: CanvasSpace;
@@ -42,11 +44,19 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
     (window as any).visualizer = this;
     this.canvas = this.renderer.createElement('canvas');
     this.renderer.appendChild(this.elRef.nativeElement, this.canvas);
-    this.space = new CanvasSpace(this.canvas, (...args: any[]) => {
-      console.log('READYYYYYYYYYY', ...args);
-      // this.space.play();
+    this.space = new CanvasSpace(this.canvas, () => {
+      console.log('READYYYYYYYYYY');
     });
     this.form = new CanvasForm(this.space);
+
+    this.channelValues = this.bufferService.channelValues.pipe(
+      tap(() => this.space.clear()),
+      share()
+    );
+
+    this.colorStrings = this.channelValues.pipe(
+      map(buffer => buffer.map(([r, g, b]) => `rgb(${r}, ${g}, ${b})`))
+    );
 
     this.mapToCanvasSpace = this.bounds$.pipe(
       map(bounds => value => {
@@ -65,13 +75,18 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
     ));
 
     this.mappedSamples = combineLatest(
-      this.bufferService.channelValues,
+      this.channelValues,
       this.mapToCanvasSpace
-    ).pipe(
+    )
+    .pipe(
       map(([ samples, mapper ]) => samples.map<Sample>(([r, g, b]) => [mapper(r), mapper(g), mapper(b)]))
     );
 
-    this.rgbPoints = combineLatest(this.ptDistribution, this.mappedSamples).pipe(
+    this.rgbPoints = combineLatest(
+      this.ptDistribution,
+      this.mappedSamples
+    )
+    .pipe(
       takeUntil(this.unsubscribe$),
       map(([distro, samples]) => ({
         r: distro.map((pt, i) => pt.$to([ pt.x, samples[i][0] ])),
@@ -79,7 +94,6 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
         b: distro.map((pt, i) => pt.$to([ pt.x, samples[i][2] ])),
       }))
     );
-
   }
 
   ngOnInit() {
@@ -94,23 +108,17 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       start: bounds => this.bounds$.next(bounds),
     });
 
+    combineLatest(this.ptDistribution, this.colorStrings).subscribe(([distro, colors]) => {
+      if (!this.form.ready) return;
+      distro.clone().moveBy(0, 3).map((pt, i) => this.form.fill(colors[i]).stroke(false).point(pt, 4, 'circle'));
+    });
+
     this.rgbPoints.subscribe(({ r, g, b }) => {
       if (!this.form.ready) return;
-
-      this.space.clear();
       this.form.fill(Colors.Red).stroke(false).points(r, 3, 'circle');
       this.form.fill(Colors.Green).stroke(false).points(g, 3, 'circle');
       this.form.fill(Colors.Blue).stroke(false).points(b, 3, 'circle');
-
-      // const p1 = new Pt(this.space.width * 0.02, 3);
-      // const p2 = new Pt(this.space.width * 0.98, 3);
-
-      // const colorStrings = range(0, r.length).map((_, i) => `rgb(${r[i]}, ${g[i]}, ${b[i]})`);
-      // (window as any).colorStrings = colorStrings;
-      // const distribution = Create.distributeLinear([p1, p2], r.length);
-      // distribution.map((pt, i) => this.form.fill(colorStrings[i]).stroke(false).point(pt, 4, 'square'));
     });
-
   }
 
   ngOnDestroy() {

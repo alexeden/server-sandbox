@@ -10,7 +10,7 @@ import {
   animationFrameScheduler,
   empty,
 } from 'rxjs';
-import { publishReplay, map, switchMap, distinctUntilChanged } from 'rxjs/operators';
+import { publishReplay, map, switchMap, distinctUntilChanged, share } from 'rxjs/operators';
 import { range, ChannelSamplers, DotstarConstants, Sampler, Sample } from './lib';
 import { Num } from 'pts';
 
@@ -27,7 +27,6 @@ export class DotstarBufferService {
 
   // Values
   readonly channelValues: Observable<Sample[]>;
-  readonly buffer: ConnectableObservable<number[]>;
 
   constructor(
     private configService: DotstarConfigService
@@ -43,7 +42,8 @@ export class DotstarBufferService {
         : (startTime => interval(0, animationFrameScheduler).pipe(
             map(() => Scheduler.now() - startTime)
           ))(Scheduler.now())
-      )
+      ),
+      share()
     );
 
     this.samplerFunctions = this.samplerFunctions$.asObservable();
@@ -60,15 +60,9 @@ export class DotstarBufferService {
           g(t, i, emptyBuffer.length),
           b(t, i, emptyBuffer.length),
         ]);
-      })
+      }),
+      share()
     );
-
-    this.buffer = this.configService.length.pipe(
-      map(length => range(0, length).fill(0)),
-      publishReplay(1)
-    ) as ConnectableObservable<number[]>;
-
-    this.buffer.connect();
   }
 
   updateSamplers([ r, g, b ]: ChannelSamplers) {
