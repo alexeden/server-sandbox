@@ -13,6 +13,6 @@ Includes a sample server and frontend Angular app for easily programming custom 
 
 ## In use
 
-![In Use Video](https://github.com/alexeden/dotstar-node/blob/master/doc/demo.m4v)
+![In Use GIF](https://github.com/alexeden/dotstar-node/blob/master/doc/demo.gif)
 
 ![In Use Photo](https://github.com/alexeden/dotstar-node/blob/master/doc/demo.jpg)
