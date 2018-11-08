@@ -10,3 +10,9 @@ Includes a sample server and frontend Angular app for easily programming custom 
 ## Server-side terminal output
 
 ![Terminal Screenshot](https://github.com/alexeden/dotstar-node/blob/master/doc/terminal-screenshot.png)
+
+## In use
+
+![In Use Video](https://github.com/alexeden/dotstar-node/blob/master/doc/demo.m4v)
+
+![In Use Photo](https://github.com/alexeden/dotstar-node/blob/master/doc/demo.jpg)
