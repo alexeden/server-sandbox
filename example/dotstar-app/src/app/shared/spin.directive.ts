@@ -1,10 +1,24 @@
-import { Directive } from '@angular/core';
+import { Directive, ElementRef, Renderer2, Input, OnDestroy } from '@angular/core';
 
 @Directive({
-  selector: '[appSpin]'
+  selector: '[spin]',
 })
-export class SpinDirective {
+export class SpinDirective implements OnDestroy {
 
-  constructor() { }
+  @Input()
+  set spin(freq: number) {
+    (this.el.nativeElement as HTMLElement).style.setProperty('--speed', `${10 / +freq}s`);
+  }
+
+  constructor(
+    private el: ElementRef,
+    private renderer: Renderer2
+  ) {
+    this.renderer.addClass(this.el.nativeElement, 'spin');
+  }
+
+  ngOnDestroy() {
+    this.renderer.removeClass(this.el.nativeElement, 'spin');
+  }
 
 }

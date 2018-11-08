@@ -1,0 +1,18 @@
+.spin {
+  --speed: 0s;
+
+  animation-name: spin;
+  animation-duration: var(--speed);
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  transform-origin: 50% 50%;
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}

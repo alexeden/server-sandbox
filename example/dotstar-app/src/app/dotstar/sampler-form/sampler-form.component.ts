@@ -1,12 +1,11 @@
 // tslint:disable no-eval
 import { Component, OnDestroy } from '@angular/core';
-import { FormGroup, FormBuilder, ValidatorFn, FormControl, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, ValidatorFn, FormControl } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil, filter, map, startWith, tap } from 'rxjs/operators';
-import { ChannelSamplers, samplerFnHead, DotstarConstants } from '../lib';
+import { ChannelSamplers, samplerFnHead } from '../lib';
 import { LocalStorage } from '@app/shared';
 import { DotstarBufferService } from '../dotstar-buffer.service';
-import { DotstarSocketService } from '../dotstar-socket.service';
 
 const functionBodyValidator = (args: string): ValidatorFn => {
   return (control: FormControl): {[key: string]: any} | null => {
@@ -32,9 +31,6 @@ export class DotstarSamplerFormComponent implements OnDestroy {
 
   readonly samplerFnHead = samplerFnHead;
   readonly animationForm: FormGroup;
-  readonly fpsControl: FormControl;
-  readonly fpsMin = DotstarConstants.fpsMin;
-  readonly fpsMax = DotstarConstants.fpsMax;
 
   @LocalStorage() rFn: string;
   @LocalStorage() gFn: string;
@@ -42,14 +38,8 @@ export class DotstarSamplerFormComponent implements OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private bufferService: DotstarBufferService,
-    private socketService: DotstarSocketService
+    private bufferService: DotstarBufferService
   ) {
-    this.fpsControl = this.fb.control(5, [
-      Validators.min(this.fpsMin),
-      Validators.max(this.fpsMax),
-    ]);
-
     this.animationForm = this.fb.group({
       r: this.fb.control(this.rFn || '4 * i', [functionBodyValidator(samplerFnHead)]),
       g: this.fb.control(this.gFn || '30', [functionBodyValidator(samplerFnHead)]),
@@ -72,14 +62,6 @@ export class DotstarSamplerFormComponent implements OnDestroy {
       ])
     )
     .subscribe(samplers => this.bufferService.updateSamplers(samplers));
-
-    this.fpsControl.valueChanges.pipe(
-      takeUntil(this.unsubscribe$),
-      startWith(this.fpsControl.value),
-      filter(() => this.fpsControl.valid)
-    )
-    .subscribe(fps => this.socketService.setFps(fps));
-
   }
 
   ngOnDestroy() {

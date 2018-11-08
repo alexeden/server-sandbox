@@ -12,6 +12,7 @@ import {
   MatSelectModule,
   MatSliderModule,
   MatSnackBarModule,
+  MatTooltipModule,
 } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SpinDirective } from './spin.directive';
@@ -31,7 +32,11 @@ import { SpinDirective } from './spin.directive';
     MatSelectModule,
     MatSliderModule,
     MatSnackBarModule,
+    MatTooltipModule,
+    SpinDirective,
   ],
-  declarations: [SpinDirective],
+  declarations: [
+    SpinDirective,
+  ],
 })
 export class SharedModule { }

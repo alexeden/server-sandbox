@@ -40,7 +40,6 @@ export class DotstarSocketNotifierComponent {
             verticalPosition: 'top',
           })
         : this.snackBar.open(`Connection closed`, 'Reconnect', {
-            panelClass: ['bgc-red', 'c-white'],
             duration: 3000,
             verticalPosition: 'top',
           })

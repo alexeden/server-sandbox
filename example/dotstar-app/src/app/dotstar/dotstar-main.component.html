@@ -11,7 +11,7 @@
 
 
 <dotstar-control-bar>
-  <div class="row gap-10 grow">
+  <div class="row gap-10">
     <button
       mat-fab
       class="no-shadow"
@@ -28,7 +28,7 @@
       (click)="bufferService.resume()">
       <mat-icon>play_arrow</mat-icon>
     </button>
-    <div class="column">
+    <div class="column justify-center">
       <div class="mat-h3 m-0">Player</div>
       <span *ngIf="!(bufferService.running | async)" class="mat-caption">Paused</span>
       <span *ngIf="bufferService.running | async" class="mat-caption">Running</span>
@@ -41,7 +41,7 @@
       color="primary"
       *ngIf="socketService.connected$ | async"
       (click)="socketService.disconnect()">
-      <mat-icon>stop</mat-icon>
+      <mat-icon [spin]="10">sync</mat-icon>
     </button>
     <button
       mat-fab
@@ -54,11 +54,20 @@
     <div class="column justify-center">
       <div class="mat-h3 m-0">Device Connection</div>
       <span *ngIf="!(socketService.connected$ | async)" class="mat-caption">Not Connected</span>
-      <span *ngIf="socketService.connected$ | async" class="mat-caption">Connected</span>
+      <span *ngIf="socketService.connected$ | async" class="mat-caption">Syncing updates</span>
     </div>
   </div>
 
-  <code>{{ bufferService.clock | async }}</code>
+  <div class="row gap-10 align-center">
+    <mat-icon
+      style="font-size: 2rem"
+      [inline]="true"
+      [matTooltip]="(socketService.fps | async) + ' updates per second'"
+      [matTooltipHideDelay]="1500">
+      shutter_speed
+    </mat-icon>
+    <mat-slider class="p-0" thumbLabel [formControl]="fpsControl" [min]="fpsMin" [max]="fpsMax"></mat-slider>
+  </div>
 </dotstar-control-bar>
 
 
