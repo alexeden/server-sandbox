@@ -22,8 +22,6 @@ export class DotstarConfigService {
   readonly deviceConfig: Observable<DotstarConfig>;
   readonly length: Observable<number>;
 
-
-
   constructor() {
     this.deviceConfig = this.deviceConfig$.asObservable();
     this.length = this.deviceConfig.pipe(pluck('length'));

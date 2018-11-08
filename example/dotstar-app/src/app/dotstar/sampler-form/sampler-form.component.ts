@@ -6,6 +6,7 @@ import { takeUntil, filter, map, startWith, tap } from 'rxjs/operators';
 import { ChannelSamplers, samplerFnHead } from '../lib';
 import { LocalStorage } from '@app/shared';
 import { DotstarBufferService } from '../dotstar-buffer.service';
+import { MatSlideToggleChange } from '@angular/material';
 
 const functionBodyValidator = (args: string): ValidatorFn => {
   return (control: FormControl): {[key: string]: any} | null => {
@@ -30,38 +31,47 @@ export class DotstarSamplerFormComponent implements OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
 
   readonly samplerFnHead = samplerFnHead;
-  readonly animationForm: FormGroup;
+  readonly channelToggleForm: FormGroup;
+  readonly rgbSamplerForm: FormGroup;
 
-  @LocalStorage() rFn: string;
-  @LocalStorage() gFn: string;
-  @LocalStorage() bFn: string;
+  @LocalStorage() rgbSamplers: Partial<ChannelSamplers> = [];
 
   constructor(
     private fb: FormBuilder,
     private bufferService: DotstarBufferService
   ) {
-    this.animationForm = this.fb.group({
-      r: this.fb.control(this.rFn || '4 * i', [functionBodyValidator(samplerFnHead)]),
-      g: this.fb.control(this.gFn || '30', [functionBodyValidator(samplerFnHead)]),
-      b: this.fb.control(this.bFn || '80', [functionBodyValidator(samplerFnHead)]),
+    (window as any).DotstarSamplerFormComponent = this;
+
+    this.channelToggleForm = this.fb.group({
+      r: this.fb.control(true),
+      g: this.fb.control(true),
+      b: this.fb.control(true),
     });
 
-    this.animationForm.valueChanges.pipe(
+    this.rgbSamplerForm = this.fb.group({
+      r: this.fb.control(this.rgbSamplers[0] || '4 * i', [functionBodyValidator(samplerFnHead)]),
+      g: this.fb.control(this.rgbSamplers[1] || '(255 / 2) * Math.sin((Math.PI * 2 / n) * i + 2 * t) + (255 / 2)', [
+        functionBodyValidator(samplerFnHead),
+      ]),
+      b: this.fb.control(this.rgbSamplers[2] || '80', [functionBodyValidator(samplerFnHead)]),
+    });
+
+    this.rgbSamplerForm.valueChanges.pipe(
       takeUntil(this.unsubscribe$),
-      startWith(this.animationForm.value),
-      filter(() => this.animationForm.valid),
-      tap(({ r, g, b }) => {
-        this.rFn = r;
-        this.gFn = g;
-        this.bFn = b;
-      }),
+      startWith(this.rgbSamplerForm.value),
+      filter(() => this.rgbSamplerForm.valid),
+      tap(({ r, g, b }) => r && b && g && (this.rgbSamplers = [r, g, b])),
       map(({ r, g, b }): ChannelSamplers => [
-        eval(`${samplerFnHead}${r}`),
-        eval(`${samplerFnHead}${g}`),
-        eval(`${samplerFnHead}${b}`),
+        eval(`${samplerFnHead}${r || 0}`),
+        eval(`${samplerFnHead}${g || 0}`),
+        eval(`${samplerFnHead}${b || 0}`),
       ])
     )
     .subscribe(samplers => this.bufferService.updateSamplers(samplers));
+  }
+
+  toggleChannel({ checked }: MatSlideToggleChange, channel: string) {
+    this.rgbSamplerForm.get(channel)[checked ? 'enable' : 'disable']();
   }
 
   ngOnDestroy() {

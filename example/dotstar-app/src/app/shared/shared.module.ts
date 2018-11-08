@@ -11,6 +11,7 @@ import {
   MatInputModule,
   MatSelectModule,
   MatSliderModule,
+  MatSlideToggleModule,
   MatSnackBarModule,
   MatTooltipModule,
 } from '@angular/material';
@@ -31,6 +32,7 @@ import { SpinDirective } from './spin.directive';
     MatInputModule,
     MatSelectModule,
     MatSliderModule,
+    MatSlideToggleModule,
     MatSnackBarModule,
     MatTooltipModule,
     SpinDirective,

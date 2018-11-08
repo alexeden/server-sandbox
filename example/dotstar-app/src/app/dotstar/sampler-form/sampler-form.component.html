@@ -1,28 +1,41 @@
-<div class="column gap-10">
-  <div class="row gap-10" [formGroup]="animationForm">
-    <mat-form-field class="grow" appearance="standard">
-      <span matPrefix class="m-r-5">
-        <code>{{ samplerFnHead }}</code>
-      </span>
+<div class="row gap-20">
+  <div class="row gap-10 align-baseline grow">
+    <mat-slide-toggle
+      class="red"
+      [formControl]="channelToggleForm.get('r')"
+      color="primary"
+      (change)="toggleChannel($event, 'r')">
+    </mat-slide-toggle>
+    <mat-form-field [formGroup]="rgbSamplerForm" class="grow">
       <mat-label>Red</mat-label>
       <input matInput formControlName="r">
-      <mat-error *ngIf="animationForm.get('r').invalid">Invalid function</mat-error>
+      <mat-error *ngIf="rgbSamplerForm.get('r').invalid">Invalid function</mat-error>
     </mat-form-field>
-    <mat-form-field class="grow" appearance="standard">
-      <span matPrefix class="m-r-5">
-        <code>{{ samplerFnHead }}</code>
-      </span>
+  </div>
+  <div class="row gap-10 align-baseline grow">
+    <mat-slide-toggle
+      class="green"
+      [formControl]="channelToggleForm.get('g')"
+      color="primary"
+      (change)="toggleChannel($event, 'g')">
+    </mat-slide-toggle>
+    <mat-form-field [formGroup]="rgbSamplerForm" class="grow">
       <mat-label>Green</mat-label>
       <input matInput formControlName="g">
-      <mat-error  *ngIf="animationForm.get('g').invalid">Invalid function</mat-error>
+      <mat-error *ngIf="rgbSamplerForm.get('g').invalid">Invalid function</mat-error>
     </mat-form-field>
-    <mat-form-field class="grow" appearance="standard">
-      <span matPrefix class="m-r-5">
-        <code>{{ samplerFnHead }}</code>
-      </span>
+  </div>
+  <div class="row gap-10 align-baseline grow">
+    <mat-slide-toggle
+      class="blue"
+      [formControl]="channelToggleForm.get('b')"
+      color="primary"
+      (change)="toggleChannel($event, 'b')">
+    </mat-slide-toggle>
+    <mat-form-field [formGroup]="rgbSamplerForm" class="grow">
       <mat-label>Blue</mat-label>
       <input matInput formControlName="b">
-      <mat-error *ngIf="animationForm.get('b').invalid">Invalid function</mat-error>
+      <mat-error *ngIf="rgbSamplerForm.get('b').invalid">Invalid function</mat-error>
     </mat-form-field>
   </div>
 </div>
