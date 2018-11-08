@@ -34,10 +34,6 @@ app.get('/dev', (req, res, next) => {
       next();
     }
   });
-  // res.json({
-  //   devicePaths: [],
-  // });
-  // next();
 });
 
 server.on('upgrade', (request: http.IncomingMessage, socket: net.Socket, head: Buffer) => {
