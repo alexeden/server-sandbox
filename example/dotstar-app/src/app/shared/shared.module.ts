@@ -14,6 +14,7 @@ import {
   MatSnackBarModule,
 } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
+import { SpinDirective } from './spin.directive';
 
 @NgModule({
   exports: [
@@ -31,5 +32,6 @@ import { ReactiveFormsModule } from '@angular/forms';
     MatSliderModule,
     MatSnackBarModule,
   ],
+  declarations: [SpinDirective],
 })
 export class SharedModule { }
