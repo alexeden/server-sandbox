@@ -5,6 +5,11 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
 
+import * as pts from 'pts';
+import * as rxjs from 'rxjs';
+(window as any).pts = pts;
+(window as any).rxjs = rxjs;
+
 if (environment.production) {
   enableProdMode();
 }
