@@ -9,12 +9,12 @@ import { DotstarBufferService } from '../dotstar-buffer.service';
 import { MatSlideToggleChange } from '@angular/material';
 import pathOr from 'ramda/es/pathOr';
 
-const functionBodyValidator = (args: string): ValidatorFn => {
+const functionBodyValidator = (fnHead: string, args: any[]): ValidatorFn => {
   return (control: FormControl): {[key: string]: any} | null => {
     try {
-      const fn = eval(`${args}${control.value}`);
+      const fn = eval(`${fnHead} ${control.value}`);
       if (typeof fn !== 'function') return { notAFunction: true };
-      if (typeof fn(0, 0) !== 'number') return { invalidReturnValue: true };
+      if (typeof fn(...args) !== 'number' || isNaN(fn(...args))) return { invalidReturnValue: true };
       return null;
     }
     catch (error) {
@@ -43,29 +43,21 @@ export class DotstarSamplerFormComponent implements OnDestroy {
   ) {
     (window as any).DotstarSamplerFormComponent = this;
 
-    this.channelToggleForm = this.fb.group({
-      r: this.fb.control(true),
-      g: this.fb.control(true),
-      b: this.fb.control(true),
-    });
+    this.channelToggleForm = this.fb.group({ r: [true], g: [true], b: [true] });
+
+    const fnValidator = functionBodyValidator(samplerFnHead, [0, 0, 1]);
 
     this.rgbSamplerForm = this.fb.group({
-      r: this.fb.control(pathOr(DotstarConstants.rSampler, [0], this.rgbSamplers), [
-        functionBodyValidator(samplerFnHead),
-      ]),
-      g: this.fb.control(pathOr(DotstarConstants.gSampler, [1], this.rgbSamplers), [
-        functionBodyValidator(samplerFnHead),
-      ]),
-      b: this.fb.control(pathOr(DotstarConstants.bSampler, [2], this.rgbSamplers), [
-        functionBodyValidator(samplerFnHead),
-      ]),
+      r: [pathOr(DotstarConstants.rSampler, [0], this.rgbSamplers), [fnValidator]],
+      g: [pathOr(DotstarConstants.gSampler, [1], this.rgbSamplers), [fnValidator]],
+      b: [pathOr(DotstarConstants.bSampler, [2], this.rgbSamplers), [fnValidator]],
     });
 
     this.rgbSamplerForm.valueChanges.pipe(
       takeUntil(this.unsubscribe$),
       startWith(this.rgbSamplerForm.value),
-      tap(value => console.log('value changed: ', value)),
       filter(() => this.rgbSamplerForm.valid || this.rgbSamplerForm.disabled),
+      map(samplers => this.rgbSamplerForm.disabled ? {} : samplers),
       tap(({ r, g, b }) => r && b && g && (this.rgbSamplers = [r, g, b])),
       map(({ r, g, b }): ChannelSamplers => [
         eval(`${samplerFnHead}${r || 0}`),
@@ -77,7 +69,7 @@ export class DotstarSamplerFormComponent implements OnDestroy {
   }
 
   toggleChannel({ checked }: MatSlideToggleChange, channel: string) {
-    this.rgbSamplerForm.get(channel)[checked ? 'enable' : 'disable']();
+    this.rgbSamplerForm.get(channel)[checked ? 'enable' : 'disable'](); // { onlySelf: true, emitEvent: true });
   }
 
   ngOnDestroy() {
