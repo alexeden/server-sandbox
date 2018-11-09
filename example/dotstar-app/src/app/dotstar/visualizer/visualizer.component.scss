@@ -1,4 +1,14 @@
+@import 'variables';
+
 :host {
   // height: 500px;
   display: block;
+  border: 1px solid $red;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+canvas {
+  border: 1px solid $blue;
 }
