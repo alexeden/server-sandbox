@@ -1,10 +1,9 @@
-import { Component, OnInit, ElementRef, Renderer2, OnDestroy, HostBinding } from '@angular/core';
+import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/core';
 import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
-import { takeUntil, map, tap, share, filter } from 'rxjs/operators';
-import { CanvasSpace, Create, Pt, CanvasForm, Num, Bound, Group } from 'pts';
-import { DotstarConfigService } from '../dotstar-config.service';
+import { takeUntil, map, tap, share } from 'rxjs/operators';
+import { CanvasSpace, Pt, CanvasForm, Num, Bound, Group } from 'pts';
+import { transpose } from 'ramda';
 import { Sample } from '../lib';
-import { DotstarSocketService } from '../dotstar-socket.service';
 import { DotstarBufferService } from '../dotstar-buffer.service';
 
 enum Colors {
@@ -22,16 +21,11 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   private readonly ready$ = new BehaviorSubject(false);
   private readonly bounds$ = new BehaviorSubject<Bound>(new Bound());
-  private readonly mappedSamples: Observable<Sample[]>;
-  private readonly ptDistribution: Observable<Group>;
 
   readonly height = 500;
-  readonly pad = 10;
-  readonly waveHeight = this.height - 4 * this.pad;
   readonly channelValues: Observable<Sample[]>;
-  readonly colorStrings: Observable<string[]>;
-  readonly rgbGroups: Observable<Record<'r' | 'g' | 'b', Group>>;
-  readonly clock = new Subject<number>();
+  readonly rgbGroup: Observable<Group>;
+  readonly rgbChannelGroups: Observable<Group[]>;
   readonly space: CanvasSpace;
   readonly form: CanvasForm;
   readonly canvas: HTMLCanvasElement;
@@ -39,8 +33,6 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   constructor(
     readonly elRef: ElementRef,
     readonly renderer: Renderer2,
-    readonly configService: DotstarConfigService,
-    readonly socketService: DotstarSocketService,
     readonly bufferService: DotstarBufferService
   ) {
     (window as any).visualizer = this;
@@ -55,37 +47,30 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       share()
     );
 
-    this.colorStrings = this.channelValues.pipe(
-      map(buffer => buffer.map(([r, g, b]) => `rgb(${r}, ${g}, ${b})`))
+    this.rgbGroup = combineLatest(this.bounds$, this.channelValues).pipe(
+      map(([{ width }, values]) =>
+        Group.fromPtArray(values.map(([r, g, b], i) => {
+          const pt = new Pt([ Num.mapToRange(i, 0x00, values.length, 0, width), 0 ]);
+          pt.id = `rgb(${r}, ${g}, ${b})`;
+          return pt;
+        }))
+      ),
+      map(group => group.moveBy(0, 5).scale([1 - (10 / this.height), 0], group.centroid()))
     );
 
-    this.ptDistribution = combineLatest(
-      this.configService.length,
-      this.bounds$,
-      (length, { width }) => Create.distributeLinear([new Pt(this.pad, 0), new Pt(width - this.pad, 0)], length)
-    );
-
-    this.mappedSamples = this.channelValues.pipe(
-      map(values => {
-        const mapToCanvas = value => this.waveHeight - Num.mapToRange(value, 0x00, 0xff, 0, this.waveHeight);
-        return values.map(rgb => rgb.map(mapToCanvas) as Sample);
-      })
-    );
-
-    this.rgbGroups = combineLatest(
-      this.ptDistribution,
-      this.mappedSamples
-    )
-    .pipe(
-      // Make sure distribution and sample list length are equal
-      // Otherwise there can be issues with old data being processed using
-      // a newer distribution
-      filter(([ distro, samples ]) => distro.length === samples.length),
-      map(([distro, samples]) => ({
-        r: Group.fromPtArray(distro.map((pt, i) => pt.$to([ pt.x, samples[i][0] ]))).moveBy(0, 3 * this.pad),
-        g: Group.fromPtArray(distro.map((pt, i) => pt.$to([ pt.x, samples[i][1] ]))).moveBy(0, 3 * this.pad),
-        b: Group.fromPtArray(distro.map((pt, i) => pt.$to([ pt.x, samples[i][2] ]))).moveBy(0, 3 * this.pad),
-      }))
+    this.rgbChannelGroups = combineLatest(this.bounds$, this.channelValues).pipe(
+      map(([{ width, height }, values]) =>
+        transpose(values).map(channel =>
+          Group.fromArray(channel.map((value, i) => [
+            Num.mapToRange(i, 0x00, values.length, 0, width),
+            height - Num.mapToRange(value, 0x00, 0xff, 0, height),
+          ]))
+        )
+        .map(group => group.scale(
+          [1 - (10 / this.height), 1 - (40 / this.height)],
+          this.space.center.$add(0, 40)
+        ))
+      )
     );
   }
 
@@ -101,19 +86,13 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       start: bounds => this.bounds$.next(bounds),
     });
 
-    combineLatest(this.ptDistribution, this.colorStrings).pipe(
-      takeUntil(this.unsubscribe$)
-    )
-    .subscribe(([distro, colors]) => {
-      if (!this.form.ready) return;
-      distro.clone().moveBy(0, 3).map((pt, i) => this.form.fill(colors[i]).stroke(false).point(pt, 4, 'square'));
+    this.rgbGroup.pipe(takeUntil(this.unsubscribe$)).subscribe(group => {
+      if (!this.ready$.getValue()) return;
+      group.map((pt, i) => this.form.fill(pt.id).stroke(false).point(pt, 4, 'square'));
     });
 
-    this.rgbGroups.pipe(
-      takeUntil(this.unsubscribe$)
-    )
-    .subscribe(({ r, g, b }) => {
-      if (!this.form.ready) return;
+    this.rgbChannelGroups.pipe(takeUntil(this.unsubscribe$)).subscribe(([ r, g, b ]) => {
+      if (!this.ready$.getValue()) return;
       this.form.fill(Colors.Red).stroke(false).points(r, 5, 'circle');
       this.form.fill(Colors.Green).stroke(false).points(g, 5, 'circle');
       this.form.fill(Colors.Blue).stroke(false).points(b, 5, 'circle');
