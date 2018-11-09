@@ -3,10 +3,11 @@ import { Component, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, ValidatorFn, FormControl } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil, filter, map, startWith, tap } from 'rxjs/operators';
-import { ChannelSamplers, samplerFnHead } from '../lib';
+import { ChannelSamplers, samplerFnHead, DotstarConstants } from '../lib';
 import { LocalStorage } from '@app/shared';
 import { DotstarBufferService } from '../dotstar-buffer.service';
 import { MatSlideToggleChange } from '@angular/material';
+import pathOr from 'ramda/es/pathOr';
 
 const functionBodyValidator = (args: string): ValidatorFn => {
   return (control: FormControl): {[key: string]: any} | null => {
@@ -34,7 +35,7 @@ export class DotstarSamplerFormComponent implements OnDestroy {
   readonly channelToggleForm: FormGroup;
   readonly rgbSamplerForm: FormGroup;
 
-  @LocalStorage() rgbSamplers: Partial<ChannelSamplers> = [];
+  @LocalStorage() rgbSamplers: Partial<ChannelSamplers>;
 
   constructor(
     private fb: FormBuilder,
@@ -49,13 +50,13 @@ export class DotstarSamplerFormComponent implements OnDestroy {
     });
 
     this.rgbSamplerForm = this.fb.group({
-      r: this.fb.control(this.rgbSamplers[0] || '(255/2) * Math.sin(2 * t) *  Math.sin((Math.PI * 2 / n) * i - t / 2) + (255/2)', [
+      r: this.fb.control(pathOr(DotstarConstants.rSampler, [0], this.rgbSamplers), [
         functionBodyValidator(samplerFnHead),
       ]),
-      g: this.fb.control(this.rgbSamplers[1] || '(255 / 2) * Math.sin((Math.PI * 2 / n) * i + 2 * t) + (255 / 2)', [
+      g: this.fb.control(pathOr(DotstarConstants.gSampler, [1], this.rgbSamplers), [
         functionBodyValidator(samplerFnHead),
       ]),
-      b: this.fb.control(this.rgbSamplers[2] || '255 * Math.sin(i / 15 - (Math.PI * 2 / n) * 50*t)', [
+      b: this.fb.control(pathOr(DotstarConstants.bSampler, [2], this.rgbSamplers), [
         functionBodyValidator(samplerFnHead),
       ]),
     });
@@ -63,7 +64,8 @@ export class DotstarSamplerFormComponent implements OnDestroy {
     this.rgbSamplerForm.valueChanges.pipe(
       takeUntil(this.unsubscribe$),
       startWith(this.rgbSamplerForm.value),
-      filter(() => this.rgbSamplerForm.valid),
+      tap(value => console.log('value changed: ', value)),
+      filter(() => this.rgbSamplerForm.valid || this.rgbSamplerForm.disabled),
       tap(({ r, g, b }) => r && b && g && (this.rgbSamplers = [r, g, b])),
       map(({ r, g, b }): ChannelSamplers => [
         eval(`${samplerFnHead}${r || 0}`),

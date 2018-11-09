@@ -1,4 +1,5 @@
-export type Channels = 'r' | 'g' | 'b';
+export type RGB = 'r' | 'g' | 'b';
+export type HSL = 'h' | 's' | 'l';
 
 export type Sampler = (t: number, i: number, n: number) => number;
 

@@ -11,21 +11,18 @@ import {
   empty,
 } from 'rxjs';
 import { publishReplay, map, switchMap, distinctUntilChanged, share } from 'rxjs/operators';
-import { range, ChannelSamplers, DotstarConstants, Sampler, Sample } from './lib';
+import { ChannelSamplers, DotstarConstants, Sampler, Sample } from './lib';
 import { Num } from 'pts';
+import { clamp, range } from 'ramda';
 
 @Injectable()
 export class DotstarBufferService {
-  // Time
   private readonly running$ = new BehaviorSubject<boolean>(true);
+  private readonly samplerFunctions$ = new BehaviorSubject<ChannelSamplers>([ () => 0, () => 0, () => 0 ]);
+
   readonly running: Observable<boolean>;
   readonly clock: Observable<number>;
-
-  // Samplers
-  private readonly samplerFunctions$ = new BehaviorSubject<ChannelSamplers>([ () => 0, () => 0, () => 0 ]);
   readonly samplerFunctions: Observable<ChannelSamplers>;
-
-  // Values
   readonly channelValues: Observable<Sample[]>;
 
   constructor(
@@ -50,28 +47,22 @@ export class DotstarBufferService {
 
     this.channelValues = combineLatest(
       this.clock,
-      this.configService.length.pipe(map(n => range(0, n).fill(0))),
+      this.configService.length.pipe(map(range(0))),
       this.samplerFunctions
     ).pipe(
       map(([t, emptyBuffer, [r, g, b]]) => {
-        t /= 1000;
-        return emptyBuffer.map<Sample>((_, i) => [
-          r(t, i, emptyBuffer.length),
-          g(t, i, emptyBuffer.length),
-          b(t, i, emptyBuffer.length),
-        ]);
+        const { length: n } = emptyBuffer;
+        return emptyBuffer.map((_, i) =>
+          [ r(t, i, n), g(t, i, n), b(t, i, n) ].map(clamp(0x00, 0xff)) as Sample
+        );
       }),
       share()
     );
   }
 
   updateSamplers([ r, g, b ]: ChannelSamplers) {
-    const clampWrap = (fn: Sampler) => (...args: Parameters<Sampler>) => Math.floor(Num.clamp(fn(...args), 0x00, 0xff));
-    this.samplerFunctions$.next([
-      clampWrap(r),
-      clampWrap(g),
-      clampWrap(b),
-    ]);
+    console.log('updating samplers: ', r, g, b);
+    this.samplerFunctions$.next([ r, g, b]);
   }
 
   pause() {
