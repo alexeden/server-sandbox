@@ -23,6 +23,7 @@
     "dotstar-node": "file:../..",
     "hammerjs": "^2.0.8",
     "pts": "^0.6.6",
+    "ramda": "^0.25.0",
     "rxjs": "~6.3.3",
     "safer-eval": "^1.2.3",
     "zone.js": "~0.8.26"
@@ -33,6 +34,7 @@
     "@angular/compiler-cli": "~7.0.0",
     "@angular/language-service": "~7.0.0",
     "@types/node": "~8.9.4",
+    "@types/ramda": "^0.25.41",
     "codelyzer": "^4.5.0",
     "ts-node": "~7.0.0",
     "tslint": "~5.11.0",
