@@ -30,6 +30,9 @@ import { DotstarControlBarComponent } from './control-bar/control-bar.component'
   exports: [
     DotstarMainComponent,
   ],
+  entryComponents: [
+    DotstarConfigFormComponent,
+  ],
   providers: [
     DotstarBufferService,
     DotstarConfigService,

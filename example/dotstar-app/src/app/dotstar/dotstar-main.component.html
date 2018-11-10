@@ -5,15 +5,34 @@
   <mat-card>
     <dotstar-visualizer ></dotstar-visualizer>
   </mat-card>
-  <dotstar-config-form></dotstar-config-form>
 </div>
 
-<dotstar-control-bar>
+<dotstar-control-bar class="row gap-40">
+  <div class="row gap-10 align-center">
+    <button
+      mat-icon-button
+      [disabled]="socketService.connected$ | async"
+      configFormTrigger>
+      <mat-icon
+        matTooltip="Configure the device"
+        style="font-size: 2rem"
+        [inline]="true">
+        settings
+      </mat-icon>
+    </button>
+    <div class="column justify-center">
+      <div class="mat-h3 m-0">Device Configuration</div>
+      <div class="mat-caption">{{ devicePath | async }}</div>
+    </div>
+  </div>
+
+  <div class="row grow"></div>
+
   <div class="row gap-10">
     <button
       mat-fab
       class="no-shadow"
-      color="primary"
+      color="accent"
       *ngIf="bufferService.running | async"
       (click)="bufferService.pause()">
       <mat-icon>pause</mat-icon>
@@ -21,7 +40,7 @@
     <button
       mat-fab
       class="no-shadow"
-      color="accent"
+      color="primary"
       *ngIf="!(bufferService.running | async)"
       (click)="bufferService.resume()">
       <mat-icon>play_arrow</mat-icon>
@@ -32,11 +51,12 @@
       <span *ngIf="bufferService.running | async" class="mat-caption">Running</span>
     </div>
   </div>
+
+
   <div class="row gap-10">
     <button
       mat-fab
       class="no-shadow"
-      color="primary"
       *ngIf="socketService.connected$ | async"
       (click)="socketService.disconnect()">
       <mat-icon [spin]="10">sync</mat-icon>
@@ -44,38 +64,29 @@
     <button
       mat-fab
       class="no-shadow"
-      color="accent"
+      color="primary"
       *ngIf="!(socketService.connected$ | async)"
       (click)="socketService.connect()">
       <mat-icon>sync</mat-icon>
     </button>
     <div class="column justify-center">
-      <div class="mat-h3 m-0">Device Connection</div>
+      <div class="mat-h3 m-0">Connection</div>
       <span *ngIf="!(socketService.connected$ | async)" class="mat-caption">Not Connected</span>
       <span *ngIf="socketService.connected$ | async" class="mat-caption">Syncing updates</span>
     </div>
   </div>
 
-  <div class="row gap-10 align-center">
-    <button
-      mat-icon-button
-      configFormTrigger
-      matTooltip="Configure the device">
-      <mat-icon
-        style="font-size: 2rem"
-        [inline]="true">
-        settings
-      </mat-icon>
-    </button>
+
+  <!-- <div class="row gap-5 align-center">
     <mat-icon
       style="font-size: 2rem"
       [inline]="true"
-      [matTooltip]="(socketService.fps | async) + ' updates per second'"
+      [matTooltip]="'Sending ' + (socketService.fps | async) + ' updates per second'"
       [matTooltipHideDelay]="1500">
       shutter_speed
     </mat-icon>
     <mat-slider class="p-0" thumbLabel [formControl]="fpsControl" [min]="fpsMin" [max]="fpsMax"></mat-slider>
-  </div>
+  </div> -->
 </dotstar-control-bar>
 
 

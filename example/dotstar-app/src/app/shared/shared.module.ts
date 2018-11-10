@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   MatAutocompleteModule,
+  MatBottomSheetModule,
   MatButtonModule,
   MatCardModule,
   MatCheckboxModule,
@@ -23,6 +24,7 @@ import { SpinDirective } from './spin.directive';
     CommonModule,
     ReactiveFormsModule,
     MatAutocompleteModule,
+    MatBottomSheetModule,
     MatButtonModule,
     MatCardModule,
     MatCheckboxModule,

@@ -1,8 +1,6 @@
-<div [formGroup]="configForm" class="column gap-10">
-  <div class="row gap-10">
-    <mat-form-field>
-      <input matInput placeholder="URL" formControlName="url">
-    </mat-form-field>
+<div [formGroup]="configForm" class="column gap-10 p-x-10 p-y-20">
+  <div class="mat-h2 m-b-20">Device configuration</div>
+  <!-- <div class="row gap-10"> -->
     <mat-form-field>
       <input type="text" placeholder="Device Path" matInput formControlName="devicePath" [matAutocomplete]="auto">
       <mat-autocomplete #auto="matAutocomplete">
@@ -12,10 +10,13 @@
       </mat-autocomplete>
     </mat-form-field>
     <mat-form-field>
+      <input matInput placeholder="URL" formControlName="url">
+    </mat-form-field>
+    <mat-form-field>
       <input matInput type="number" placeholder="Number of LEDs" formControlName="length" min="1" max="1024">
     </mat-form-field>
-  </div>
-  <div class="row gap-10">
+  <!-- </div>
+  <div class="row gap-10"> -->
     <mat-form-field>
       <input matInput type="number" placeholder="Number of Start Frames" formControlName="startFrames" min="1" max="10">
     </mat-form-field>
@@ -26,5 +27,14 @@
       <input matInput type="number" placeholder="Clock Speed" formControlName="clockSpeed">
       <span matSuffix>Hz</span>
     </mat-form-field>
+  <!-- </div> -->
+
+  <div class="row justify-end" *ngIf="bottomSheetRef">
+    <button
+      mat-button
+      (click)="bottomSheetRef.dismiss()"
+      color="primary">
+      Done
+    </button>
   </div>
 </div>

@@ -1,24 +1,18 @@
-import { Directive, ElementRef, Renderer2, Input, OnDestroy } from '@angular/core';
+import { Directive, HostListener } from '@angular/core';
+import { MatBottomSheet } from '@angular/material';
+import { DotstarConfigFormComponent } from './config-form.component';
 
 @Directive({
   selector: '[configFormTrigger]',
 })
-export class DotstarOpenConfigFormDirective implements OnDestroy {
+export class DotstarOpenConfigFormDirective {
+  constructor(private bottomSheet: MatBottomSheet) {}
 
-  @Input()
-  set spin(freq: number) {
-    (this.el.nativeElement as HTMLElement).style.setProperty('--speed', `${10 / +freq}s`);
+  @HostListener('click', [])
+  open() {
+    this.bottomSheet.open(DotstarConfigFormComponent, {
+      autoFocus: true,
+      closeOnNavigation: true,
+    });
   }
-
-  constructor(
-    private el: ElementRef,
-    private renderer: Renderer2
-  ) {
-    this.renderer.addClass(this.el.nativeElement, 'spin');
-  }
-
-  ngOnDestroy() {
-    this.renderer.removeClass(this.el.nativeElement, 'spin');
-  }
-
 }

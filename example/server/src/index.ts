@@ -27,9 +27,11 @@ app.get('/api/dev', (req, res, next) => {
     }
     else {
       res.json({
-        devicePaths: files
-          .filter(f => f.includes('spi') || f.includes('null'))
-          .map(f => `/dev/${f}`),
+        devicePaths: [
+          files
+            .filter(f => f.includes('spi') || f.includes('null'))
+            .map(f => `/dev/${f}`),
+        ],
       });
       next();
     }

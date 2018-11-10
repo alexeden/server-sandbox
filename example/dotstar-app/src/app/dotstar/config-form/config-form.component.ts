@@ -1,11 +1,12 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Optional } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Subject, Observable } from 'rxjs';
-import { takeUntil, tap, filter } from 'rxjs/operators';
+import { takeUntil, tap, filter, take } from 'rxjs/operators';
 import { APA102C } from 'dotstar-node/dist/apa102c';
 import { DotstarConstants } from '../lib';
 import { DotstarSocketService } from '../dotstar-socket.service';
 import { DotstarConfigService } from '../dotstar-config.service';
+import { MatBottomSheetRef } from '@angular/material';
 
 @Component({
   selector: 'dotstar-config-form',
@@ -21,8 +22,11 @@ export class DotstarConfigFormComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private configService: DotstarConfigService,
-    private socketService: DotstarSocketService
+    private socketService: DotstarSocketService,
+    @Optional()
+    public bottomSheetRef: MatBottomSheetRef<DotstarConfigFormComponent>
   ) {
+    (window as any).DotstarConfigFormComponent = this;
     this.connected = this.socketService.connected$.asObservable();
 
     this.devicePaths = this.configService.devicePaths;
@@ -64,22 +68,11 @@ export class DotstarConfigFormComponent implements OnInit, OnDestroy {
     )
     .subscribe();
 
-    this.populateDevicePaths();
-  }
+    this.configService.deviceConfig.pipe(take(1)).subscribe(config => {
+      this.configForm.patchValue(config);
+    });
 
-  async populateDevicePaths() {
-    try {
-      const paths = await this.configService.getAvailableDevicePaths();
-      if (paths.length > 0 && !this.configForm.get('devicePath').value) {
-        this.configForm.get('devicePath').setValue(
-          // Try to set the device path to a legit SPI path, otherwise settle with the first option
-          paths.reduce((ps, p) => !ps.includes('spi') && p.includes('spi') ? ps : p, paths[0])
-        );
-      }
-    }
-    catch (err) {
-      console.error(err);
-    }
+    this.configService.getAvailableDevicePaths();
   }
 
   disconnect() {

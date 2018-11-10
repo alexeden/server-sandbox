@@ -4,8 +4,8 @@ import { DotstarConfigService } from './dotstar-config.service';
 import { DotstarSocketService } from './dotstar-socket.service';
 import { DotstarConstants } from './lib';
 import { FormControl, FormBuilder, Validators } from '@angular/forms';
-import { takeUntil, startWith, filter } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { takeUntil, startWith, filter, map } from 'rxjs/operators';
+import { Subject, Observable } from 'rxjs';
 
 @Component({
   selector: 'dotstar-main',
@@ -18,6 +18,7 @@ export class DotstarMainComponent implements OnInit, OnDestroy {
   readonly fpsControl: FormControl;
   readonly fpsMin = DotstarConstants.fpsMin;
   readonly fpsMax = DotstarConstants.fpsMax;
+  readonly devicePath: Observable<string>;
 
 
   constructor(
@@ -30,6 +31,10 @@ export class DotstarMainComponent implements OnInit, OnDestroy {
       Validators.min(this.fpsMin),
       Validators.max(this.fpsMax),
     ]);
+
+    this.devicePath = this.configService.deviceConfig.pipe(
+      map(config => config.devicePath)
+    );
   }
 
   ngOnInit() {
@@ -39,6 +44,8 @@ export class DotstarMainComponent implements OnInit, OnDestroy {
       filter(() => this.fpsControl.valid)
     )
     .subscribe(fps => this.socketService.setFps(fps));
+
+    this.configService.getAvailableDevicePaths();
   }
 
 

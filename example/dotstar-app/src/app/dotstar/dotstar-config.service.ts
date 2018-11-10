@@ -48,6 +48,11 @@ export class DotstarConfigService {
     return fetch('/api/dev')
       .then(res => res.json())
       .then(({ devicePaths }) => {
+        if (devicePaths.length > 0 && !this.deviceConfig$.getValue().devicePath) {
+          // Try to set the device path to a legit SPI path, otherwise settle with the first option
+          const devicePath = devicePaths.find(p => p.includes('spi')) || devicePaths[0];
+          this.updateConfig({ devicePath });
+        }
         this.devicePaths$.next(devicePaths);
         return devicePaths;
       });

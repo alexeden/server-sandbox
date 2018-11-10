@@ -22,7 +22,7 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   private readonly ready$ = new BehaviorSubject(false);
   private readonly bounds$ = new BehaviorSubject<Bound>(new Bound());
 
-  readonly height = 500;
+  readonly height = 550;
   readonly channelValues: Observable<Sample[]>;
   readonly rgbGroup: Observable<Group>;
   readonly rgbChannelGroups: Observable<Group[]>;
@@ -41,6 +41,17 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
     this.renderer.appendChild(this.elRef.nativeElement, this.canvas);
     this.space = new CanvasSpace(this.canvas, () => this.ready$.next(true));
     this.form = new CanvasForm(this.space);
+
+    this.space.setup({
+      bgcolor: '#ffffff',
+      resize: true,
+      retina: true,
+    });
+
+    this.space.add({
+      resize: bounds => this.bounds$.next(bounds),
+      start: bounds => this.bounds$.next(bounds),
+    });
 
     this.channelValues = this.bufferService.channelValues.pipe(
       tap(() => this.space.clear()),
@@ -75,17 +86,6 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.space.setup({
-      bgcolor: '#ffffff',
-      resize: true,
-      retina: true,
-    });
-
-    this.space.add({
-      resize: bounds => this.bounds$.next(bounds),
-      start: bounds => this.bounds$.next(bounds),
-    });
-
     this.rgbGroup.pipe(takeUntil(this.unsubscribe$)).subscribe(group => {
       if (!this.ready$.getValue()) return;
       group.map((pt, i) => this.form.fill(pt.id).stroke(false).point(pt, 4, 'square'));
