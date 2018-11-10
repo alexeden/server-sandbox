@@ -11,7 +11,7 @@ import {
   empty,
 } from 'rxjs';
 import { publishReplay, map, switchMap, distinctUntilChanged, share } from 'rxjs/operators';
-import { ChannelSamplers, DotstarConstants, Sampler, Sample } from './lib';
+import { ChannelSamplers, DotstarConstants, Sampler, Sample, RGB } from './lib';
 import { Num } from 'pts';
 import { clamp, range } from 'ramda';
 

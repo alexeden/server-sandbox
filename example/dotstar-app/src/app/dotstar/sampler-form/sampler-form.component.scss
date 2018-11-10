@@ -1,5 +1,13 @@
 @import 'variables';
 
+:host {
+  & textarea {
+    font-family: monospace;
+    letter-spacing: -0.5px;
+    line-height: 1.5;
+  }
+}
+
 .mat-slide-toggle.mat-checked {
   &.red ::ng-deep {
     & .mat-slide-toggle-thumb {

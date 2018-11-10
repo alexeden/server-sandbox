@@ -1,27 +1,14 @@
 // tslint:disable no-eval
+import { pathOr } from 'ramda';
+import { Subject, BehaviorSubject } from 'rxjs';
+import { takeUntil, filter, map, startWith, tap, switchMap } from 'rxjs/operators';
 import { Component, OnDestroy } from '@angular/core';
-import { FormGroup, FormBuilder, ValidatorFn, FormControl } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { takeUntil, filter, map, startWith, tap } from 'rxjs/operators';
-import { ChannelSamplers, samplerFnHead, DotstarConstants, RGB, HSL, Sampler } from '../lib';
+import { FormGroup, FormBuilder } from '@angular/forms';
+import { MatSlideToggleChange } from '@angular/material';
+import { samplerFnHead, DotstarConstants, RGB, HSL, Sampler, ChannelSamplers } from '../lib';
 import { LocalStorage } from '@app/shared';
 import { DotstarBufferService } from '../dotstar-buffer.service';
-import { MatSlideToggleChange } from '@angular/material';
-import pathOr from 'ramda/es/pathOr';
-
-const functionBodyValidator = (fnHead: string, args: any[]): ValidatorFn => {
-  return (control: FormControl): {[key: string]: any} | null => {
-    try {
-      const fn = eval(`${fnHead} ${control.value}`);
-      if (typeof fn !== 'function') return { notAFunction: true };
-      if (typeof fn(...args) !== 'number' || isNaN(fn(...args))) return { invalidReturnValue: true };
-      return null;
-    }
-    catch (error) {
-      return { unknownError: true };
-    }
-  };
-};
+import { functionBodyValidator } from './function-body.validator';
 
 @Component({
   selector: 'dotstar-sampler-form',
@@ -30,12 +17,15 @@ const functionBodyValidator = (fnHead: string, args: any[]): ValidatorFn => {
 })
 export class DotstarSamplerFormComponent implements OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
-
+  private readonly fnValidator = functionBodyValidator(samplerFnHead, [0, 0, 1]);
+  readonly mode$ = new BehaviorSubject<'rgb' | 'hsl'>('rgb');
   readonly samplerFnHead = samplerFnHead;
   readonly channelToggleForm: FormGroup;
   readonly rgbSamplerForm: FormGroup;
+  readonly samplerForm: FormGroup;
 
-  @LocalStorage() savedSamplers: Record<RGB | HSL, Sampler>;
+  @LocalStorage()
+  private savedSamplers: Record<RGB | HSL, Sampler>;
 
   constructor(
     private fb: FormBuilder,
@@ -45,35 +35,78 @@ export class DotstarSamplerFormComponent implements OnDestroy {
 
     this.channelToggleForm = this.fb.group({ r: [true], g: [true], b: [true] });
 
-    const fnValidator = functionBodyValidator(samplerFnHead, [0, 0, 1]);
-
-    this.rgbSamplerForm = this.fb.group({
-      r: [pathOr(DotstarConstants.rSampler, ['r'], this.savedSamplers), [fnValidator]],
-      g: [pathOr(DotstarConstants.gSampler, ['g'], this.savedSamplers), [fnValidator]],
-      b: [pathOr(DotstarConstants.bSampler, ['b'], this.savedSamplers), [fnValidator]],
+    this.samplerForm = this.fb.group({
+      rgb: this.fb.group({
+        r: [pathOr(DotstarConstants.rSampler, ['r'], this.savedSamplers), [this.fnValidator]],
+        g: [pathOr(DotstarConstants.gSampler, ['g'], this.savedSamplers), [this.fnValidator]],
+        b: [pathOr(DotstarConstants.bSampler, ['b'], this.savedSamplers), [this.fnValidator]],
+      }),
+      hsl: this.fb.group({
+        h: [pathOr('0', ['h'], this.savedSamplers), [this.fnValidator]],
+        s: [pathOr('100', ['s'], this.savedSamplers), [this.fnValidator]],
+        l: [pathOr('100', ['l'], this.savedSamplers), [this.fnValidator]],
+      }),
     });
 
-    this.rgbSamplerForm.valueChanges.pipe(
+
+    this.rgbSamplerForm = this.fb.group({
+      r: [pathOr(DotstarConstants.rSampler, ['r'], this.savedSamplers), [this.fnValidator]],
+      g: [pathOr(DotstarConstants.gSampler, ['g'], this.savedSamplers), [this.fnValidator]],
+      b: [pathOr(DotstarConstants.bSampler, ['b'], this.savedSamplers), [this.fnValidator]],
+    });
+
+    this.mode$.pipe(
       takeUntil(this.unsubscribe$),
-      startWith(this.rgbSamplerForm.value),
-      filter(() => this.rgbSamplerForm.valid || this.rgbSamplerForm.disabled),
-      map(samplers => this.rgbSamplerForm.disabled ? {} : samplers),
-      tap(({ r, g, b }) => r && b && g && (this.savedSamplers = { ...this.savedSamplers, r, g, b })),
-      map(({ r, g, b }): ChannelSamplers => [
-        eval(`${samplerFnHead}${r || 0}`),
-        eval(`${samplerFnHead}${g || 0}`),
-        eval(`${samplerFnHead}${b || 0}`),
-      ])
+      switchMap(mode => {
+        const formGroup = this.samplerForm.get(mode);
+
+        return formGroup.valueChanges.pipe(
+          startWith(formGroup.value),
+          filter(() => formGroup.valid),
+          tap(samplerStrs => this.savedSamplers = { ...this.savedSamplers, ...samplerStrs }),
+          map(samplerStrs => Object.values(samplerStrs).map(body => eval(`${samplerFnHead}${body}`)) as ChannelSamplers),
+          map(samplers => {
+            switch (mode) {
+              case 'hsl':
+                return DotstarSamplerFormComponent.convertToRgb(samplers);
+              default:
+                return samplers;
+            }
+          })
+        );
+      })
     )
+    // .subscribe(console.log);
+    // this.rgbSamplerForm.valueChanges.pipe(
+    //   takeUntil(this.unsubscribe$),
+    //   startWith(this.rgbSamplerForm.value),
+    //   filter(() => this.rgbSamplerForm.valid || this.rgbSamplerForm.disabled),
+    //   // map(samplerStrs => this.rgbSamplerForm.disabled ? {} : samplerStrs),
+    //   tap(samplerStrs => this.savedSamplers = { ...this.savedSamplers, ...samplerStrs }),
+    //   map(({ r, g, b }) => ({
+    //     r: r ? eval(`${samplerFnHead}${r}`) : () => 0,
+    //     g: g ? eval(`${samplerFnHead}${g}`) : () => 0,
+    //     b: b ? eval(`${samplerFnHead}${b}`) : () => 0,
+    //   }))
+    // )
     .subscribe(samplers => this.bufferService.updateSamplers(samplers));
   }
 
+  static convertToRgb([h, s, l]: ChannelSamplers): ChannelSamplers {
+    return [h, s, l];
+  }
+
   toggleChannel({ checked }: MatSlideToggleChange, channel: string) {
-    this.rgbSamplerForm.get(channel)[checked ? 'enable' : 'disable']();
+    // this.rgbSamplerForm.get(channel)[checked ? 'enable' : 'disable']();
+  }
+
+  setMode(mode: 'rgb' | 'hsl') {
+    this.mode$.next(mode);
   }
 
   ngOnDestroy() {
     this.unsubscribe$.next('unsubscribe!');
     this.unsubscribe$.unsubscribe();
+    this.mode$.unsubscribe();
   }
 }

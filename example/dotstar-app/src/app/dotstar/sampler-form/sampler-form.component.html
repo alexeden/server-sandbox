@@ -1,41 +1,54 @@
-<div class="column gap-20">
-  <div class="row gap-10 align-baseline grow">
-    <mat-slide-toggle
-      class="red"
-      [formControl]="channelToggleForm.get('r')"
-      color="primary"
-      (change)="toggleChannel($event, 'r')">
-    </mat-slide-toggle>
-    <mat-form-field [formGroup]="rgbSamplerForm" class="grow">
-      <mat-label>Red</mat-label>
-      <textarea matInput formControlName="r"></textarea>
-      <mat-error *ngIf="rgbSamplerForm.get('r').invalid">Invalid function</mat-error>
-    </mat-form-field>
+<mat-radio-group class="row gap-20 m-b-20 grow" [value]="mode$ | async" (change)="setMode($event.value)">
+  <mat-radio-button value="rgb" class="grow">RGB</mat-radio-button>
+  <mat-radio-button value="hsl" class="grow">HSL</mat-radio-button>
+</mat-radio-group>
+
+<div class="row gap-20 grow" [formGroup]="samplerForm">
+  <div class="column gap-20 grow" formGroupName="rgb">
+    <div class="row gap-10 align-baseline grow">
+      <mat-form-field class="grow">
+        <mat-label>Red</mat-label>
+        <textarea matInput formControlName="r"></textarea>
+        <mat-error *ngIf="samplerForm.get(['rgb', 'r']).invalid">Invalid function</mat-error>
+      </mat-form-field>
+    </div>
+    <div class="row gap-10 align-baseline grow">
+      <mat-form-field class="grow">
+        <mat-label>Green</mat-label>
+        <textarea matInput formControlName="g"></textarea>
+        <mat-error *ngIf="samplerForm.get(['rgb', 'g']).invalid">Invalid function</mat-error>
+      </mat-form-field>
+    </div>
+    <div class="row gap-10 align-baseline grow">
+      <mat-form-field class="grow">
+        <mat-label>Blue</mat-label>
+        <textarea matInput formControlName="b"></textarea>
+        <mat-error *ngIf="samplerForm.get(['rgb', 'b']).invalid">Invalid function</mat-error>
+      </mat-form-field>
+    </div>
   </div>
-  <div class="row gap-10 align-baseline grow">
-    <mat-slide-toggle
-      class="green"
-      [formControl]="channelToggleForm.get('g')"
-      color="primary"
-      (change)="toggleChannel($event, 'g')">
-    </mat-slide-toggle>
-    <mat-form-field [formGroup]="rgbSamplerForm" class="grow">
-      <mat-label>Green</mat-label>
-      <textarea matInput formControlName="g"></textarea>
-      <mat-error *ngIf="rgbSamplerForm.get('g').invalid">Invalid function</mat-error>
-    </mat-form-field>
-  </div>
-  <div class="row gap-10 align-baseline grow">
-    <mat-slide-toggle
-      class="blue"
-      [formControl]="channelToggleForm.get('b')"
-      color="primary"
-      (change)="toggleChannel($event, 'b')">
-    </mat-slide-toggle>
-    <mat-form-field [formGroup]="rgbSamplerForm" class="grow">
-      <mat-label>Blue</mat-label>
-      <textarea matInput formControlName="b"></textarea>
-      <mat-error *ngIf="rgbSamplerForm.get('b').invalid">Invalid function</mat-error>
-    </mat-form-field>
+
+  <div class="column gap-20 grow" formGroupName="hsl">
+    <div class="row gap-10 align-baseline grow">
+      <mat-form-field class="grow">
+        <mat-label>Hue</mat-label>
+        <textarea matInput formControlName="h"></textarea>
+        <mat-error *ngIf="samplerForm.get(['hsl', 'h']).invalid">Invalid function</mat-error>
+      </mat-form-field>
+    </div>
+    <div class="row gap-10 align-baseline grow">
+      <mat-form-field class="grow">
+        <mat-label>Saturation</mat-label>
+        <textarea matInput formControlName="s"></textarea>
+        <mat-error *ngIf="samplerForm.get(['hsl', 's']).invalid">Invalid function</mat-error>
+      </mat-form-field>
+    </div>
+    <div class="row gap-10 align-baseline grow">
+      <mat-form-field class="grow">
+        <mat-label>Lightness</mat-label>
+        <textarea matInput formControlName="l"></textarea>
+        <mat-error *ngIf="samplerForm.get(['hsl', 'l']).invalid">Invalid function</mat-error>
+      </mat-form-field>
+    </div>
   </div>
 </div>
