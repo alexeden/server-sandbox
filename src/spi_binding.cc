@@ -1,3 +1,5 @@
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <node.h>
 #include <nan.h>
 
@@ -65,8 +67,6 @@ public:
 		if (writelen) memcpy(buffer, writedata, writelen);
 		if (readcount > writelen) memset(buffer+writelen, 0, readcount-writelen);
 
-		//printf("fd: %i, speed: %u, mode: %i, order: %i\n", fd, speed, mode, order);
-		//printf("writelen: %u, readcount: %u, buflen=%u\n", (uint32_t)writelen, readcount, buflen);
 	}
 
 	~SpiTransfer() {
@@ -95,20 +95,20 @@ public:
 			}
 			uv_mutex_unlock(&spiAccess);
 		#else
-		#ifdef __GNUC__
-			#warning "Building without SPI support"
-		#else
-			#pragma message("Building without SPI support")
-		#endif
-		(void)fd;
-		(void)speed;
-		(void)mode;
-		(void)order;
-		(void)readcount;
-		(void)buflen;
-		(void)buffer;
-		ret = -1;
-		errno = ENOSYS;
+			#ifdef __GNUC__
+				#warning "Building without SPI support"
+			#else
+				#pragma message("Building without SPI support")
+			#endif
+			// (void)fd;
+			// (void)speed;
+			// (void)mode;
+			// (void)order;
+			// (void)readcount;
+			// (void)buflen;
+			// (void)buffer;
+			ret = -1;
+			errno = ENOSYS;
 		#endif
 		err = (ret == -1) ? errno : 0;
 	}
