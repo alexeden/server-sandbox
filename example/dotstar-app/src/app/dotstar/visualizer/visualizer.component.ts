@@ -1,7 +1,7 @@
 import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/core';
 import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
 import { takeUntil, map, tap, share } from 'rxjs/operators';
-import { CanvasSpace, Pt, CanvasForm, Num, Bound, Group } from 'pts';
+import { CanvasSpace, Pt, CanvasForm, Num, Bound, Group, Curve } from 'pts';
 import { transpose } from 'ramda';
 import { Sample } from '../lib';
 import { DotstarBufferService } from '../dotstar-buffer.service';
@@ -93,9 +93,12 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
 
     this.rgbChannelGroups.pipe(takeUntil(this.unsubscribe$)).subscribe(([ r, g, b ]) => {
       if (!this.ready$.getValue()) return;
-      this.form.fill(Colors.Red).stroke(false).points(r, 5, 'circle');
-      this.form.fill(Colors.Green).stroke(false).points(g, 5, 'circle');
-      this.form.fill(Colors.Blue).stroke(false).points(b, 5, 'circle');
+      this.form.strokeOnly(Colors.Red, 2).line(r);
+      this.form.strokeOnly(Colors.Green, 2).line(g);
+      this.form.strokeOnly(Colors.Blue, 2).line(b);
+      this.form.fillOnly(Colors.Red).points(r, 4, 'circle');
+      this.form.fillOnly(Colors.Green).points(g, 4, 'circle');
+      this.form.fillOnly(Colors.Blue).points(b, 4, 'circle');
     });
   }
 

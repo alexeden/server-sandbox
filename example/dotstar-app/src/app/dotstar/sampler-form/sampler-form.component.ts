@@ -19,11 +19,14 @@ export class DotstarSamplerFormComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   private readonly fnValidator = functionBodyValidator(samplerFnHead, [0, 0, 1]);
   private readonly channelSampler: Observable<ChannelSampler>;
-  readonly mode$ = new BehaviorSubject<Colorspace>(Colorspace.HSL);
+  readonly mode$: BehaviorSubject<Colorspace>;
   readonly samplerFnHead = samplerFnHead;
 
   readonly channelToggleForm: FormGroup;
   readonly samplerForm: FormGroup;
+
+  @LocalStorage()
+  private savedColorspace: Colorspace;
 
   @LocalStorage()
   private savedSamplers: Record<RGB | HSL, Sampler>;
@@ -33,6 +36,7 @@ export class DotstarSamplerFormComponent implements OnInit, OnDestroy {
     private bufferService: DotstarBufferService
   ) {
     (window as any).DotstarSamplerFormComponent = this;
+    this.mode$ = new BehaviorSubject<Colorspace>(this.savedColorspace || Colorspace.HSL);
 
     this.channelToggleForm = this.fb.group({ r: [true], g: [true], b: [true] });
 
@@ -50,6 +54,7 @@ export class DotstarSamplerFormComponent implements OnInit, OnDestroy {
     });
 
     this.channelSampler = this.mode$.pipe(
+      tap(mode => this.savedColorspace = mode),
       switchMap(mode => {
         const formGroup = this.samplerForm.get(mode);
 
