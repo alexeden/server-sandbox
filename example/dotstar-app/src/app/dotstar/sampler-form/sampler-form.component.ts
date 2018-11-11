@@ -1,11 +1,11 @@
 // tslint:disable no-eval
 import { pathOr } from 'ramda';
-import { Subject, BehaviorSubject } from 'rxjs';
-import { takeUntil, filter, map, startWith, tap, switchMap } from 'rxjs/operators';
-import { Component, OnDestroy } from '@angular/core';
+import { Subject, BehaviorSubject, Observable } from 'rxjs';
+import { takeUntil, filter, map, startWith, tap, switchMap, distinctUntilChanged, pairwise } from 'rxjs/operators';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { MatSlideToggleChange } from '@angular/material';
-import { samplerFnHead, DotstarConstants, RGB, HSL, Sampler, Triplet, SamplerUtils, Colorspace } from '../lib';
+import { samplerFnHead, DotstarConstants, RGB, HSL, Sampler, Triplet, SamplerUtils, Colorspace, ChannelSampler } from '../lib';
 import { LocalStorage } from '@app/shared';
 import { DotstarBufferService } from '../dotstar-buffer.service';
 import { functionBodyValidator } from './function-body.validator';
@@ -15,11 +15,13 @@ import { functionBodyValidator } from './function-body.validator';
   templateUrl: './sampler-form.component.html',
   styleUrls: ['./sampler-form.component.scss'],
 })
-export class DotstarSamplerFormComponent implements OnDestroy {
+export class DotstarSamplerFormComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   private readonly fnValidator = functionBodyValidator(samplerFnHead, [0, 0, 1]);
+  private readonly channelSampler: Observable<ChannelSampler>;
   readonly mode$ = new BehaviorSubject<Colorspace>(Colorspace.HSL);
   readonly samplerFnHead = samplerFnHead;
+
   readonly channelToggleForm: FormGroup;
   readonly samplerForm: FormGroup;
 
@@ -47,15 +49,7 @@ export class DotstarSamplerFormComponent implements OnDestroy {
       }),
     });
 
-
-    // this.rgbSamplerForm = this.fb.group({
-    //   r: [pathOr(DotstarConstants.rSampler, ['r'], this.savedSamplers), [this.fnValidator]],
-    //   g: [pathOr(DotstarConstants.gSampler, ['g'], this.savedSamplers), [this.fnValidator]],
-    //   b: [pathOr(DotstarConstants.bSampler, ['b'], this.savedSamplers), [this.fnValidator]],
-    // });
-
-    this.mode$.pipe(
-      takeUntil(this.unsubscribe$),
+    this.channelSampler = this.mode$.pipe(
       switchMap(mode => {
         const formGroup = this.samplerForm.get(mode);
 
@@ -67,6 +61,24 @@ export class DotstarSamplerFormComponent implements OnDestroy {
           map(SamplerUtils.samplersToChannelSampler(mode))
         );
       })
+    );
+  }
+
+  ngOnInit() {
+    this.mode$.pipe(
+      takeUntil(this.unsubscribe$),
+      distinctUntilChanged(),
+      startWith(this.mode$.getValue() === Colorspace.HSL ? Colorspace.RGB : Colorspace.HSL),
+      pairwise()
+    )
+    .subscribe(([newMode, oldMode]) => {
+      console.log(newMode, oldMode);
+      this.samplerForm.get(oldMode).enable();
+      this.samplerForm.get(newMode).disable();
+    });
+
+    this.channelSampler.pipe(
+      takeUntil(this.unsubscribe$)
     )
     .subscribe(samplers => this.bufferService.updateSampler(samplers));
   }

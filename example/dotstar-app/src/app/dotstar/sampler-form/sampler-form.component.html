@@ -7,21 +7,21 @@
   <div class="column gap-20 grow" formGroupName="rgb">
     <div class="row gap-10 align-baseline grow">
       <mat-form-field class="grow">
-        <mat-label>Red</mat-label>
+        <mat-label>Red <code>(0, 255)</code></mat-label>
         <textarea matInput formControlName="r"></textarea>
         <mat-error *ngIf="samplerForm.get(['rgb', 'r']).invalid">Invalid function</mat-error>
       </mat-form-field>
     </div>
     <div class="row gap-10 align-baseline grow">
       <mat-form-field class="grow">
-        <mat-label>Green</mat-label>
+        <mat-label>Green <code>(0, 255)</code></mat-label>
         <textarea matInput formControlName="g"></textarea>
         <mat-error *ngIf="samplerForm.get(['rgb', 'g']).invalid">Invalid function</mat-error>
       </mat-form-field>
     </div>
     <div class="row gap-10 align-baseline grow">
       <mat-form-field class="grow">
-        <mat-label>Blue</mat-label>
+        <mat-label>Blue <code>(0, 255)</code></mat-label>
         <textarea matInput formControlName="b"></textarea>
         <mat-error *ngIf="samplerForm.get(['rgb', 'b']).invalid">Invalid function</mat-error>
       </mat-form-field>
@@ -31,21 +31,21 @@
   <div class="column gap-20 grow" formGroupName="hsl">
     <div class="row gap-10 align-baseline grow">
       <mat-form-field class="grow">
-        <mat-label>Hue</mat-label>
+        <mat-label>Hue <code>(0&deg;, 360&deg;)</code></mat-label>
         <textarea matInput formControlName="h"></textarea>
         <mat-error *ngIf="samplerForm.get(['hsl', 'h']).invalid">Invalid function</mat-error>
       </mat-form-field>
     </div>
     <div class="row gap-10 align-baseline grow">
       <mat-form-field class="grow">
-        <mat-label>Saturation</mat-label>
+        <mat-label>Saturation <code>(0, 1)</code></mat-label>
         <textarea matInput formControlName="s"></textarea>
         <mat-error *ngIf="samplerForm.get(['hsl', 's']).invalid">Invalid function</mat-error>
       </mat-form-field>
     </div>
     <div class="row gap-10 align-baseline grow">
       <mat-form-field class="grow">
-        <mat-label>Lightness</mat-label>
+        <mat-label>Lightness <code>(0, 1)</code></mat-label>
         <textarea matInput formControlName="l"></textarea>
         <mat-error *ngIf="samplerForm.get(['hsl', 'l']).invalid">Invalid function</mat-error>
       </mat-form-field>
