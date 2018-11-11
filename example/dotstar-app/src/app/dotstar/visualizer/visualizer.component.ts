@@ -88,7 +88,7 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.rgbGroup.pipe(takeUntil(this.unsubscribe$)).subscribe(group => {
       if (!this.ready$.getValue()) return;
-      group.map((pt, i) => this.form.fill(pt.id).stroke(false).point(pt, 4, 'square'));
+      group.map((pt, i) => this.form.fill(pt.id).stroke(false).point(pt, 3, 'square'));
     });
 
     this.rgbChannelGroups.pipe(takeUntil(this.unsubscribe$)).subscribe(([ r, g, b ]) => {
