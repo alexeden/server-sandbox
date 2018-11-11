@@ -5,7 +5,7 @@ import { takeUntil, filter, map, startWith, tap, switchMap } from 'rxjs/operator
 import { Component, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { MatSlideToggleChange } from '@angular/material';
-import { samplerFnHead, DotstarConstants, RGB, HSL, Sampler, ChannelSamplers } from '../lib';
+import { samplerFnHead, DotstarConstants, RGB, HSL, Sampler, Triplet, SamplerUtils, Colorspace } from '../lib';
 import { LocalStorage } from '@app/shared';
 import { DotstarBufferService } from '../dotstar-buffer.service';
 import { functionBodyValidator } from './function-body.validator';
@@ -18,10 +18,9 @@ import { functionBodyValidator } from './function-body.validator';
 export class DotstarSamplerFormComponent implements OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   private readonly fnValidator = functionBodyValidator(samplerFnHead, [0, 0, 1]);
-  readonly mode$ = new BehaviorSubject<'rgb' | 'hsl'>('rgb');
+  readonly mode$ = new BehaviorSubject<Colorspace>(Colorspace.HSL);
   readonly samplerFnHead = samplerFnHead;
   readonly channelToggleForm: FormGroup;
-  readonly rgbSamplerForm: FormGroup;
   readonly samplerForm: FormGroup;
 
   @LocalStorage()
@@ -42,18 +41,18 @@ export class DotstarSamplerFormComponent implements OnDestroy {
         b: [pathOr(DotstarConstants.bSampler, ['b'], this.savedSamplers), [this.fnValidator]],
       }),
       hsl: this.fb.group({
-        h: [pathOr('0', ['h'], this.savedSamplers), [this.fnValidator]],
-        s: [pathOr('100', ['s'], this.savedSamplers), [this.fnValidator]],
-        l: [pathOr('100', ['l'], this.savedSamplers), [this.fnValidator]],
+        h: [pathOr(DotstarConstants.hSampler, ['h'], this.savedSamplers), [this.fnValidator]],
+        s: [pathOr(DotstarConstants.sSampler, ['s'], this.savedSamplers), [this.fnValidator]],
+        l: [pathOr(DotstarConstants.lSampler, ['l'], this.savedSamplers), [this.fnValidator]],
       }),
     });
 
 
-    this.rgbSamplerForm = this.fb.group({
-      r: [pathOr(DotstarConstants.rSampler, ['r'], this.savedSamplers), [this.fnValidator]],
-      g: [pathOr(DotstarConstants.gSampler, ['g'], this.savedSamplers), [this.fnValidator]],
-      b: [pathOr(DotstarConstants.bSampler, ['b'], this.savedSamplers), [this.fnValidator]],
-    });
+    // this.rgbSamplerForm = this.fb.group({
+    //   r: [pathOr(DotstarConstants.rSampler, ['r'], this.savedSamplers), [this.fnValidator]],
+    //   g: [pathOr(DotstarConstants.gSampler, ['g'], this.savedSamplers), [this.fnValidator]],
+    //   b: [pathOr(DotstarConstants.bSampler, ['b'], this.savedSamplers), [this.fnValidator]],
+    // });
 
     this.mode$.pipe(
       takeUntil(this.unsubscribe$),
@@ -64,43 +63,19 @@ export class DotstarSamplerFormComponent implements OnDestroy {
           startWith(formGroup.value),
           filter(() => formGroup.valid),
           tap(samplerStrs => this.savedSamplers = { ...this.savedSamplers, ...samplerStrs }),
-          map(samplerStrs => Object.values(samplerStrs).map(body => eval(`${samplerFnHead}${body}`)) as ChannelSamplers),
-          map(samplers => {
-            switch (mode) {
-              case 'hsl':
-                return DotstarSamplerFormComponent.convertToRgb(samplers);
-              default:
-                return samplers;
-            }
-          })
+          map(samplerStrs => Object.values(samplerStrs).map(body => eval(`${samplerFnHead}${body}`)) as Triplet<Sampler>),
+          map(SamplerUtils.samplersToChannelSampler(mode))
         );
       })
     )
-    // .subscribe(console.log);
-    // this.rgbSamplerForm.valueChanges.pipe(
-    //   takeUntil(this.unsubscribe$),
-    //   startWith(this.rgbSamplerForm.value),
-    //   filter(() => this.rgbSamplerForm.valid || this.rgbSamplerForm.disabled),
-    //   // map(samplerStrs => this.rgbSamplerForm.disabled ? {} : samplerStrs),
-    //   tap(samplerStrs => this.savedSamplers = { ...this.savedSamplers, ...samplerStrs }),
-    //   map(({ r, g, b }) => ({
-    //     r: r ? eval(`${samplerFnHead}${r}`) : () => 0,
-    //     g: g ? eval(`${samplerFnHead}${g}`) : () => 0,
-    //     b: b ? eval(`${samplerFnHead}${b}`) : () => 0,
-    //   }))
-    // )
-    .subscribe(samplers => this.bufferService.updateSamplers(samplers));
-  }
-
-  static convertToRgb([h, s, l]: ChannelSamplers): ChannelSamplers {
-    return [h, s, l];
+    .subscribe(samplers => this.bufferService.updateSampler(samplers));
   }
 
   toggleChannel({ checked }: MatSlideToggleChange, channel: string) {
     // this.rgbSamplerForm.get(channel)[checked ? 'enable' : 'disable']();
   }
 
-  setMode(mode: 'rgb' | 'hsl') {
+  setMode(mode: Colorspace) {
     this.mode$.next(mode);
   }
 

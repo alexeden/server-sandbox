@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { DotstarConfigService } from './dotstar-config.service';
 import {
   Observable,
-  ConnectableObservable,
   BehaviorSubject,
   interval,
   combineLatest,
@@ -10,19 +9,17 @@ import {
   animationFrameScheduler,
   empty,
 } from 'rxjs';
-import { publishReplay, map, switchMap, distinctUntilChanged, share } from 'rxjs/operators';
-import { ChannelSamplers, DotstarConstants, Sampler, Sample, RGB } from './lib';
-import { Num } from 'pts';
-import { clamp, range } from 'ramda';
+import { map, switchMap, distinctUntilChanged, share } from 'rxjs/operators';
+import { Sample, ChannelSampler, clamp, range } from './lib';
 
 @Injectable()
 export class DotstarBufferService {
   private readonly running$ = new BehaviorSubject<boolean>(true);
-  private readonly samplerFunctions$ = new BehaviorSubject<ChannelSamplers>([ () => 0, () => 0, () => 0 ]);
+  private readonly samplerFunction$ = new BehaviorSubject<ChannelSampler>(() => [ 0, 0, 0]);
 
   readonly running: Observable<boolean>;
   readonly clock: Observable<number>;
-  readonly samplerFunctions: Observable<ChannelSamplers>;
+  readonly samplerFunction: Observable<ChannelSampler>;
   readonly channelValues: Observable<Sample[]>;
 
   constructor(
@@ -43,26 +40,25 @@ export class DotstarBufferService {
       share()
     );
 
-    this.samplerFunctions = this.samplerFunctions$.asObservable();
+    this.samplerFunction = this.samplerFunction$.asObservable();
 
     this.channelValues = combineLatest(
       this.clock,
-      this.configService.length.pipe(map(range(0))),
-      this.samplerFunctions
+      this.configService.length.pipe(map(l => range(0, l))),
+      this.samplerFunction
     ).pipe(
-      map(([t, emptyBuffer, [r, g, b]]) => {
+      map(([t, emptyBuffer, sampler]) => {
         const { length: n } = emptyBuffer;
         return emptyBuffer.map((_, i) =>
-          [ r(t, i, n), g(t, i, n), b(t, i, n) ].map(clamp(0x00, 0xff)) as Sample
+          sampler(t, i, n).map(clamp(0x00, 0xff)) as Sample
         );
       }),
       share()
     );
   }
 
-  updateSamplers([ r, g, b ]: ChannelSamplers) {
-    console.log('updating samplers: ', r, g, b);
-    this.samplerFunctions$.next([ r, g, b]);
+  updateSampler(s: ChannelSampler) {
+    this.samplerFunction$.next(s);
   }
 
   pause() {

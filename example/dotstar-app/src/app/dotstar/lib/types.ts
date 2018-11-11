@@ -1,12 +1,19 @@
 export type RGB = 'r' | 'g' | 'b';
 export type HSL = 'h' | 's' | 'l';
 
-export type Sampler = (t: number, i: number, n: number) => number;
-
 export const samplerFnHead = '(t, i, n) =>';
+
+export type Triplet<T> = [T, T, T];
 
 export type SamplerArgs = Parameters<Sampler>;
 
-export type Sample = [ number, number, number ];
+export type Sample = Triplet<number>;
 
-export type ChannelSamplers = [ Sampler, Sampler, Sampler ];
+export type Sampler<T = number> = (t: number, i: number, n: number) => T;
+
+export type ChannelSampler = Sampler<Sample>;
+
+export enum Colorspace {
+  RGB = 'rgb',
+  HSL = 'hsl',
+}
