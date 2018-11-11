@@ -27,7 +27,7 @@ export class DotstarMainComponent implements OnInit, OnDestroy {
     readonly configService: DotstarConfigService,
     readonly socketService: DotstarSocketService
   ) {
-    this.fpsControl = this.fb.control(30, [
+    this.fpsControl = this.fb.control(50, [
       Validators.min(this.fpsMin),
       Validators.max(this.fpsMax),
     ]);
