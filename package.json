@@ -35,6 +35,7 @@
     "chalk": "^2.4.1",
     "gradient-string": "^1.2.0",
     "nan": "^2.11.1",
+    "node-addon-api": "^1.6.0",
     "ramda": "^0.25.0"
   },
   "nodemonConfig": {
