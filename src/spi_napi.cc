@@ -132,6 +132,32 @@ public:
 	}
 };
 
+Napi::Object ReadSpiSettings(const Napi::CallbackInfo& info) {
+	auto env = info.Env();
+	if (!info[0].IsNumber()) throw Napi::Error::New(env, "readSpiSettings expects a file descriptor as its argument!");
+	auto fd = info[0].As<Napi::Number>().Uint32Value();
+	auto settings = Napi::Object::New(env);
+	settings.Set("mode", env.Null());
+	settings.Set("order", env.Null());
+	settings.Set("bitsPerWord", env.Null());
+	settings.Set("speed", env.Null());
+
+	#ifdef SPI_IOC_MESSAGE
+		uint8_t order, bits;
+		uint32_t mode, speed;
+		ioctl(fd, SPI_IOC_RD_MODE32, &mode);
+		ioctl(fd, SPI_IOC_RD_LSB_FIRST, &order);
+		ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits);
+		ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &speed);
+		settings.Set("mode", Napi::Number::New(env, mode));
+		settings.Set("order", Napi::Number::New(env, order));
+		settings.Set("bitsPerWord", Napi::Number::New(env, bits));
+		settings.Set("speed", Napi::Number::New(env, speed));
+	#endif
+
+	return settings;
+}
+
 Napi::Value getProp(Napi::Env& env, Napi::Object& obj, const char *key) {
 	if (!obj.Has(key)) {
 		std::stringstream ss;
@@ -172,8 +198,8 @@ Napi::Value Transfer(const Napi::CallbackInfo& info) {
 	Napi::Env env = info.Env();
 	if (!info[0].IsFunction()) throw Napi::Error::New(env, "The first argument of the SPI transfer method must be a callback function!");
 	if (!info[1].IsObject()) throw Napi::Error::New(env, "The second argument of the SPI transfer method must be a config object!");
-	Napi::Function cb = info[0].As<Napi::Function>();
-	Napi::Object config = info[1].As<Napi::Object>();
+	auto cb = info[0].As<Napi::Function>();
+	auto config = info[1].As<Napi::Object>();
 
 	SpiTransfer *worker = new SpiTransfer(
 	/* cb */		cb,
@@ -190,8 +216,9 @@ Napi::Value Transfer(const Napi::CallbackInfo& info) {
 
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-	exports.Set(Napi::String::New(env, "transfer"), Napi::Function::New(env, Transfer));
-	exports.Set(Napi::String::New(env, "spiSupported"), Napi::Boolean::New(env,
+	exports.Set("transfer", Napi::Function::New(env, Transfer));
+	exports.Set("readSpiSettings", Napi::Function::New(env, ReadSpiSettings));
+	exports.Set("spiSupported", Napi::Boolean::New(env,
 	#ifdef SPI_IOC_MESSAGE
 		true
 	#else

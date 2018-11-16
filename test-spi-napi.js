@@ -1,7 +1,14 @@
 const fs = require('fs');
 const spi = require('bindings')('spi_napi.node');
 
-const fd = fs.openSync('/dev/spidev0.0', 'r+');
+let fd;
+try {
+  fd = fs.openSync('/dev/spidev0.0', 'r+');
+}
+catch (err) {
+  console.error(err.message);
+  fd = 0;
+}
 
 console.log('spi: ', spi, '\n\n');
 const cb = (err, ...args) => {
@@ -22,6 +29,7 @@ const cb = (err, ...args) => {
 };
 
 try {
+  console.log(spi.readSpiSettings(fd));
   console.log(spi.transfer(cb, {
     fd,
     speed: 4e6,
