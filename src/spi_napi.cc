@@ -1,7 +1,11 @@
-#include <napi.h>
 #include <assert.h>
-#include <chrono>
-#include <thread>
+#include <cstdlib>
+#include <cstdio>
+#include <sstream>
+#include <cstring>
+#include <cerrno>
+
+#include <napi.h>
 // #include <assert.h>
 
 // #define DECLARE_METHOD(name, func) { name, NULL, func, NULL, NULL, NULL, napi_enumerable, NULL }
@@ -107,40 +111,59 @@ public:
 	}
 };
 
+Napi::Value getProp(Napi::Env& env, Napi::Object& obj, const char *key) {
+	if (!obj.Has(key)) {
+		std::stringstream ss;
+		ss << "SPI config is missing the \"" << key << "\" property." << std::endl;
+		throw Napi::Error::New(env, Napi::String::New(env, ss.str()));
+	}
+
+	return obj.Get(key);
+}
+
+Napi::Number getNumberProp(Napi::Env& env, Napi::Object& obj, const char *key) {
+	Napi::Value _value = getProp(env, obj, key);
+
+	if (!_value.IsNumber()) {
+		std::stringstream ss;
+		ss << "SPI config property \"" << key << "\" must be a number." << std::endl;
+		throw Napi::Error::New(env, Napi::String::New(env, ss.str()));
+	}
+
+	return _value.As<Napi::Number>();
+}
+
+template <typename T>
+Napi::Buffer<T> getBufferProp(Napi::Env& env, Napi::Object& obj, const char *key) {
+	Napi::Value _value = getProp(env, obj, key);
+
+	if (!_value.IsBuffer()) {
+		std::stringstream ss;
+		ss << "SPI config property \"" << key << "\" must be a buffer." << std::endl;
+		throw Napi::Error::New(env, Napi::String::New(env, ss.str()));
+	}
+
+	return _value.As<Napi::Buffer<T>>();
+}
+
+
 Napi::Value Transfer(const Napi::CallbackInfo& info) {
+	Napi::Env env = info.Env();
+	if (!info[0].IsFunction()) throw Napi::Error::New(env, "The first argument of the SPI transfer method must be a callback function!");
+	if (!info[1].IsObject()) throw Napi::Error::New(env, "The second argument of the SPI transfer method must be a config object!");
 	Napi::Function cb = info[0].As<Napi::Function>();
 	Napi::Object config = info[1].As<Napi::Object>();
-	assert(info[0].IsFunction());
-	assert(info[1].IsObject());
 
-	Napi::Value _fd = config.Get("fd");
-	assert(_fd.IsNumber());
-
-	Napi::Value _speed = config.Get("speed");
-	assert(_speed.IsNumber());
-
-	Napi::Value _mode = config.Get("mode");
-	assert(_mode.IsNumber());
-
-	Napi::Value _order = config.Get("order");
-	assert(_order.IsNumber());
-
-	Napi::Value _buffer = config.Get("buffer");
-	assert(_buffer.IsBuffer());
-
-	Napi::Value _readcount = config.Get("readcount");
-	assert(_readcount.IsNumber());
-
-	int fd = _fd.As<Napi::Number>().Int32Value();
-	auto speed = _speed.As<Napi::Number>().Uint32Value();
-	uint8_t mode = _mode.As<Napi::Number>().Uint32Value();
-	uint8_t order = _order.As<Napi::Number>().Uint32Value();
-	Napi::Buffer<uint8_t> buffer = _buffer.As<Napi::Buffer<uint8_t>>();
-	size_t readcount = _readcount.As<Napi::Number>().Uint32Value();
-
-	SpiTransfer *worker = new SpiTransfer(cb, fd, speed, mode, order, buffer, readcount);
+	SpiTransfer *worker = new SpiTransfer(
+	/* cb */		cb,
+	/* fd */		getNumberProp(env, config, "fd").Int32Value(),
+	/* speed */		getNumberProp(env, config, "speed").Uint32Value(),
+	/* mode */		(uint8_t) getNumberProp(env, config, "mode").Uint32Value(),
+	/* order */		(uint8_t) getNumberProp(env, config, "order").Uint32Value(),
+	/* buffer */	getBufferProp<uint8_t>(env, config, "buffer"),
+	/* readcount */	(size_t) getNumberProp(env, config, "readcount").Uint32Value()
+	);
 	worker->Queue();
-	// return info.Env().Undefined();
 	return config;
 }
 
