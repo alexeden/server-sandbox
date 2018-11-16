@@ -48,14 +48,14 @@ private:
 
 public:
 	SpiTransfer(
-		Napi::Function& callback,
+		Napi::Function& cb,
 		int fd,
 		uint32_t speed,
 		uint8_t mode,
 		uint8_t order,
 		Napi::Buffer<uint8_t> writeBuffer,
 		size_t readcount
-	): 	AsyncWorker(callback),
+	): 	AsyncWorker(cb),
 		fd(fd),
 		speed(speed),
 		mode(mode),
@@ -108,12 +108,10 @@ public:
 };
 
 Napi::Value Transfer(const Napi::CallbackInfo& info) {
-	// cb
-	assert(info[0].IsFunction());
 	Napi::Function cb = info[0].As<Napi::Function>();
-
-	assert(info[1].IsObject());
 	Napi::Object config = info[1].As<Napi::Object>();
+	assert(info[0].IsFunction());
+	assert(info[1].IsObject());
 
 	Napi::Value _fd = config.Get("fd");
 	assert(_fd.IsNumber());
@@ -140,34 +138,8 @@ Napi::Value Transfer(const Napi::CallbackInfo& info) {
 	Napi::Buffer<uint8_t> buffer = _buffer.As<Napi::Buffer<uint8_t>>();
 	size_t readcount = _readcount.As<Napi::Number>().Uint32Value();
 
-
-	// fd
-	// assert(info[0].IsNumber());
-	// int fd = info[0].As<Napi::Number>().Int32Value();
-
-	// // speed
-	// assert(info[1].IsNumber());
-	// auto speed = info[1].As<Napi::Number>().Uint32Value();
-
-	// // mode
-	// assert(info[2].IsNumber());
-	// uint8_t mode = info[2].As<Napi::Number>().Uint32Value();
-
-	// // order
-	// assert(info[3].IsNumber());
-	// uint8_t order = info[3].As<Napi::Number>().Uint32Value();
-
-	// // buffer
-	// assert(info[4].IsBuffer());
-	// Napi::Buffer<uint8_t> buffer = info[4].As<Napi::Buffer<uint8_t>>();
-
-	// // readcount
-	// assert(info[5].IsNumber());
-	// size_t readcount = info[5].As<Napi::Number>().Uint32Value();
-
-
-	// SpiTransfer *worker = new SpiTransfer(cb, fd, speed, mode, order, buffer, readcount);
-	// worker->Queue();
+	SpiTransfer *worker = new SpiTransfer(cb, fd, speed, mode, order, buffer, readcount);
+	worker->Queue();
 	// return info.Env().Undefined();
 	return config;
 }

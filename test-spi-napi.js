@@ -1,6 +1,12 @@
 const spi = require('bindings')('spi_napi.node');
 
-console.log(spi.transfer(() => {}, {
+const cb = (...args) => {
+  args.forEach((arg, i) => {
+    console.log(`Callback argument #${i}: `, arg);
+  });
+};
+
+console.log(spi.transfer(cb, {
   fd: 1,
   speed: 4e6,
   mode: 0,
