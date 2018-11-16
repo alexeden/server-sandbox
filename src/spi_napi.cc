@@ -1,4 +1,5 @@
 #include <napi.h>
+#include <assert.h>
 #include <chrono>
 #include <thread>
 // #include <assert.h>
@@ -36,41 +37,64 @@ struct spi_ioc_transfer {
 
 class SpiTransfer : public Napi::AsyncWorker {
 private:
-	std::string echo;
 	int fd;
 	int err;
-	// uint32_t speed;
-	// uint8_t mode;
-	// uint8_t order;
-	// uint32_t readcount;
+	uint32_t speed;
+	uint8_t mode;
+	uint8_t order;
+	uint32_t readcount;
 	size_t buflen;
-	Napi::Buffer<uint8_t>* buffer;
+	uint8_t* buffer;
 
 public:
 	SpiTransfer(
 		Napi::Function& callback,
-		Napi::Buffer<uint8_t>* buffer,
-		int fd
-		// uint32_t speed,
-		// uint8_t mode,
-		// uint8_t order,
-		// size_t readcount
+		int fd,
+		uint32_t speed,
+		uint8_t mode,
+		uint8_t order,
+		Napi::Buffer<uint8_t> writeBuffer,
+		size_t readcount
 	): 	AsyncWorker(callback),
-		buffer(buffer),
-		fd(fd)
-		// speed(speed),
-		// mode(mode),
-		// order(order),
-		// readcount(readcount)
+		fd(fd),
+		speed(speed),
+		mode(mode),
+		order(order),
+		readcount(readcount)
 	{
-
+		size_t writeLength = writeBuffer.Length();
+		buflen = (readcount > writeLength) ? readcount : writeLength;
+		buffer = writeBuffer.Data();
 	}
 
 	~SpiTransfer() {}
 
 	void Execute() {
-		// quick nap
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+		int status = 0;
+	#ifdef SPI_IOC_MESSAGE
+		status = ioctl(fd, SPI_IOC_WR_MODE, &mode);
+		if (status != -1) {
+			status = ioctl(fd, SPI_IOC_WR_LSB_FIRST, &order);
+
+			if (status != -1) {
+				struct spi_ioc_transfer msg = {};
+				msg.tx_buf = (uintptr_t)buffer;
+				msg.rx_buf = (uintptr_t)buffer;
+				msg.len = buflen;
+				msg.speed_hz = speed;
+				status = ioctl(fd, SPI_IOC_MESSAGE(1), &msg);
+			}
+		}
+	#elif __GNUC__
+		#warning "Building without SPI support"
+		status = -1;
+		errno = ENOSYS;
+	#else
+		#pragma message("Building without SPI support")
+		status = -1;
+		errno = ENOSYS;
+	#endif
+		err = (status == -1) ? errno : 0;
 	}
 
 	void OnOK() {
@@ -84,17 +108,73 @@ public:
 };
 
 Napi::Value Transfer(const Napi::CallbackInfo& info) {
-	Napi::Buffer<uint8_t> buffer = info[0].As<Napi::Buffer<uint8_t>>();
-	int fd = info[1].As<Napi::Number>();
-	Napi::Function cb = info[2].As<Napi::Function>();
-	SpiTransfer *worker = new SpiTransfer(cb, &buffer, fd);
-	worker->Queue();
-	return info.Env().Undefined();
+	// cb
+	assert(info[0].IsFunction());
+	Napi::Function cb = info[0].As<Napi::Function>();
+
+	assert(info[1].IsObject());
+	Napi::Object config = info[1].As<Napi::Object>();
+
+	Napi::Value _fd = config.Get("fd");
+	assert(_fd.IsNumber());
+
+	Napi::Value _speed = config.Get("speed");
+	assert(_speed.IsNumber());
+
+	Napi::Value _mode = config.Get("mode");
+	assert(_mode.IsNumber());
+
+	Napi::Value _order = config.Get("order");
+	assert(_order.IsNumber());
+
+	Napi::Value _buffer = config.Get("buffer");
+	assert(_buffer.IsBuffer());
+
+	Napi::Value _readcount = config.Get("readcount");
+	assert(_readcount.IsNumber());
+
+	int fd = _fd.As<Napi::Number>().Int32Value();
+	auto speed = _speed.As<Napi::Number>().Uint32Value();
+	uint8_t mode = _mode.As<Napi::Number>().Uint32Value();
+	uint8_t order = _order.As<Napi::Number>().Uint32Value();
+	Napi::Buffer<uint8_t> buffer = _buffer.As<Napi::Buffer<uint8_t>>();
+	size_t readcount = _readcount.As<Napi::Number>().Uint32Value();
+
+
+	// fd
+	// assert(info[0].IsNumber());
+	// int fd = info[0].As<Napi::Number>().Int32Value();
+
+	// // speed
+	// assert(info[1].IsNumber());
+	// auto speed = info[1].As<Napi::Number>().Uint32Value();
+
+	// // mode
+	// assert(info[2].IsNumber());
+	// uint8_t mode = info[2].As<Napi::Number>().Uint32Value();
+
+	// // order
+	// assert(info[3].IsNumber());
+	// uint8_t order = info[3].As<Napi::Number>().Uint32Value();
+
+	// // buffer
+	// assert(info[4].IsBuffer());
+	// Napi::Buffer<uint8_t> buffer = info[4].As<Napi::Buffer<uint8_t>>();
+
+	// // readcount
+	// assert(info[5].IsNumber());
+	// size_t readcount = info[5].As<Napi::Number>().Uint32Value();
+
+
+	// SpiTransfer *worker = new SpiTransfer(cb, fd, speed, mode, order, buffer, readcount);
+	// worker->Queue();
+	// return info.Env().Undefined();
+	return config;
 }
 
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-	// exports.Set(Napi::String::New(env, "echo"), Napi::Function::New(env, Echo));
+	exports.Set(Napi::String::New(env, "transfer"), Napi::Function::New(env, Transfer));
 	return exports;
 }
 
