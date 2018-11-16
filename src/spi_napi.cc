@@ -1,10 +1,12 @@
 #include <assert.h>
 #include <cstdlib>
 #include <cstdio>
+#include <iostream>
 #include <sstream>
+#include <stdio.h>
 #include <cstring>
 #include <cerrno>
-
+#include <stdexcept>
 #include <napi.h>
 // #include <assert.h>
 
@@ -77,18 +79,23 @@ public:
 		int status = 0;
 	#ifdef SPI_IOC_MESSAGE
 		status = ioctl(fd, SPI_IOC_WR_MODE, &mode);
-		if (status != -1) {
-			status = ioctl(fd, SPI_IOC_WR_LSB_FIRST, &order);
-
-			if (status != -1) {
-				struct spi_ioc_transfer msg = {};
-				msg.tx_buf = (uintptr_t)buffer;
-				msg.rx_buf = (uintptr_t)buffer;
-				msg.len = buflen;
-				msg.speed_hz = speed;
-				status = ioctl(fd, SPI_IOC_MESSAGE(1), &msg);
-			}
+		std::cout << "SPI_IOC_WR_MODE status: " << status << std::endl;
+		if (status == -1) {
+			std::cout << "Throwing an error" << std::endl;
+			throw std::runtime_error("Bad status when trying to do something with SPI_IOC_WR_MODE");
 		}
+		status = ioctl(fd, SPI_IOC_WR_LSB_FIRST, &order);
+		std::cout << "SPI_IOC_WR_LSB_FIRST status: " << status << std::endl;
+		if (status == -1) {
+			throw std::runtime_error("Bad status when trying to do something with SPI_IOC_WR_LSB_FIRST");
+		}
+		struct spi_ioc_transfer msg = {};
+		msg.tx_buf = (uintptr_t)buffer;
+		msg.rx_buf = (uintptr_t)buffer;
+		msg.len = buflen;
+		msg.speed_hz = speed;
+		std::cout << "transfer struct created...sending meow" << std::endl;
+		status = ioctl(fd, SPI_IOC_MESSAGE(1), &msg);
 	#elif __GNUC__
 		#warning "Building without SPI support"
 		status = -1;
@@ -102,12 +109,26 @@ public:
 	}
 
 	void OnOK() {
-		Napi::HandleScope scope(Env());
-		Callback().Call({Env().Null(), Napi::String::New(Env(), "hi")});
+		std::cout << "On OK called... err?" << err << std::endl;
+		Napi::Env env = Env();
+		// Napi::HandleScope scope(env);
+		if (err) {
+			char msg[1024];
+			snprintf(msg, sizeof(msg), "SPI error: %s (errno %i)", strerror(err), err);
+			// throw Napi::Error::New(env, msg);
+			// e = Nan::Error(msg);
+			Callback().Call({ Napi::Error::New(env, msg).Value(), Env().Null() });
+		}
+		else {
+			Callback().Call({ Env().Null(), Napi::String::New(Env(), "hi") });
+		}
 	}
 
 	void OnError(const Napi::Error& e) {
-
+		std::cout << "OnError called" << std::endl;
+		Napi::HandleScope scope(Env());
+		std::cout << "OnError called with message: " << e.Message() << std::endl;
+		Callback().Call({ e.Value(), Env().Null() });
 	}
 };
 
@@ -170,6 +191,13 @@ Napi::Value Transfer(const Napi::CallbackInfo& info) {
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
 	exports.Set(Napi::String::New(env, "transfer"), Napi::Function::New(env, Transfer));
+	exports.Set(Napi::String::New(env, "spiSupported"), Napi::Boolean::New(env,
+	#ifdef SPI_IOC_MESSAGE
+		true
+	#else
+		false
+	#endif
+	));
 	return exports;
 }
 

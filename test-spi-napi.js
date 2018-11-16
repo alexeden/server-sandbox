@@ -1,14 +1,29 @@
+const fs = require('fs');
 const spi = require('bindings')('spi_napi.node');
 
-const cb = (...args) => {
-  args.forEach((arg, i) => {
-    console.log(`Callback argument #${i}: `, arg);
-  });
+const fd = fs.openSync('/dev/spidev0.0', 'r+');
+
+console.log('spi: ', spi, '\n\n');
+const cb = (err, ...args) => {
+  console.log(`I'm the callback!`);
+  if (err) {
+    console.log('err instanceof Error? ', err instanceof Error);
+    console.error(err);
+    console.error(err.message);
+    console.error(err.type);
+    console.error(err.code);
+  }
+  else {
+    [err, ...args].forEach((arg, i) => {
+      console.log(`Callback argument #${i}: `, arg);
+    });
+
+  }
 };
 
 try {
   console.log(spi.transfer(cb, {
-    fd: 0,
+    fd,
     speed: 4e6,
     mode: 0,
     order: 0,
