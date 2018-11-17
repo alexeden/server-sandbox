@@ -15,6 +15,14 @@
 #include <linux/spi/spidev.h>
 #endif
 
+#ifndef SPI_IOC_MESSAGE
+	#ifdef __GNUC__
+		#warning "Building without SPI support"
+	#elif
+		#pragma message("Building without SPI support")
+	#endif
+#endif
+
 /**
  * struct spi_ioc_transfer {
  *		__u64		tx_buf;
@@ -94,11 +102,6 @@ public:
 		std::cout << "transfer struct created...sending meow" << std::endl;
 		status = ioctl(fd, SPI_IOC_MESSAGE(1), &msg);
 	#else
-		#ifdef __GNUC__
-			#warning "Building without SPI support"
-		#elif
-			#pragma message("Building without SPI support")
-		#endif
 		throw std::runtime_error("SPI is not supported on this machine.");
 	// #else
 	// 	status = -1;
