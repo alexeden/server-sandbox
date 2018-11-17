@@ -8,21 +8,34 @@ interface SpiTransferConfig {
   speed: number;
   mode: number;
   order: number;
-  buffer: Buffer;
+  dataIn?: Buffer;
   readcount: number;
 }
 
 type SpiTransferCallback = (error: Error | null, dataOut: Buffer | null) => void;
 
+// type SpiTransferCallback
+//   = ((error: Error, dataOut: null) => void)
+//   | ((error: null, dataOut: Buffer) => void);
+
+// interface SpiTransferCallback {
+//   (error: Error, dataOut: null): void;
+//   (error: null, dataOut: Buffer): void;
+// }
+
 export interface SpiModule {
   modes: { [mode: string]: number };
   spiSupported: boolean;
   readSpiSettings(fd: number): SpiSettings;
-  transfer(config: SpiTransferConfig, cb: SpiTransferCallback): void;
+  transfer(cb: SpiTransferCallback, config: SpiTransferConfig): void;
 }
 
+// // tslint:disable-next-line:no-var-requires
+// const spicc = require('../build/Release/spi_binding');
 // tslint:disable-next-line:no-var-requires
-const spicc = require('../build/Release/spi_binding');
+const SpiModule: SpiModule = require('bindings')('spi');
+
+console.log('SpiModule', SpiModule);
 
 export class SPI {
   private fd: number;
@@ -36,17 +49,31 @@ export class SPI {
     this.fd = fs.openSync(this.devicePath, 'r+');
   }
 
-  private async ffiTransfer(w: Buffer | null, readCount: number) {
-    return new Promise<any>((ok, err) => {
-      spicc.Transfer(this.fd, this.clockSpeed, this.dataMode, this.bitOrder, w, readCount, (error: unknown, data: unknown) => {
-        if (error) {
-          console.error('SPI transfer error: ', error);
-          err(error);
-        }
-        else {
-          ok(data);
-        }
-      });
+  get config(): SpiTransferConfig {
+    return {
+      fd: this.fd,
+      speed: this.clockSpeed,
+      mode: this.dataMode,
+      order: this.bitOrder,
+      readcount: 0,
+    };
+  }
+  private async ffiTransfer(dataIn: Buffer, readCount: number) {
+    return new Promise<Buffer>((ok, err) => {
+      const config = { ...this.config, dataIn };
+      SpiModule.transfer(
+        (error, dataOut) => {
+          if (error) {
+            console.error('SPI transfer error: ', error);
+            err(error);
+          }
+          else {
+            ok(dataOut!);
+          }
+        },
+        config
+      );
+      // spicc.Transfer(this.fd, this.clockSpeed, this.dataMode, this.bitOrder, w, readCount, (error: unknown, data: unknown) => {
     });
   }
 
@@ -55,7 +82,7 @@ export class SPI {
   }
 
   read(readcount: number) {
-    return this.ffiTransfer(null, readcount);
+    return this.ffiTransfer(Buffer.alloc(0), readcount);
   }
 
   transfer(buffer: Buffer, readcount: number = buffer.length) {

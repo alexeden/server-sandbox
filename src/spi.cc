@@ -72,7 +72,6 @@ public:
 	}
 
 	~SpiTransfer() {
-		std::cout << "Destroying SpiTransfer" << std::endl;
 		free(buffer);
 	}
 
@@ -109,7 +108,6 @@ public:
 
 	void OnError(const Napi::Error& e) {
 		Napi::HandleScope scope(Env());
-		std::cout << "OnError called with message: " << e.Message() << std::endl;
 		Callback().Call({ e.Value(), Env().Null() });
 	}
 };
@@ -156,7 +154,7 @@ Napi::Value Transfer(const Napi::CallbackInfo& info) {
 	/* speed */		NapiUtils::getNumberProp(env, config, "speed").Uint32Value(),
 	/* mode */		(uint8_t) NapiUtils::getNumberProp(env, config, "mode").Uint32Value(),
 	/* order */		(uint8_t) NapiUtils::getNumberProp(env, config, "order").Uint32Value(),
-	/* buffer */	NapiUtils::getBufferProp<uint8_t>(env, config, "buffer"),
+	/* buffer */	NapiUtils::getBufferProp<uint8_t>(env, config, "dataIn"),
 	/* readcount */	(size_t) NapiUtils::getNumberProp(env, config, "readcount").Uint32Value()
 	);
 	worker->Queue();
