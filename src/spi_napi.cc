@@ -1,11 +1,7 @@
 #include <cstdlib>
 #include <algorithm>
-#include <cstdio>
-#include <cstring>
 #include <iostream>
 #include <sstream>
-#include <stdio.h>
-#include <cerrno>
 #include <stdexcept>
 
 #include <napi.h>
@@ -16,17 +12,18 @@
 #include <linux/spi/spidev.h>
 #endif
 
-
 #ifndef SPI_IOC_MESSAGE
-	// Define an SPI support flag
-	#define SPI_SUPPORTED false
-
-	// Issue a compiler warning
+	// Disable some diagnostics and issue a compiler warning
+	#pragma GCC diagnostic ignored "-Wunused-private-field"
+	#pragma GCC diagnostic ignored "-Wunused-variable"
 	#ifdef __GNUC__
 		#warning "Building without SPI support"
 	#elif
 		#pragma message("Building without SPI support")
 	#endif
+
+	// Define an SPI support flag
+	#define SPI_SUPPORTED false
 
 	// Copied from https://github.com/torvalds/linux/blob/master/include/uapi/linux/spi/spidev.h
 	#define SPI_CPHA		0x01
@@ -145,6 +142,7 @@ Napi::Object ReadSpiSettings(const Napi::CallbackInfo& info) {
 
 Napi::Value Transfer(const Napi::CallbackInfo& info) {
 	Napi::Env env = info.Env();
+
 	// Check the arguments and their types
 	if (!info[0].IsFunction()) throw Napi::Error::New(env, "The first argument of the SPI transfer method must be a callback function!");
 	if (!info[1].IsObject()) throw Napi::Error::New(env, "The second argument of the SPI transfer method must be a config object!");

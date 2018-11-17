@@ -5,9 +5,9 @@
       "sources": [
         "src/spi_napi.cc"
       ],
-      "cflags": [ '-Wall' ],
-      'cflags!': [ '-fno-exceptions' ],
-      'cflags_cc!': [ '-fno-exceptions' ],
+      "cflags": [ '-Wall', '-Wextra', '-Wno-missing-field-initializers', '-Wno-unused-private-field', '-Wno-unused-variable' ],
+      'cflags!': [ '-fno-exceptions'],
+      'cflags_cc!': [ '-fno-exceptions'],
       'xcode_settings': {
         'GCC_ENABLE_CPP_EXCEPTIONS': 'YES',
         'CLANG_CXX_LIBRARY': 'libc++',
@@ -22,16 +22,6 @@
       'dependencies': [
         "<!(node -p \"require('node-addon-api').gyp\")"
       ],
-      # 'defines': [ 'NAPI_CPP_EXCEPTIONS' ],
-    },
-    # {
-    #   "target_name": "spi_binding",
-    #   "sources": [
-    #     "src/spi_binding.cc"
-    #   ],
-    #   "include_dirs" : [
-    #     '<!(node -e "require(\'nan\')")'
-    #   ]
-    # }
+    }
   ]
 }
