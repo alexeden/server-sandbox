@@ -1,13 +1,27 @@
 {
   "targets": [
     {
-      "target_name": "spi_binding",
+      "target_name": "spi",
       "sources": [
-        "src/spi_binding.cc"
+        "src/spi.cc"
       ],
-      "include_dirs" : [
-        '<!(node -e "require(\'nan\')")'
-      ]
+      "cflags": [ '-Wall', '-Wextra', '-Wno-missing-field-initializers', '-Wno-unused-private-field', '-Wno-unused-variable' ],
+      'cflags!': [ '-fno-exceptions'],
+      'cflags_cc!': [ '-fno-exceptions'],
+      'xcode_settings': {
+        'GCC_ENABLE_CPP_EXCEPTIONS': 'YES',
+        'CLANG_CXX_LIBRARY': 'libc++',
+        'MACOSX_DEPLOYMENT_TARGET': '10.7',
+      },
+      'msvs_settings': {
+        'VCCLCompilerTool': { 'ExceptionHandling': 1 },
+      },
+      "include_dirs": [
+        "<!@(node -p \"require('node-addon-api').include\")"
+      ],
+      'dependencies': [
+        "<!(node -p \"require('node-addon-api').gyp\")"
+      ],
     }
   ]
 }
