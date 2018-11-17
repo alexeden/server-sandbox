@@ -1,0 +1,8 @@
+{
+  "ext": "cc",
+  "exec": "node-gyp build",
+  "events": {},
+  "watch": [
+    "src"
+  ]
+}

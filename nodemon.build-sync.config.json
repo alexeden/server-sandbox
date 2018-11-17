@@ -1,0 +1,9 @@
+{
+  "ext": "ts,json",
+  "exec": "npm run build:all && node sync",
+  "events": {},
+  "watch": [
+    "src/",
+    "example/server/src"
+  ]
+}

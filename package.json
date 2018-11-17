@@ -6,7 +6,9 @@
   "scripts": {
     "build": "rimraf dist && tsc -p src",
     "build:all": "npm run build && (cd example/server && npm run build) && (cd example/dotstar-app && npm run build)",
-    "sync": "nodemon",
+    "sync-build": "nodemon --config nodemon.build-sync.config.json",
+    "sync-gyp": "nodemon --config nodemon.gyp-sync.config.json",
+    "sync-changes": "nodemon --config nodemon.change-sync.config.json",
     "postinstall": "npm run build",
     "test": "ts-node -P src/tsconfig.json example/server.ts"
   },
