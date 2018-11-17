@@ -1,6 +1,26 @@
 import * as fs from 'fs';
 import { Mode, Order } from './types';
 
+type SpiSettings = Record<'mode' | 'order' | 'bitsPerWord' | 'speed', number | null>;
+
+interface SpiTransferConfig {
+  fd: number;
+  speed: number;
+  mode: number;
+  order: number;
+  buffer: Buffer;
+  readcount: number;
+}
+
+type SpiTransferCallback = (error: Error | null, dataOut: Buffer | null) => void;
+
+export interface SpiModule {
+  modes: { [mode: string]: number };
+  spiSupported: boolean;
+  readSpiSettings(fd: number): SpiSettings;
+  transfer(config: SpiTransferConfig, cb: SpiTransferCallback): void;
+}
+
 // tslint:disable-next-line:no-var-requires
 const spicc = require('../build/Release/spi_binding');
 

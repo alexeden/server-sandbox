@@ -1,9 +1,9 @@
 {
   "targets": [
     {
-      "target_name": "spi_napi",
+      "target_name": "spi",
       "sources": [
-        "src/spi_napi.cc"
+        "src/spi.cc"
       ],
       "cflags": [ '-Wall', '-Wextra', '-Wno-missing-field-initializers', '-Wno-unused-private-field', '-Wno-unused-variable' ],
       'cflags!': [ '-fno-exceptions'],
