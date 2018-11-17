@@ -1,55 +1,49 @@
 #include <cstdlib>
+#include <algorithm>
 #include <cstdio>
+#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
-#include <cstring>
 #include <cerrno>
 #include <stdexcept>
+
 #include <napi.h>
 #include "utils.cc"
 
 #if __linux__
-#include <linux/types.h>
 #include <sys/ioctl.h>
 #include <linux/spi/spidev.h>
 #endif
 
+
 #ifndef SPI_IOC_MESSAGE
+	// Define an SPI support flag
+	#define SPI_SUPPORTED false
+
+	// Issue a compiler warning
 	#ifdef __GNUC__
 		#warning "Building without SPI support"
 	#elif
 		#pragma message("Building without SPI support")
 	#endif
-#endif
 
-/**
- * struct spi_ioc_transfer {
- *		__u64		tx_buf;
- *		__u64		rx_buf;
- *		__u32		len;
- *		__u32		speed_hz;
- *		__u16		delay_usecs;
- *		__u8		bits_per_word;
- *		__u8		cs_change;
- *		__u8		tx_nbits;
- *		__u8		rx_nbits;
- *		__u16		pad;
- * };
- */
-#ifndef SPI_IOC_MESSAGE
-struct spi_ioc_transfer {
-	uintptr_t		tx_buf;
-	uintptr_t		rx_buf;
-	size_t			len;
-	uint32_t		speed_hz;
-};
+	// Copied from https://github.com/torvalds/linux/blob/master/include/uapi/linux/spi/spidev.h
+	#define SPI_CPHA		0x01
+	#define SPI_CPOL		0x02
+
+	#define SPI_MODE_0		(0|0)
+	#define SPI_MODE_1		(0|SPI_CPHA)
+	#define SPI_MODE_2		(SPI_CPOL|0)
+	#define SPI_MODE_3		(SPI_CPOL|SPI_CPHA)
+#else
+	// Define an SPI support flag
+	#define SPI_SUPPORTED true
 #endif
 
 class SpiTransfer : public Napi::AsyncWorker {
 private:
 	int fd;
-	int err;
 	uint32_t speed;
 	uint8_t mode;
 	uint8_t order;
@@ -64,7 +58,7 @@ public:
 		uint32_t speed,
 		uint8_t mode,
 		uint8_t order,
-		Napi::Buffer<uint8_t> writeBuffer,
+		Napi::Buffer<uint8_t> dataIn,
 		size_t readcount
 	): 	AsyncWorker(cb),
 		fd(fd),
@@ -73,59 +67,50 @@ public:
 		order(order),
 		readcount(readcount)
 	{
-		size_t writeLength = writeBuffer.Length();
-		buflen = (readcount > writeLength) ? readcount : writeLength;
-		buffer = writeBuffer.Data();
+		size_t writecount = dataIn.Length();
+		buflen = std::max(writecount, readcount);
+		buffer = (uint8_t*) malloc(buflen);
+		memcpy(buffer, dataIn.Data(), writecount);
+		memset(buffer + writecount, 0, readcount >= writecount ? readcount - writecount : 0);
 	}
 
-	~SpiTransfer() {}
+	~SpiTransfer() {
+		std::cout << "Destroying SpiTransfer" << std::endl;
+		free(buffer);
+	}
 
 	void Execute() {
-		int status = 0;
 	#ifdef SPI_IOC_MESSAGE
-		status = ioctl(fd, SPI_IOC_WR_MODE, &mode);
-		std::cout << "SPI_IOC_WR_MODE status: " << status << std::endl;
-		if (status == -1) {
-			std::cout << "Throwing an error" << std::endl;
-			throw std::runtime_error("Bad status when trying to do something with SPI_IOC_WR_MODE");
+		if (ioctl(fd, SPI_IOC_WR_MODE, &mode) == -1) {
+			throw std::runtime_error("Failed to set the SPI mode.");
 		}
-		status = ioctl(fd, SPI_IOC_WR_LSB_FIRST, &order);
-		std::cout << "SPI_IOC_WR_LSB_FIRST status: " << status << std::endl;
-		if (status == -1) {
-			throw std::runtime_error("Bad status when trying to do something with SPI_IOC_WR_LSB_FIRST");
+
+		if (ioctl(fd, SPI_IOC_WR_LSB_FIRST, &order) == -1) {
+			throw std::runtime_error("Failed to set the SPI bit order.");
 		}
-		struct spi_ioc_transfer msg = {};
-		msg.tx_buf = (uintptr_t)buffer;
-		msg.rx_buf = (uintptr_t)buffer;
-		msg.len = buflen;
-		msg.speed_hz = speed;
-		std::cout << "transfer struct created...sending meow" << std::endl;
-		status = ioctl(fd, SPI_IOC_MESSAGE(1), &msg);
+
+		spi_ioc_transfer msg({
+			.tx_buf = (uintptr_t)buffer,
+			.rx_buf = (uintptr_t)buffer,
+			.len = buflen,
+			.speed_hz = speed,
+		});
+
+		if (ioctl(fd, SPI_IOC_MESSAGE(1), &msg) == -1) {
+			throw std::runtime_error("SPI message transfer failed.");
+		}
 	#else
 		throw std::runtime_error("SPI is not supported on this machine.");
-	// #else
-	// 	status = -1;
-	// 	errno = ENOSYS;
 	#endif
-		// err = (status == -1) ? errno : 0;
 	}
 
 	void OnOK() {
-		std::cout << "On OK called... err?" << err << std::endl;
-		Napi::Env env = Env();
-		// Napi::HandleScope scope(env);
-		if (err) {
-			char msg[1024];
-			snprintf(msg, sizeof(msg), "SPI error: %s (errno %i)", strerror(err), err);
-			Callback().Call({ Napi::Error::New(env, msg).Value(), Env().Null() });
-		}
-		else {
-			Callback().Call({ Env().Null(), Napi::String::New(Env(), "hi") });
-		}
+		Napi::HandleScope scope(Env());
+		Napi::Buffer<u_int8_t> dataOut = Napi::Buffer<uint8_t>::New(scope.Env(), buffer, buflen);
+		Callback().Call({ scope.Env().Null(), dataOut });
 	}
 
 	void OnError(const Napi::Error& e) {
-		std::cout << "OnError called" << std::endl;
 		Napi::HandleScope scope(Env());
 		std::cout << "OnError called with message: " << e.Message() << std::endl;
 		Callback().Call({ e.Value(), Env().Null() });
@@ -160,11 +145,13 @@ Napi::Object ReadSpiSettings(const Napi::CallbackInfo& info) {
 
 Napi::Value Transfer(const Napi::CallbackInfo& info) {
 	Napi::Env env = info.Env();
+	// Check the arguments and their types
 	if (!info[0].IsFunction()) throw Napi::Error::New(env, "The first argument of the SPI transfer method must be a callback function!");
 	if (!info[1].IsObject()) throw Napi::Error::New(env, "The second argument of the SPI transfer method must be a config object!");
 	auto cb = info[0].As<Napi::Function>();
 	auto config = info[1].As<Napi::Object>();
 
+	// Validate the config properties and initialize a transfer worker
 	SpiTransfer *worker = new SpiTransfer(
 	/* cb */		cb,
 	/* fd */		NapiUtils::getNumberProp(env, config, "fd").Int32Value(),
@@ -175,20 +162,20 @@ Napi::Value Transfer(const Napi::CallbackInfo& info) {
 	/* readcount */	(size_t) NapiUtils::getNumberProp(env, config, "readcount").Uint32Value()
 	);
 	worker->Queue();
-	return config;
+	return env.Undefined();
 }
 
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
+	Napi::Object modes = Napi::Object::New(env);
+	modes.Set("SPI_MODE_0", SPI_MODE_0);
+	modes.Set("SPI_MODE_1", SPI_MODE_1);
+	modes.Set("SPI_MODE_2", SPI_MODE_2);
+	modes.Set("SPI_MODE_3", SPI_MODE_3);
+	exports.Set("modes", modes);
+	exports.Set("spiSupported", Napi::Boolean::New(env, SPI_SUPPORTED));
 	exports.Set("transfer", Napi::Function::New(env, Transfer));
 	exports.Set("readSpiSettings", Napi::Function::New(env, ReadSpiSettings));
-	exports.Set("spiSupported", Napi::Boolean::New(env,
-	#ifdef SPI_IOC_MESSAGE
-		true
-	#else
-		false
-	#endif
-	));
 	return exports;
 }
 
