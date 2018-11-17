@@ -1,6 +1,6 @@
 {
   "ext": "cc",
-  "exec": "node-gyp build",
+  "exec": "node-gyp rebuild",
   "events": {},
   "watch": [
     "src"
