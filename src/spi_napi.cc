@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <cstdlib>
 #include <cstdio>
 #include <iostream>
@@ -8,9 +7,7 @@
 #include <cerrno>
 #include <stdexcept>
 #include <napi.h>
-// #include <assert.h>
-
-// #define DECLARE_METHOD(name, func) { name, NULL, func, NULL, NULL, NULL, napi_enumerable, NULL }
+#include "utils.cc"
 
 #if __linux__
 #include <linux/types.h>
@@ -96,16 +93,18 @@ public:
 		msg.speed_hz = speed;
 		std::cout << "transfer struct created...sending meow" << std::endl;
 		status = ioctl(fd, SPI_IOC_MESSAGE(1), &msg);
-	#elif __GNUC__
-		#warning "Building without SPI support"
-		status = -1;
-		errno = ENOSYS;
 	#else
-		#pragma message("Building without SPI support")
-		status = -1;
-		errno = ENOSYS;
+		#ifdef __GNUC__
+			#warning "Building without SPI support"
+		#elif
+			#pragma message("Building without SPI support")
+		#endif
+		throw std::runtime_error("SPI is not supported on this machine.");
+	// #else
+	// 	status = -1;
+	// 	errno = ENOSYS;
 	#endif
-		err = (status == -1) ? errno : 0;
+		// err = (status == -1) ? errno : 0;
 	}
 
 	void OnOK() {
@@ -115,8 +114,6 @@ public:
 		if (err) {
 			char msg[1024];
 			snprintf(msg, sizeof(msg), "SPI error: %s (errno %i)", strerror(err), err);
-			// throw Napi::Error::New(env, msg);
-			// e = Nan::Error(msg);
 			Callback().Call({ Napi::Error::New(env, msg).Value(), Env().Null() });
 		}
 		else {
@@ -158,42 +155,6 @@ Napi::Object ReadSpiSettings(const Napi::CallbackInfo& info) {
 	return settings;
 }
 
-Napi::Value getProp(Napi::Env& env, Napi::Object& obj, const char *key) {
-	if (!obj.Has(key)) {
-		std::stringstream ss;
-		ss << "SPI config is missing the \"" << key << "\" property." << std::endl;
-		throw Napi::Error::New(env, Napi::String::New(env, ss.str()));
-	}
-
-	return obj.Get(key);
-}
-
-Napi::Number getNumberProp(Napi::Env& env, Napi::Object& obj, const char *key) {
-	Napi::Value _value = getProp(env, obj, key);
-
-	if (!_value.IsNumber()) {
-		std::stringstream ss;
-		ss << "SPI config property \"" << key << "\" must be a number." << std::endl;
-		throw Napi::Error::New(env, Napi::String::New(env, ss.str()));
-	}
-
-	return _value.As<Napi::Number>();
-}
-
-template <typename T>
-Napi::Buffer<T> getBufferProp(Napi::Env& env, Napi::Object& obj, const char *key) {
-	Napi::Value _value = getProp(env, obj, key);
-
-	if (!_value.IsBuffer()) {
-		std::stringstream ss;
-		ss << "SPI config property \"" << key << "\" must be a buffer." << std::endl;
-		throw Napi::Error::New(env, Napi::String::New(env, ss.str()));
-	}
-
-	return _value.As<Napi::Buffer<T>>();
-}
-
-
 Napi::Value Transfer(const Napi::CallbackInfo& info) {
 	Napi::Env env = info.Env();
 	if (!info[0].IsFunction()) throw Napi::Error::New(env, "The first argument of the SPI transfer method must be a callback function!");
@@ -203,12 +164,12 @@ Napi::Value Transfer(const Napi::CallbackInfo& info) {
 
 	SpiTransfer *worker = new SpiTransfer(
 	/* cb */		cb,
-	/* fd */		getNumberProp(env, config, "fd").Int32Value(),
-	/* speed */		getNumberProp(env, config, "speed").Uint32Value(),
-	/* mode */		(uint8_t) getNumberProp(env, config, "mode").Uint32Value(),
-	/* order */		(uint8_t) getNumberProp(env, config, "order").Uint32Value(),
-	/* buffer */	getBufferProp<uint8_t>(env, config, "buffer"),
-	/* readcount */	(size_t) getNumberProp(env, config, "readcount").Uint32Value()
+	/* fd */		NapiUtils::getNumberProp(env, config, "fd").Int32Value(),
+	/* speed */		NapiUtils::getNumberProp(env, config, "speed").Uint32Value(),
+	/* mode */		(uint8_t) NapiUtils::getNumberProp(env, config, "mode").Uint32Value(),
+	/* order */		(uint8_t) NapiUtils::getNumberProp(env, config, "order").Uint32Value(),
+	/* buffer */	NapiUtils::getBufferProp<uint8_t>(env, config, "buffer"),
+	/* readcount */	(size_t) NapiUtils::getNumberProp(env, config, "readcount").Uint32Value()
 	);
 	worker->Queue();
 	return config;
