@@ -1,41 +1,9 @@
 import * as fs from 'fs';
 import { Mode, Order } from './types';
+import { SpiModule, SpiTransferConfig } from './spi.types';
 
-type SpiSettings = Record<'mode' | 'order' | 'bitsPerWord' | 'speed', number | null>;
-
-interface SpiTransferConfig {
-  fd: number;
-  speed: number;
-  mode: number;
-  order: number;
-  dataIn?: Buffer;
-  readcount: number;
-}
-
-type SpiTransferCallback = (error: Error | null, dataOut: Buffer | null) => void;
-
-// type SpiTransferCallback
-//   = ((error: Error, dataOut: null) => void)
-//   | ((error: null, dataOut: Buffer) => void);
-
-// interface SpiTransferCallback {
-//   (error: Error, dataOut: null): void;
-//   (error: null, dataOut: Buffer): void;
-// }
-
-export interface SpiModule {
-  modes: { [mode: string]: number };
-  spiSupported: boolean;
-  readSpiSettings(fd: number): SpiSettings;
-  transfer(cb: SpiTransferCallback, config: SpiTransferConfig): void;
-}
-
-// // tslint:disable-next-line:no-var-requires
-// const spicc = require('../build/Release/spi_binding');
 // tslint:disable-next-line:no-var-requires
 const SpiModule: SpiModule = require('bindings')('spi');
-
-console.log('SpiModule', SpiModule);
 
 export class SPI {
   private fd: number;
@@ -67,13 +35,10 @@ export class SPI {
             console.error('SPI transfer error: ', error);
             err(error);
           }
-          else {
-            ok(dataOut!);
-          }
+          else ok(dataOut!);
         },
         config
       );
-      // spicc.Transfer(this.fd, this.clockSpeed, this.dataMode, this.bitOrder, w, readCount, (error: unknown, data: unknown) => {
     });
   }
 
