@@ -5,6 +5,7 @@ import { DotstarConfigService } from './dotstar-config.service';
 import { DotstarSocketService } from './dotstar-socket.service';
 import { DotstarMainComponent } from './dotstar-main.component';
 import { DotstarSocketNotifierComponent } from './dotstar-notifiers.component';
+import { DotstarInputCanvasComponent } from './input-canvas';
 import { DotstarVisualizerComponent } from './visualizer/visualizer.component';
 import {
   DotstarConfigFormComponent,
@@ -19,6 +20,7 @@ import { DotstarControlBarComponent } from './control-bar/control-bar.component'
     DotstarMainComponent,
     DotstarSamplerFormComponent,
     DotstarConfigFormComponent,
+    DotstarInputCanvasComponent,
     DotstarOpenConfigFormDirective,
     DotstarSocketNotifierComponent,
     DotstarVisualizerComponent,
