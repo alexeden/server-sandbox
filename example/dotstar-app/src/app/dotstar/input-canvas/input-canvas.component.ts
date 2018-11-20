@@ -1,16 +1,17 @@
 import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/core';
 import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
-import { takeUntil, map, tap, share, sample, switchMapTo } from 'rxjs/operators';
-import { CanvasSpace, Pt, CanvasForm, Num, Bound, Group, Curve } from 'pts';
+import { takeUntil, map, tap, share, sample, switchMapTo, distinctUntilChanged, filter } from 'rxjs/operators';
+import { CanvasSpace, Pt, CanvasForm, Num, Bound, Group, Curve, World, Particle } from 'pts';
 import { transpose } from 'ramda';
-import { Sample, range } from '../lib';
+import { Sample, range, Colors, clamp } from '../lib';
 import { DotstarBufferService } from '../dotstar-buffer.service';
 import { DotstarConfigService } from '../dotstar-config.service';
 
-enum Colors {
-  Red = '#ff2b35',
-  Green = '#76ff03',
-  Blue = '#00e4ff',
+type ActionType = 'move' | 'up' | 'down' | 'drag' | 'over' | 'out';
+
+interface Action {
+  type: ActionType;
+  pt: Pt;
 }
 
 @Component({
@@ -22,13 +23,17 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   private readonly ready$ = new BehaviorSubject(false);
   private readonly time$ = new BehaviorSubject(0);
-  private readonly bounds$ = new BehaviorSubject<Bound>(new Bound());
+  private readonly ftime$ = new BehaviorSubject(0);
+  private readonly bounds$ = new BehaviorSubject<Bound>(new Bound(Pt.make(2), Pt.make(2)));
+  private readonly actions$ = new Subject<Action>();
 
   readonly height = 550;
   // readonly channelValues: Observable<Sample[]>;
   // readonly rgbGroup: Observable<Group>;
   // readonly rgbChannelGroups: Observable<Group[]>;
-  readonly points: Observable<Group>;
+  readonly world: Observable<World>;
+  readonly baseGroup: Observable<Group>;
+  readonly bounds: Observable<Bound>;
   readonly space: CanvasSpace;
   readonly form: CanvasForm;
   readonly canvas: HTMLCanvasElement;
@@ -52,79 +57,90 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
     });
 
     this.space.add({
-      animate: t => this.time$.next(t),
+      animate: (t, ft) => {
+        this.time$.next(t);
+        this.ftime$.next(ft);
+      },
       resize: bounds => this.bounds$.next(bounds),
       start: bounds => this.bounds$.next(bounds),
+      action: (type: ActionType, px, py) => this.actions$.next({ type, pt: new Pt(px, py) }),
     });
 
-    // this.channelValues = this.bufferService.channelValues.pipe(
-    //   tap(() => this.space.clear()),
-    //   share()
-    // );
+    this.bounds = this.bounds$.asObservable().pipe(
+      filter(bounds => bounds.length === 2),
+      distinctUntilChanged((b1, b2) => b1.p1.equals(b2.p1) && b2.p2.equals(b2.p2)),
+      share()
+    );
 
-    this.points = combineLatest(
+    this.world = combineLatest(
       this.configService.length,
-      this.bounds$,
-      (n, { width, height }) => {
-        return Group.fromPtArray(range(0, n).map(i =>
-          new Pt([ Num.mapToRange(i, 0, n, 0, width || 1), height ])
-        ));
+      this.bounds,
+      (n, bounds) => {
+        // n = 30;
+        const gravity = [0, 10];
+        const world = new World(this.space.innerBound, 0.9, gravity);
+        (window as any).world = world;
+        range(0, n).forEach(i => {
+          const part = new Particle([ Num.mapToRange(i, 0, n, 0, bounds.width || 1), 0 ]);
+          part.radius = 0;
+          part.mass = 5; // [1, 5000][i % 2];
+          world.add(part);
+        });
+        return world;
       }
     );
 
-    // this.rgbGroup = combineLatest(this.bounds$, this.channelValues).pipe(
-    //   map(([{ width }, values]) =>
-    //     Group.fromPtArray(values.map(([r, g, b], i) => {
-    //       const pt = new Pt([ Num.mapToRange(i, 0x00, values.length, 0, width), 0 ]);
-    //       pt.id = `rgb(${r}, ${g}, ${b})`;
-    //       return pt;
-    //     }))
-    //   ),
-    //   map(group => group.moveBy(0, 5).scale([1 - (10 / this.height), 0], group.centroid()))
-    // );
+    this.baseGroup = combineLatest(
+      this.configService.length,
+      this.bounds,
+      (n, { width, height }) =>
+        Group.fromPtArray(range(0, n).map(i =>
+          new Pt([ Num.mapToRange(i, 0, n, 0, width || 1), height ])
+        ))
+    );
 
-
-    // this.rgbChannelGroups = combineLatest(this.bounds$, this.channelValues).pipe(
-    //   map(([{ width, height }, values]) =>
-    //     transpose(values).map(channel =>
-    //       Group.fromArray(channel.map((value, i) => [
-    //         Num.mapToRange(i, 0x00, values.length, 0, width),
-    //         height - Num.mapToRange(value, 0x00, 0xff, 0, height),
-    //       ]))
-    //     )
-    //     .map(group => group.scale(
-    //       [1 - (10 / this.height), 1 - (40 / this.height)],
-    //       this.space.center.$add(0, 40)
-    //     ))
-    //   )
-    // );
   }
 
   ngOnInit() {
-    // this.time$
-    // this.points
     combineLatest(
-      this.time$,
-      this.points,
-      (_, group) => group
+      this.ftime$,
+      this.world
     )
-    // this.time$.pipe(
-    //   takeUntil(this.unsubscribe$),
-    //   // sample(this.time$)
-    //   switchMapTo(this.points)
-    // )
-    .subscribe(group => {
+    .subscribe(([ftime, world]) => {
       if (!this.ready$.getValue()) return;
-      (window as any).group = group;
-      this.form.fillOnly(Colors.Blue).point(this.space.pointer, 10, 'circle');
-
-      // this.form.strokeOnly(Colors.Red, 2).line(r);
-      // this.form.strokeOnly(Colors.Green, 2).line(g);
-      // this.form.strokeOnly(Colors.Blue, 2).line(b);
-      // this.form.fillOnly(Colors.Red).points(r, 4, 'circle');
-      this.form.fillOnly(Colors.Green).points(group, 4, 'circle');
-      // this.form.fillOnly(Colors.Blue).points(b, 4, 'circle');
+      const pointer = this.space.pointer;
+      const { width, height } = this.space;
+      const parab = (x: number) => -0.005 * Math.pow(x, 2) + height;
+      world.drawParticles((p, i) => {
+        const color = [Colors.Red, Colors.Green, Colors.Blue][i % 3];
+        const fy = (height - p.y + pointer.y) - parab(p.x - pointer.x);
+        p.addForce(0, 100 * fy);
+        p.y = clamp(0, height)(p.y);
+        this.form.fillOnly(color).point(p, 5, 'circle');
+      });
+      // const particles: Pt[] = [];
+      // for (let i = 0; i < world.particleCount; i++) {
+      //   particles.push(world.particle(i));
+      // }
+      // this.form.strokeOnly('#000000', 1).line(Group.fromPtArray(particles));
+      world.update(ftime);
     });
+    // combineLatest(
+    //   this.time$,
+    //   this.baseGroup,
+    //   (_, group) => group
+    // )
+    // .subscribe(group => {
+    //   if (!this.ready$.getValue()) return;
+    //   (window as any).group = group;
+    //   this.form.fillOnly(Colors.Blue).point(this.space.pointer, 10, 'circle');
+
+    //   // this.form.strokeOnly(Colors.Red, 2).line(r);
+    //   // this.form.strokeOnly(Colors.Green, 2).line(g);
+    //   // this.form.strokeOnly(Colors.Blue, 2).line(b);
+    //   this.form.fillOnly(Colors.Green).points(group, 4, 'circle');
+    //   // this.form.fillOnly(Colors.Blue).points(b, 4, 'circle');
+    // });
 
     this.space.bindMouse().bindTouch().play();
   }

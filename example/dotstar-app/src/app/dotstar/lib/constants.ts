@@ -10,3 +10,9 @@ export class DotstarConstants {
   static readonly sSampler = '1';
   static readonly lSampler = '0.5 * (Math.sin(t/500 - i/n) > 0 ? 1 : 0)';
 }
+
+export enum Colors {
+  Red = '#ff2b35',
+  Green = '#76ff03',
+  Blue = '#00e4ff',
+}

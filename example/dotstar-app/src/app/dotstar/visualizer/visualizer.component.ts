@@ -3,14 +3,8 @@ import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
 import { takeUntil, map, tap, share } from 'rxjs/operators';
 import { CanvasSpace, Pt, CanvasForm, Num, Bound, Group, Curve } from 'pts';
 import { transpose } from 'ramda';
-import { Sample } from '../lib';
+import { Sample, Colors } from '../lib';
 import { DotstarBufferService } from '../dotstar-buffer.service';
-
-enum Colors {
-  Red = '#ff2b35',
-  Green = '#76ff03',
-  Blue = '#00e4ff',
-}
 
 @Component({
   selector: 'dotstar-visualizer',
