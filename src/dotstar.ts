@@ -1,17 +1,17 @@
-import { range } from 'ramda';
-import { SPI } from './spi';
+import * as gradientString from 'gradient-string';
+import { SPI, Mode } from 'spi-node';
 import { DotstarConfig } from './types';
 import { APA102C } from './apa102c';
-import * as gradientString from 'gradient-string';
+import { range } from './utils';
 
 export class Dotstar {
   static create(config: Partial<DotstarConfig> = {}): Dotstar {
+    const spi = new SPI(config.devicePath || '/dev/spidev0.0');
+    spi.speed = Math.max(APA102C.CLK_MIN, config.clockSpeed || APA102C.CLK_MIN);
+    spi.mode = Mode.M0;
+
     return new Dotstar(
-      new SPI(
-        config.devicePath || '/dev/spidev0.0',
-        Math.max(APA102C.CLK_MIN, config.clockSpeed || APA102C.CLK_MIN),
-        typeof config.dataMode === 'number' ? config.dataMode : 0
-      ),
+      spi,
       Math.max(0, config.length || 144),
       config.startFrames || 1,
       config.endFrames || 4
@@ -52,12 +52,12 @@ export class Dotstar {
     return this.spi.devicePath;
   }
 
-  get clockSpeed() {
-    return this.spi.clockSpeed;
+  get speed() {
+    return this.spi.speed;
   }
 
-  get dataMode() {
-    return this.spi.dataMode;
+  get mode() {
+    return this.spi.mode;
   }
 
   apply(fn: (color: number, index: number) => number) {
