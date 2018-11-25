@@ -31,8 +31,8 @@ export class DotstarSocketService {
   private readonly stopSocket = new Subject<any>();
   private readonly retrySocket = new Subject<any>();
 
-  private readonly fps$ = new BehaviorSubject<number>(DotstarConstants.fpsMin);
-  readonly fps: Observable<number>;
+  private readonly txps$ = new BehaviorSubject<number>(DotstarConstants.fpsMin);
+  readonly txps: Observable<number>;
 
   readonly socketError = new Subject<Event>();
 
@@ -47,8 +47,8 @@ export class DotstarSocketService {
   ) {
     (window as any).dotstar = this;
 
-    this.fps = this.fps$.asObservable().pipe(
-      map(fps => Math.min(DotstarConstants.fpsMax, Math.max(DotstarConstants.fpsMin, fps)))
+    this.txps = this.txps$.asObservable().pipe(
+      map(txps => Math.min(DotstarConstants.fpsMax, Math.max(DotstarConstants.fpsMin, txps)))
     );
 
     this.message = this.url.pipe(
@@ -75,12 +75,13 @@ export class DotstarSocketService {
 
     combineLatest(
       this.connected$.pipe(distinctUntilChanged()),
-      this.fps.pipe(distinctUntilChanged())
-    ).pipe(
-      switchMap(([connected, fps]) =>
+      this.txps.pipe(distinctUntilChanged())
+    )
+    .pipe(
+      switchMap(([connected, txps]) =>
         !connected
         ? empty()
-        : this.bufferService.channelValues.pipe(sampleTime(1000 / fps))
+        : this.bufferService.channelValues.pipe(sampleTime(1000 / txps))
       )
     )
     .subscribe(values => {
@@ -96,12 +97,6 @@ export class DotstarSocketService {
     this.stopSocket.next('disconnect!');
   }
 
-  sendSamples(values: Sample[]) {
-    if (this.socket) {
-      this.socket.next({ values });
-    }
-  }
-
   connect(url = DotstarConstants.url) {
     if (!this.connected$.getValue()) {
       const query = this.configService.getConnectionQuery();
@@ -113,11 +108,7 @@ export class DotstarSocketService {
     this.retrySocket.next('retrying');
   }
 
-  setFps(fps: number) {
-    this.fps$.next(fps);
-  }
-
-  setBroadcastsPerSecond(fps: number) {
-    this.fps$.next(fps);
+  setTxps(txps: number) {
+    this.txps$.next(txps);
   }
 }

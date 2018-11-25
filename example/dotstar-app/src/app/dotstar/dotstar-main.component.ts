@@ -15,7 +15,7 @@ import { Subject, Observable } from 'rxjs';
 export class DotstarMainComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
 
-  readonly fpsControl: FormControl;
+  readonly txpsControl: FormControl;
   readonly fpsMin = DotstarConstants.fpsMin;
   readonly fpsMax = DotstarConstants.fpsMax;
   readonly devicePath: Observable<string>;
@@ -27,7 +27,7 @@ export class DotstarMainComponent implements OnInit, OnDestroy {
     readonly configService: DotstarConfigService,
     readonly socketService: DotstarSocketService
   ) {
-    this.fpsControl = this.fb.control(50, [
+    this.txpsControl = this.fb.control(50, [
       Validators.min(this.fpsMin),
       Validators.max(this.fpsMax),
     ]);
@@ -38,12 +38,12 @@ export class DotstarMainComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.fpsControl.valueChanges.pipe(
+    this.txpsControl.valueChanges.pipe(
       takeUntil(this.unsubscribe$),
-      startWith(this.fpsControl.value),
-      filter(() => this.fpsControl.valid)
+      startWith(this.txpsControl.value),
+      filter(() => this.txpsControl.valid)
     )
-    .subscribe(fps => this.socketService.setFps(fps));
+    .subscribe(txps => this.socketService.setTxps(txps));
 
     this.configService.getAvailableDevicePaths();
   }

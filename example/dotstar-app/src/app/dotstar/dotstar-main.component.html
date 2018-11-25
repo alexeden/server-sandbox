@@ -28,6 +28,14 @@
     </div>
   </div>
 
+  <div class="column">
+    <div class="mat-h3 m-0">Transmissions per second</div>
+    <div class="row gap-5 align-center">
+      <div class="mat-caption">{{ socketService.txps | async }}</div>
+      <mat-slider class="p-0 m-0" [formControl]="txpsControl" [min]="fpsMin" [max]="fpsMax"></mat-slider>
+    </div>
+  </div>
+
   <div class="row grow"></div>
 
   <div class="row gap-10">
