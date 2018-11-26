@@ -5,6 +5,7 @@ import { CanvasSpace, Pt, CanvasForm, Num, Bound, Group, World, Particle } from 
 import { Sample, range, Colors, clamp } from '../lib';
 // import { DotstarBufferService } from '../dotstar-buffer.service';
 import { DotstarDeviceConfigService } from '../device-config.service';
+import { DotstarBufferService } from '../dotstar-buffer.service';
 
 type ActionType = 'move' | 'up' | 'down' | 'drag' | 'over' | 'out';
 
@@ -46,7 +47,8 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
   constructor(
     readonly elRef: ElementRef,
     readonly renderer: Renderer2,
-    readonly configService: DotstarDeviceConfigService
+    readonly configService: DotstarDeviceConfigService,
+    readonly bufferService: DotstarBufferService
   ) {
     (window as any).inputCanvas = this;
     this.canvas = this.renderer.createElement('canvas');
@@ -95,9 +97,12 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
     );
 
     this.mappedValues = this.particles$.asObservable().pipe(
-      map(particles => {
-        return [];
-      })
+      map(particles =>
+        particles.map<Sample>(p => {
+          // Map each particle to a sample triplet
+          return [255, 0, 0];
+        })
+      )
     );
   }
 
@@ -132,6 +137,7 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
     });
 
     this.space.bindMouse().bindTouch().play();
+    this.bufferService.setSource(this.mappedValues);
   }
 
   ngOnDestroy() {
