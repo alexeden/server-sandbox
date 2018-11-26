@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/core';
 import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
-import { share, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
+import { share, distinctUntilChanged, filter, takeUntil, skipUntil, skipWhile, map } from 'rxjs/operators';
 import { CanvasSpace, Pt, CanvasForm, Num, Bound, Group, World, Particle } from 'pts';
 import { Sample, range, Colors, clamp } from '../lib';
 // import { DotstarBufferService } from '../dotstar-buffer.service';
@@ -11,6 +11,14 @@ type ActionType = 'move' | 'up' | 'down' | 'drag' | 'over' | 'out';
 interface Action {
   type: ActionType;
   pt: Pt;
+}
+
+interface ParticleSnapshot {
+  readonly position: Pt;
+  readonly changed: Pt;
+  readonly id: string;
+  readonly mass: number;
+  readonly force: Pt;
 }
 
 @Component({
@@ -25,10 +33,11 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
   private readonly ftime$ = new BehaviorSubject(0);
   private readonly bounds$ = new BehaviorSubject<Bound>(new Bound(Pt.make(2), Pt.make(2)));
   private readonly actions$ = new Subject<Action>();
+  private readonly particles$ = new Subject<ParticleSnapshot[]>();
+  private readonly mappedValues: Observable<Sample[]>;
 
   readonly height = 550;
   readonly world: Observable<World>;
-  readonly baseGroup: Observable<Group>;
   readonly bounds: Observable<Bound>;
   readonly space: CanvasSpace;
   readonly form: CanvasForm;
@@ -77,6 +86,7 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
         range(0, n).forEach(i => {
           const part = new Particle([ Num.mapToRange(i, 0, n, 0, bounds.width || 1), 0 ]);
           part.radius = 0;
+          part.id = i;
           part.mass = 5;
           world.add(part);
         });
@@ -84,32 +94,40 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
       }
     );
 
-    this.baseGroup = combineLatest(
-      this.configService.length,
-      this.bounds,
-      (n, { width, height }) =>
-        Group.fromPtArray(range(0, n).map(i =>
-          new Pt([ Num.mapToRange(i, 0, n, 0, width || 1), height ])
-        ))
+    this.mappedValues = this.particles$.asObservable().pipe(
+      map(particles => {
+        return [];
+      })
     );
-
   }
 
   ngOnInit() {
-    combineLatest(this.ftime$, this.world)
-    .pipe(takeUntil(this.unsubscribe$))
+    const parabola = (x: number) => -0.005 * Math.pow(x, 2) + this.space.height;
+
+    combineLatest(this.ftime$, this.world).pipe(
+      takeUntil(this.unsubscribe$),
+      skipWhile(() => !this.ready$.getValue())
+    )
     .subscribe(([ftime, world]) => {
-      if (!this.ready$.getValue()) return;
       const pointer = this.space.pointer;
       const { height } = this.space;
-      const parab = (x: number) => -0.005 * Math.pow(x, 2) + height;
+      const particles: ParticleSnapshot[] = [];
       world.drawParticles((p, i) => {
         const color = [Colors.Red, Colors.Green, Colors.Blue][i % 3];
-        const fy = (height - p.y + pointer.y) - parab(p.x - pointer.x);
-        p.addForce(0, 100 * fy);
+        const fy = (height - p.y + pointer.y) - parabola(p.x - pointer.x);
+        p.addForce(0, 50 * fy);
         p.y = clamp(0, height)(p.y);
+        particles.push({
+          position: new Pt([p.x, p.y]),
+          force: p.force.clone(),
+          mass: p.mass,
+          id: p.id,
+          changed: p.changed.clone(),
+        });
         this.form.fillOnly(color).point(p, 5, 'circle');
       });
+      this.particles$.next(particles);
+      (window as any).particles = particles;
       world.update(ftime);
     });
 
@@ -120,6 +138,7 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
     this.space.removeAll();
     this.unsubscribe$.next('unsubscribe!');
     this.unsubscribe$.unsubscribe();
+    this.particles$.unsubscribe();
     this.ready$.unsubscribe();
     this.time$.unsubscribe();
     this.ftime$.unsubscribe();
