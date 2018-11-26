@@ -47,7 +47,7 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
       start: bounds => this.bounds$.next(bounds),
     });
 
-    this.channelValues = this.bufferService.channelValues.pipe(
+    this.channelValues = this.bufferService.values.pipe(
       tap(() => this.space.clear()),
       share()
     );

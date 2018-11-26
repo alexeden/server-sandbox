@@ -85,7 +85,7 @@ export class DotstarSamplerFormComponent implements OnInit, OnDestroy {
     this.channelSampler.pipe(
       takeUntil(this.unsubscribe$)
     )
-    .subscribe(samplers => this.bufferService.updateSampler(samplers));
+    .subscribe(samplers => this.bufferService.setSourceFromSampler(samplers));
   }
 
   toggleChannel({ checked }: MatSlideToggleChange, channel: string) {

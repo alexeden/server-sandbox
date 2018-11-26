@@ -81,7 +81,7 @@ export class DotstarSocketService {
       switchMap(([connected, txps]) =>
         !connected
         ? empty()
-        : this.bufferService.channelValues.pipe(sampleTime(1000 / txps))
+        : this.bufferService.values.pipe(sampleTime(1000 / txps))
       )
     )
     .subscribe(values => {

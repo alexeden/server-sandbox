@@ -43,22 +43,22 @@
       mat-fab
       class="no-shadow"
       color="accent"
-      *ngIf="bufferService.running | async"
-      (click)="bufferService.pause()">
+      *ngIf="clock.running | async"
+      (click)="clock.pause()">
       <mat-icon>pause</mat-icon>
     </button>
     <button
       mat-fab
       class="no-shadow"
       color="primary"
-      *ngIf="!(bufferService.running | async)"
-      (click)="bufferService.resume()">
+      *ngIf="!(clock.running | async)"
+      (click)="clock.resume()">
       <mat-icon>play_arrow</mat-icon>
     </button>
     <div class="column justify-center">
       <div class="mat-h3 m-0">Player</div>
-      <span *ngIf="!(bufferService.running | async)" class="mat-caption">Paused</span>
-      <span *ngIf="bufferService.running | async" class="mat-caption">Running</span>
+      <span *ngIf="!(clock.running | async)" class="mat-caption">Paused</span>
+      <span *ngIf="clock.running | async" class="mat-caption">Running</span>
     </div>
   </div>
 
