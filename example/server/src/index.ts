@@ -38,6 +38,11 @@ app.get('/api/dev', (req, res, next) => {
   });
 });
 
+// Catch all other routes and return the index file
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../dotstar-app/dist/dotstar-app/index.html'));
+});
+
 server.on('upgrade', (request: http.IncomingMessage, socket: net.Socket, head: Buffer) => {
   wss.handleUpgrade(request, socket, head, clientSocket => wss.emit('connection', clientSocket, request));
 });

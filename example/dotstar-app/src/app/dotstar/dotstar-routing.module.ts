@@ -13,7 +13,7 @@ const dotstarRoutes: Routes = [
         path: 'functions',
         component: DotstarSamplerFormComponent,
         data: {
-          label: 'Channel Functions',
+          label: 'Colorspace Functions',
         },
       },
       {
