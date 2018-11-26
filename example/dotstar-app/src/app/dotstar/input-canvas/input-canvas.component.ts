@@ -2,7 +2,7 @@ import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/co
 import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
 import { share, distinctUntilChanged, filter, takeUntil, skipUntil, skipWhile, map, tap, take } from 'rxjs/operators';
 import { CanvasSpace, Pt, CanvasForm, Num, Bound, Group, World, Particle } from 'pts';
-import { Sample, range, Colors, clamp } from '../lib';
+import { Sample, range, Colors, clamp, mapToRange } from '../lib';
 // import { DotstarBufferService } from '../dotstar-buffer.service';
 import { DotstarDeviceConfigService } from '../device-config.service';
 import { DotstarBufferService } from '../dotstar-buffer.service';
@@ -100,7 +100,8 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
       map(particles =>
         // Map each particle to a sample triplet
         particles.map<Sample>(p => {
-          return [255, 0, 0];
+          const brightness = mapToRange(0, this.space.height, 0xFF, 0x00, p.position.y);
+          return [brightness, 0, 0];
         })
       )
     );
