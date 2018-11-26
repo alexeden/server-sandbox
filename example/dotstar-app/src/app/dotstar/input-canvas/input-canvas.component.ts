@@ -83,7 +83,8 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
       this.configService.length,
       this.bounds,
       (n, bounds) => {
-        const world = new World(this.space.innerBound, 0.9, 10);
+        const friction = 0.9;
+        const world = new World(this.space.innerBound, friction, 10);
         range(0, n).forEach(i => {
           const part = new Particle([ Num.mapToRange(i, 0, n, 0, bounds.width || 1), 0 ]);
           part.radius = 0;
@@ -120,7 +121,8 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
       const { height } = this.space;
       const particles: ParticleSnapshot[] = [];
       world.drawParticles((p, i) => {
-        const color = [Colors.Red, Colors.Green, Colors.Blue][i % 3];
+        const color = Colors.Black;
+        // [Colors.Red, Colors.Green, Colors.Blue][i % 3];
         const fy = (height - p.y + pointer.y) - parabola(p.x - pointer.x);
         p.addForce(0, 50 * fy);
         p.y = clamp(0, height)(p.y);
