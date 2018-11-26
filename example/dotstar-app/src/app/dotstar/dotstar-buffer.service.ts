@@ -18,7 +18,7 @@ export class DotstarBufferService {
   private readonly samplerFunction$ = new BehaviorSubject<ChannelSampler>(() => [ 0, 0, 0]);
 
   readonly running: Observable<boolean>;
-  readonly clock: Observable<number>;
+  readonly animationClock: Observable<number>;
   readonly samplerFunction: Observable<ChannelSampler>;
   readonly channelValues: Observable<Sample[]>;
 
@@ -28,7 +28,7 @@ export class DotstarBufferService {
     (window as any).DotstarBufferService = this;
     this.running = this.running$.asObservable();
 
-    this.clock = this.running.pipe(
+    this.animationClock = this.running.pipe(
       distinctUntilChanged(),
       switchMap(running =>
         !running
@@ -43,7 +43,7 @@ export class DotstarBufferService {
     this.samplerFunction = this.samplerFunction$.asObservable();
 
     this.channelValues = combineLatest(
-      this.clock,
+      this.animationClock,
       this.configService.length.pipe(map(l => range(0, l))),
       this.samplerFunction
     ).pipe(
