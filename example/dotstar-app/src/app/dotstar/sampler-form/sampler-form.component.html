@@ -1,54 +1,60 @@
-<mat-radio-group class="row gap-20 m-b-20 grow" [value]="mode$ | async" (change)="setMode($event.value)">
-  <mat-radio-button value="rgb" class="grow mat-h2">RGB</mat-radio-button>
-  <mat-radio-button value="hsl" class="grow mat-h2">HSL</mat-radio-button>
-</mat-radio-group>
+<div class="column gap-10 p-20">
+  <mat-radio-group class="row gap-20 m-b-20 grow" [value]="mode$ | async" (change)="setMode($event.value)">
+    <mat-radio-button value="rgb" class="grow mat-h2">RGB</mat-radio-button>
+    <mat-radio-button value="hsl" class="grow mat-h2">HSL</mat-radio-button>
+  </mat-radio-group>
 
-<div class="row gap-20 grow" [formGroup]="samplerForm">
-  <div class="column gap-20 grow" formGroupName="rgb">
-    <div class="row gap-10 align-baseline grow">
-      <mat-form-field class="grow">
-        <mat-label>Red <code>(0, 255)</code></mat-label>
-        <textarea autocomplete="off" rows="3" matInput formControlName="r"></textarea>
-        <mat-error *ngIf="samplerForm.get(['rgb', 'r']).invalid">Invalid function</mat-error>
-      </mat-form-field>
+  <div class="row gap-20 grow" [formGroup]="samplerForm">
+    <div class="column gap-20 grow" formGroupName="rgb">
+      <div class="row gap-10 align-baseline grow">
+        <mat-form-field class="grow">
+          <mat-label>Red <code>(0, 255)</code></mat-label>
+          <textarea autocomplete="off" rows="3" matInput formControlName="r"></textarea>
+          <mat-error *ngIf="samplerForm.get(['rgb', 'r']).invalid">Invalid function</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="row gap-10 align-baseline grow">
+        <mat-form-field class="grow">
+          <mat-label>Green <code>(0, 255)</code></mat-label>
+          <textarea autocomplete="off" rows="3" matInput formControlName="g"></textarea>
+          <mat-error *ngIf="samplerForm.get(['rgb', 'g']).invalid">Invalid function</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="row gap-10 align-baseline grow">
+        <mat-form-field class="grow">
+          <mat-label>Blue <code>(0, 255)</code></mat-label>
+          <textarea autocomplete="off" rows="3" matInput formControlName="b"></textarea>
+          <mat-error *ngIf="samplerForm.get(['rgb', 'b']).invalid">Invalid function</mat-error>
+        </mat-form-field>
+      </div>
     </div>
-    <div class="row gap-10 align-baseline grow">
-      <mat-form-field class="grow">
-        <mat-label>Green <code>(0, 255)</code></mat-label>
-        <textarea autocomplete="off" rows="3" matInput formControlName="g"></textarea>
-        <mat-error *ngIf="samplerForm.get(['rgb', 'g']).invalid">Invalid function</mat-error>
-      </mat-form-field>
-    </div>
-    <div class="row gap-10 align-baseline grow">
-      <mat-form-field class="grow">
-        <mat-label>Blue <code>(0, 255)</code></mat-label>
-        <textarea autocomplete="off" rows="3" matInput formControlName="b"></textarea>
-        <mat-error *ngIf="samplerForm.get(['rgb', 'b']).invalid">Invalid function</mat-error>
-      </mat-form-field>
+
+    <div class="column gap-20 grow" formGroupName="hsl">
+      <div class="row gap-10 align-baseline grow">
+        <mat-form-field class="grow">
+          <mat-label>Hue <code>(0&deg;, 360&deg;)</code></mat-label>
+          <textarea autocomplete="off" rows="3" matInput formControlName="h"></textarea>
+          <mat-error *ngIf="samplerForm.get(['hsl', 'h']).invalid">Invalid function</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="row gap-10 align-baseline grow">
+        <mat-form-field class="grow">
+          <mat-label>Saturation <code>(0, 1)</code></mat-label>
+          <textarea autocomplete="off" rows="3" matInput formControlName="s"></textarea>
+          <mat-error *ngIf="samplerForm.get(['hsl', 's']).invalid">Invalid function</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="row gap-10 align-baseline grow">
+        <mat-form-field class="grow">
+          <mat-label>Lightness <code>(0, 1)</code></mat-label>
+          <textarea autocomplete="off" rows="3" matInput formControlName="l"></textarea>
+          <mat-error *ngIf="samplerForm.get(['hsl', 'l']).invalid">Invalid function</mat-error>
+        </mat-form-field>
+      </div>
     </div>
   </div>
 
-  <div class="column gap-20 grow" formGroupName="hsl">
-    <div class="row gap-10 align-baseline grow">
-      <mat-form-field class="grow">
-        <mat-label>Hue <code>(0&deg;, 360&deg;)</code></mat-label>
-        <textarea autocomplete="off" rows="3" matInput formControlName="h"></textarea>
-        <mat-error *ngIf="samplerForm.get(['hsl', 'h']).invalid">Invalid function</mat-error>
-      </mat-form-field>
-    </div>
-    <div class="row gap-10 align-baseline grow">
-      <mat-form-field class="grow">
-        <mat-label>Saturation <code>(0, 1)</code></mat-label>
-        <textarea autocomplete="off" rows="3" matInput formControlName="s"></textarea>
-        <mat-error *ngIf="samplerForm.get(['hsl', 's']).invalid">Invalid function</mat-error>
-      </mat-form-field>
-    </div>
-    <div class="row gap-10 align-baseline grow">
-      <mat-form-field class="grow">
-        <mat-label>Lightness <code>(0, 1)</code></mat-label>
-        <textarea autocomplete="off" rows="3" matInput formControlName="l"></textarea>
-        <mat-error *ngIf="samplerForm.get(['hsl', 'l']).invalid">Invalid function</mat-error>
-      </mat-form-field>
-    </div>
-  </div>
+  <mat-card>
+    <dotstar-visualizer ></dotstar-visualizer>
+  </mat-card>
 </div>
