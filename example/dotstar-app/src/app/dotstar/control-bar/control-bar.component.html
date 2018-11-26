@@ -1,1 +1,75 @@
-<ng-content></ng-content>
+<div class="row gap-10 align-center">
+  <button
+    mat-icon-button
+    [disabled]="socketService.connected$ | async"
+    configFormTrigger>
+    <mat-icon
+      matTooltip="Configure the device"
+      style="font-size: 2rem"
+      [inline]="true">
+      settings
+    </mat-icon>
+  </button>
+  <div class="column justify-center">
+    <div class="mat-h3 m-0">Device Configuration</div>
+    <div class="mat-caption">{{ devicePath | async }}</div>
+  </div>
+</div>
+
+<div class="column">
+  <div class="mat-h3 m-0">Transmissions per second</div>
+  <div class="row gap-5 align-center">
+    <div class="mat-caption">{{ socketService.txps | async }}</div>
+    <mat-slider class="p-0 m-0" [formControl]="txpsControl" [min]="txpsMin" [max]="txpsMax"></mat-slider>
+  </div>
+</div>
+
+<div class="row grow"></div>
+
+<div class="row gap-10">
+  <button
+    mat-fab
+    class="no-shadow"
+    color="accent"
+    *ngIf="clock.running | async"
+    (click)="clock.pause()">
+    <mat-icon>pause</mat-icon>
+  </button>
+  <button
+    mat-fab
+    class="no-shadow"
+    color="primary"
+    *ngIf="!(clock.running | async)"
+    (click)="clock.resume()">
+    <mat-icon>play_arrow</mat-icon>
+  </button>
+  <div class="column justify-center">
+    <div class="mat-h3 m-0">Player</div>
+    <span *ngIf="!(clock.running | async)" class="mat-caption">Paused</span>
+    <span *ngIf="clock.running | async" class="mat-caption">Running</span>
+  </div>
+</div>
+
+
+<div class="row gap-10">
+  <button
+    mat-fab
+    class="no-shadow"
+    *ngIf="socketService.connected$ | async"
+    (click)="socketService.disconnect()">
+    <mat-icon [spin]="10">sync</mat-icon>
+  </button>
+  <button
+    mat-fab
+    class="no-shadow"
+    color="primary"
+    *ngIf="!(socketService.connected$ | async)"
+    (click)="socketService.connect()">
+    <mat-icon>sync</mat-icon>
+  </button>
+  <div class="column justify-center">
+    <div class="mat-h3 m-0">Connection</div>
+    <span *ngIf="!(socketService.connected$ | async)" class="mat-caption">Not Connected</span>
+    <span *ngIf="socketService.connected$ | async" class="mat-caption">Syncing updates</span>
+  </div>
+</div>
