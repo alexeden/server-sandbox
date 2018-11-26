@@ -16,6 +16,7 @@ import { DotstarBufferService } from './dotstar-buffer.service';
 import { DotstarSamplerFormComponent } from './sampler-form/sampler-form.component';
 import { DotstarControlBarComponent } from './control-bar/control-bar.component';
 import { DotstarRoutingModule } from './dotstar-routing.module';
+import { DotstarPhysicsFormComponent } from './physics-form/physics-form.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { DotstarRoutingModule } from './dotstar-routing.module';
     DotstarSocketNotifierComponent,
     DotstarVisualizerComponent,
     DotstarControlBarComponent,
+    DotstarPhysicsFormComponent,
   ],
   imports: [
     SharedModule,
