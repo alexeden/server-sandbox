@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { DotstarMainComponent } from './dotstar-main.component';
-import { DotstarSamplerFormComponent } from './sampler-form/sampler-form.component';
-import { DotstarInputCanvasComponent } from './input-canvas';
+import { DotstarColorspaceFunctionsComponent } from './colorspace-functions';
+import { DotstarPointerParticlesComponent } from './pointer-particles';
 
 const dotstarRoutes: Routes = [
   {
@@ -11,14 +11,14 @@ const dotstarRoutes: Routes = [
     children: [
       {
         path: 'functions',
-        component: DotstarSamplerFormComponent,
+        component: DotstarColorspaceFunctionsComponent,
         data: {
           label: 'Colorspace Functions',
         },
       },
       {
         path: 'particles',
-        component: DotstarInputCanvasComponent,
+        component: DotstarPointerParticlesComponent,
         data: {
           label: 'Particles',
         },

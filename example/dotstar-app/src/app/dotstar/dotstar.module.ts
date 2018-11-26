@@ -17,8 +17,8 @@ import { DotstarSamplerFormComponent } from './sampler-form/sampler-form.compone
 import { DotstarControlBarComponent } from './control-bar/control-bar.component';
 import { DotstarRoutingModule } from './dotstar-routing.module';
 import { DotstarPhysicsFormComponent } from './physics-form/physics-form.component';
-import { PointerParticlesComponent } from './pointer-particles/pointer-particles.component';
-import { ColorspaceFunctionsComponent } from './colorspace-functions/colorspace-functions.component';
+import { DotstarPointerParticlesComponent } from './pointer-particles/pointer-particles.component';
+import { DotstarColorspaceFunctionsComponent } from './colorspace-functions/colorspace-functions.component';
 
 @NgModule({
   declarations: [
@@ -31,8 +31,8 @@ import { ColorspaceFunctionsComponent } from './colorspace-functions/colorspace-
     DotstarVisualizerComponent,
     DotstarControlBarComponent,
     DotstarPhysicsFormComponent,
-    PointerParticlesComponent,
-    ColorspaceFunctionsComponent,
+    DotstarPointerParticlesComponent,
+    DotstarColorspaceFunctionsComponent,
   ],
   imports: [
     SharedModule,
