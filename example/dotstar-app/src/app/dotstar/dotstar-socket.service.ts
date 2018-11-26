@@ -31,7 +31,7 @@ export class DotstarSocketService {
   private readonly stopSocket = new Subject<any>();
   private readonly retrySocket = new Subject<any>();
 
-  private readonly txps$ = new BehaviorSubject<number>(DotstarConstants.fpsMin);
+  private readonly txps$ = new BehaviorSubject<number>(DotstarConstants.txpsMin);
   readonly txps: Observable<number>;
 
   readonly socketError = new Subject<Event>();
@@ -48,7 +48,7 @@ export class DotstarSocketService {
     (window as any).dotstar = this;
 
     this.txps = this.txps$.asObservable().pipe(
-      map(txps => Math.min(DotstarConstants.fpsMax, Math.max(DotstarConstants.fpsMin, txps)))
+      map(txps => Math.min(DotstarConstants.txpsMax, Math.max(DotstarConstants.txpsMin, txps)))
     );
 
     this.message = this.url.pipe(

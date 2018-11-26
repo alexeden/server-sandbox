@@ -16,8 +16,8 @@ export class DotstarMainComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
 
   readonly txpsControl: FormControl;
-  readonly fpsMin = DotstarConstants.fpsMin;
-  readonly fpsMax = DotstarConstants.fpsMax;
+  readonly txpsMin = DotstarConstants.txpsMin;
+  readonly txpsMax = DotstarConstants.txpsMax;
   readonly devicePath: Observable<string>;
 
 
@@ -28,8 +28,8 @@ export class DotstarMainComponent implements OnInit, OnDestroy {
     readonly socketService: DotstarSocketService
   ) {
     this.txpsControl = this.fb.control(60, [
-      Validators.min(this.fpsMin),
-      Validators.max(this.fpsMax),
+      Validators.min(this.txpsMin),
+      Validators.max(this.txpsMax),
     ]);
 
     this.devicePath = this.configService.deviceConfig.pipe(
