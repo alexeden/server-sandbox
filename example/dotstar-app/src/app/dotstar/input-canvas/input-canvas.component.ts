@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/core';
 import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
-import { share, distinctUntilChanged, filter, takeUntil, skipUntil, skipWhile, map } from 'rxjs/operators';
+import { share, distinctUntilChanged, filter, takeUntil, skipUntil, skipWhile, map, tap, take } from 'rxjs/operators';
 import { CanvasSpace, Pt, CanvasForm, Num, Bound, Group, World, Particle } from 'pts';
 import { Sample, range, Colors, clamp } from '../lib';
 // import { DotstarBufferService } from '../dotstar-buffer.service';
@@ -96,10 +96,10 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
       }
     );
 
-    this.mappedValues = this.particles$.asObservable().pipe(
+    this.mappedValues = this.particles$.pipe(
       map(particles =>
+        // Map each particle to a sample triplet
         particles.map<Sample>(p => {
-          // Map each particle to a sample triplet
           return [255, 0, 0];
         })
       )
@@ -127,13 +127,14 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
           force: p.force.clone(),
           mass: p.mass,
           id: p.id,
-          changed: p.changed.clone(),
+          changed: p.changed,
         });
         this.form.fillOnly(color).point(p, 5, 'circle');
       });
-      this.particles$.next(particles);
-      (window as any).particles = particles;
       world.update(ftime);
+      // console.log(particles.length);
+      this.particles$.next(particles);
+      // (window as any).particles = particles;
     });
 
     this.space.bindMouse().bindTouch().play();

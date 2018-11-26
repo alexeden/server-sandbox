@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { DotstarDeviceConfigService } from './device-config.service';
 import { Observable, BehaviorSubject, combineLatest, empty } from 'rxjs';
-import { map, share, switchAll } from 'rxjs/operators';
+import { map, share, switchAll, take } from 'rxjs/operators';
 import { Sample, ChannelSampler, clamp, range } from './lib';
 import { AnimationClockService } from './animation-clock.service';
 
