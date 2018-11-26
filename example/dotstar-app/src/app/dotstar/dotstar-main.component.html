@@ -1,5 +1,15 @@
 <dotstar-socket-notifier></dotstar-socket-notifier>
 
+<nav mat-tab-nav-bar>
+  <a mat-tab-link
+    *ngFor="let route of dotstarRoutes"
+    [routerLink]="[route.path]"
+    routerLinkActive
+    #rla="routerLinkActive"
+    [active]="rla.isActive">
+    {{ route.data?.label }}
+  </a>
+</nav>
 <router-outlet></router-outlet>
 
 <dotstar-control-bar></dotstar-control-bar>
