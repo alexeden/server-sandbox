@@ -35,7 +35,6 @@ export class DotstarSamplerFormComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private bufferService: DotstarBufferService
   ) {
-    (window as any).DotstarSamplerFormComponent = this;
     this.mode$ = new BehaviorSubject<Colorspace>(this.savedColorspace || Colorspace.HSL);
 
     this.channelToggleForm = this.fb.group({ r: [true], g: [true], b: [true] });

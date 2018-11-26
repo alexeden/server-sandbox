@@ -17,12 +17,6 @@ export class SamplerUtils {
   }
 
   static hslToRgb([h, s, l]: Triplet<Sampler>): ChannelSampler {
-    (window as any).hue = h;
-    (window as any).sat = s;
-    (window as any).light = l;
-    (window as any).clampLoop = clampLoop;
-    (window as any).clamp = clamp;
-
     return (...args) => {
       const hue = clampLoop(0, 360)(h(...args));
       const sat = clamp(0, 1)(s(...args));

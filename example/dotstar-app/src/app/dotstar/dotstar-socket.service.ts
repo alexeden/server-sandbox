@@ -45,8 +45,6 @@ export class DotstarSocketService {
     private configService: DotstarDeviceConfigService,
     private bufferService: DotstarBufferService
   ) {
-    (window as any).dotstar = this;
-
     this.txps = this.txps$.asObservable().pipe(
       map(txps => Math.min(DotstarConstants.txpsMax, Math.max(DotstarConstants.txpsMin, txps)))
     );

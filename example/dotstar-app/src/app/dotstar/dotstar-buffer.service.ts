@@ -14,7 +14,6 @@ export class DotstarBufferService {
     private configService: DotstarDeviceConfigService,
     private clock: AnimationClockService
   ) {
-    (window as any).DotstarBufferService = this;
     this.values = this.source$.asObservable().pipe(
       switchAll(),
       share()

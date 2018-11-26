@@ -26,7 +26,6 @@ export class DotstarConfigFormComponent implements OnInit, OnDestroy {
     @Optional()
     public bottomSheetRef: MatBottomSheetRef<DotstarConfigFormComponent>
   ) {
-    (window as any).DotstarConfigFormComponent = this;
     this.connected = this.socketService.connected$.asObservable();
 
     this.devicePaths = this.configService.devicePaths;
