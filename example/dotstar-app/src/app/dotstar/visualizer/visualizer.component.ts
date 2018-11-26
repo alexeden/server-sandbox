@@ -29,7 +29,6 @@ export class DotstarVisualizerComponent implements OnInit, OnDestroy {
     readonly renderer: Renderer2,
     readonly bufferService: DotstarBufferService
   ) {
-    (window as any).visualizer = this;
     this.canvas = this.renderer.createElement('canvas');
     this.renderer.setStyle(this.canvas, 'height', `${this.height}px`);
     this.renderer.appendChild(this.elRef.nativeElement, this.canvas);

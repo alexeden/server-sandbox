@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { DotstarMainComponent } from './dotstar-main.component';
 import { DotstarSamplerFormComponent } from './sampler-form/sampler-form.component';
+import { DotstarInputCanvasComponent } from './input-canvas';
 
 const dotstarRoutes: Routes = [
   {
@@ -11,6 +12,16 @@ const dotstarRoutes: Routes = [
       {
         path: 'functions',
         component: DotstarSamplerFormComponent,
+        data: {
+          label: 'Channel Functions',
+        },
+      },
+      {
+        path: 'particles',
+        component: DotstarInputCanvasComponent,
+        data: {
+          label: 'Particles',
+        },
       },
       {
         path: '',
