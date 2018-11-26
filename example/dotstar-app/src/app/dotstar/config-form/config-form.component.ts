@@ -5,7 +5,7 @@ import { takeUntil, tap, filter, take } from 'rxjs/operators';
 import { APA102C } from 'dotstar-node/dist/apa102c';
 import { DotstarConstants } from '../lib';
 import { DotstarSocketService } from '../dotstar-socket.service';
-import { DotstarConfigService } from '../dotstar-config.service';
+import { DotstarDeviceConfigService } from '../device-config.service';
 import { MatBottomSheetRef } from '@angular/material';
 
 @Component({
@@ -21,7 +21,7 @@ export class DotstarConfigFormComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private configService: DotstarConfigService,
+    private configService: DotstarDeviceConfigService,
     private socketService: DotstarSocketService,
     @Optional()
     public bottomSheetRef: MatBottomSheetRef<DotstarConfigFormComponent>

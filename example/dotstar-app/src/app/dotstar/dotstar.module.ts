@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 
 import { SharedModule } from '@app/shared';
-import { DotstarConfigService } from './dotstar-config.service';
+import { AnimationClockService } from './animation-clock.service';
+import { DotstarDeviceConfigService } from './device-config.service';
 import { DotstarSocketService } from './dotstar-socket.service';
 import { DotstarMainComponent } from './dotstar-main.component';
 import { DotstarSocketNotifierComponent } from './dotstar-notifiers.component';
@@ -36,8 +37,9 @@ import { DotstarControlBarComponent } from './control-bar/control-bar.component'
     DotstarConfigFormComponent,
   ],
   providers: [
+    AnimationClockService,
     DotstarBufferService,
-    DotstarConfigService,
+    DotstarDeviceConfigService,
     DotstarSocketService,
   ],
 })

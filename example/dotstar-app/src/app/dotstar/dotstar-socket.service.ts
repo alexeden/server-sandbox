@@ -4,7 +4,7 @@ import { map, switchMap, retryWhen, takeUntil, publishReplay, tap, distinctUntil
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { DotstarConstants, Sample } from './lib';
 import { DotstarConfig } from 'dotstar-node/dist/types';
-import { DotstarConfigService } from './dotstar-config.service';
+import { DotstarDeviceConfigService } from './device-config.service';
 import { DotstarBufferService } from './dotstar-buffer.service';
 
 
@@ -42,7 +42,7 @@ export class DotstarSocketService {
   readonly connected$ = new BehaviorSubject<boolean>(false);
 
   constructor(
-    private configService: DotstarConfigService,
+    private configService: DotstarDeviceConfigService,
     private bufferService: DotstarBufferService
   ) {
     (window as any).dotstar = this;

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { DotstarConfigService } from './dotstar-config.service';
+import { DotstarDeviceConfigService } from './device-config.service';
 import {
   Observable,
   BehaviorSubject,
@@ -11,39 +11,27 @@ import {
 } from 'rxjs';
 import { map, switchMap, distinctUntilChanged, share } from 'rxjs/operators';
 import { Sample, ChannelSampler, clamp, range } from './lib';
+import { AnimationClockService } from './animation-clock.service';
 
 @Injectable()
 export class DotstarBufferService {
-  private readonly running$ = new BehaviorSubject<boolean>(true);
   private readonly samplerFunction$ = new BehaviorSubject<ChannelSampler>(() => [ 0, 0, 0]);
 
   readonly running: Observable<boolean>;
-  readonly animationClock: Observable<number>;
   readonly samplerFunction: Observable<ChannelSampler>;
   readonly channelValues: Observable<Sample[]>;
 
   constructor(
-    private configService: DotstarConfigService
+    private configService: DotstarDeviceConfigService,
+    private clock: AnimationClockService
   ) {
     (window as any).DotstarBufferService = this;
-    this.running = this.running$.asObservable();
-
-    this.animationClock = this.running.pipe(
-      distinctUntilChanged(),
-      switchMap(running =>
-        !running
-        ? empty()
-        : (startTime => interval(0, animationFrameScheduler).pipe(
-            map(() => Scheduler.now() - startTime)
-          ))(Scheduler.now())
-      ),
-      share()
-    );
+    this.running = this.clock.running;
 
     this.samplerFunction = this.samplerFunction$.asObservable();
 
     this.channelValues = combineLatest(
-      this.animationClock,
+      this.clock.t,
       this.configService.length.pipe(map(l => range(0, l))),
       this.samplerFunction
     ).pipe(
@@ -62,10 +50,10 @@ export class DotstarBufferService {
   }
 
   pause() {
-    this.running$.next(false);
+    this.clock.pause();
   }
 
   resume() {
-    this.running$.next(true);
+    this.clock.resume();
   }
 }

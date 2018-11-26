@@ -2,10 +2,10 @@ import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/co
 import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
 import { takeUntil, map, tap, share, sample, switchMapTo, distinctUntilChanged, filter } from 'rxjs/operators';
 import { CanvasSpace, Pt, CanvasForm, Num, Bound, Group, Curve, World, Particle } from 'pts';
-import { transpose } from 'ramda';
+// import { transpose } from 'ramda';
 import { Sample, range, Colors, clamp } from '../lib';
-import { DotstarBufferService } from '../dotstar-buffer.service';
-import { DotstarConfigService } from '../dotstar-config.service';
+// import { DotstarBufferService } from '../dotstar-buffer.service';
+import { DotstarDeviceConfigService } from '../device-config.service';
 
 type ActionType = 'move' | 'up' | 'down' | 'drag' | 'over' | 'out';
 
@@ -41,7 +41,7 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
   constructor(
     readonly elRef: ElementRef,
     readonly renderer: Renderer2,
-    readonly configService: DotstarConfigService
+    readonly configService: DotstarDeviceConfigService
   ) {
     (window as any).inputCanvas = this;
     this.canvas = this.renderer.createElement('canvas');

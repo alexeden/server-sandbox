@@ -1,6 +1,6 @@
 <mat-radio-group class="row gap-20 m-b-20 grow" [value]="mode$ | async" (change)="setMode($event.value)">
-  <mat-radio-button value="rgb" class="grow">RGB</mat-radio-button>
-  <mat-radio-button value="hsl" class="grow">HSL</mat-radio-button>
+  <mat-radio-button value="rgb" class="grow mat-h2">RGB</mat-radio-button>
+  <mat-radio-button value="hsl" class="grow mat-h2">HSL</mat-radio-button>
 </mat-radio-group>
 
 <div class="row gap-20 grow" [formGroup]="samplerForm">

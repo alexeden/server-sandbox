@@ -5,7 +5,7 @@ import { DotstarConfig } from 'dotstar-node/dist/types';
 import { pluck, scan } from 'rxjs/operators';
 
 @Injectable()
-export class DotstarConfigService {
+export class DotstarDeviceConfigService {
 
   private readonly deviceConfig$ = new BehaviorSubject<DotstarConfig>({
     devicePath: '',
