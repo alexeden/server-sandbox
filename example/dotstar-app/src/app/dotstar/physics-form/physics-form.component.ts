@@ -1,7 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PhysicsConfig } from './types';
-import { Subject } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
+import { startWith, filter } from 'rxjs/operators';
+import { PhysicsConfigService } from '../pointer-particles/physics-config.service';
 
 @Component({
   selector: 'dotstar-physics-form',
@@ -9,7 +11,6 @@ import { Subject } from 'rxjs';
   styleUrls: ['./physics-form.component.scss'],
 })
 export class DotstarPhysicsFormComponent implements OnInit, OnDestroy {
-  private readonly unsubscribe$ = new Subject<any>();
 
   static readonly defaultConfig: PhysicsConfig = {
     friction: 0.9,
@@ -19,11 +20,17 @@ export class DotstarPhysicsFormComponent implements OnInit, OnDestroy {
     pointerSpread: 0.005,
   };
 
+  @Output() configUpdated = new Subject<PhysicsConfig>();
+  private readonly unsubscribe$ = new Subject<any>();
+  readonly config: Observable<PhysicsConfig>;
   readonly physicsForm: FormGroup;
 
+
   constructor(
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private readonly physicsConfig: PhysicsConfigService
   ) {
+    console.log(this.physicsConfig);
     this.physicsForm = this.fb.group({
       friction: [0.9, [
         Validators.min(0),
@@ -34,9 +41,15 @@ export class DotstarPhysicsFormComponent implements OnInit, OnDestroy {
       pointerForce: [50],
       pointerSpread: [0.005],
     });
+
+    this.config = this.physicsForm.valueChanges.pipe(
+      startWith(this.physicsForm.value),
+      filter(() => this.physicsForm.valid)
+    );
   }
 
   ngOnInit() {
+    this.config.subscribe(this.configUpdated);
   }
 
   ngOnDestroy() {

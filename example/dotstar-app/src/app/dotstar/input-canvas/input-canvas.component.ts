@@ -6,6 +6,7 @@ import { Sample, range, Colors, clamp, mapToRange } from '../lib';
 // import { DotstarBufferService } from '../dotstar-buffer.service';
 import { DotstarDeviceConfigService } from '../device-config.service';
 import { DotstarBufferService } from '../dotstar-buffer.service';
+import { PhysicsConfigService } from '../pointer-particles/physics-config.service';
 
 type ActionType = 'move' | 'up' | 'down' | 'drag' | 'over' | 'out';
 
@@ -48,8 +49,11 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
     readonly elRef: ElementRef,
     readonly renderer: Renderer2,
     readonly configService: DotstarDeviceConfigService,
-    readonly bufferService: DotstarBufferService
+    readonly bufferService: DotstarBufferService,
+    readonly physicsConfig: PhysicsConfigService
   ) {
+    console.log(this.physicsConfig);
+
     (window as any).inputCanvas = this;
     this.canvas = this.renderer.createElement('canvas');
     this.renderer.setStyle(this.canvas, 'height', `${this.height}px`);
