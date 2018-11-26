@@ -39,8 +39,10 @@ app.get('/api/dev', (req, res, next) => {
 });
 
 // Catch all other routes and return the index file
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../dotstar-app/dist/dotstar-app/index.html'));
+app.get('/*', (req, res) => {
+  if (!res.headersSent) {
+    res.sendFile(path.join(__dirname, '../../dotstar-app/dist/dotstar-app/index.html'));
+  }
 });
 
 server.on('upgrade', (request: http.IncomingMessage, socket: net.Socket, head: Buffer) => {
@@ -51,6 +53,7 @@ const liveClients = new Set<websockets>([]);
 let dotstar: Dotstar | null = null;
 
 wss.on('connection', (socket, req) => {
+  console.log('new connection!');
   // Extract the device config from URL query params
   const parsed = url.parse(req.url || '');
   // Parse the config values into numbers where necessary

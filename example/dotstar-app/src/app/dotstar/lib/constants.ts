@@ -1,5 +1,5 @@
 export class DotstarConstants {
-  static readonly url = `wss://${location.host}/api/dotstar`;
+  static readonly url = `wss://${location.host}/api/socket`;
   static readonly devicePath = '/dev/null';
   static readonly txpsMax = 100;
   static readonly txpsMin = 1;
