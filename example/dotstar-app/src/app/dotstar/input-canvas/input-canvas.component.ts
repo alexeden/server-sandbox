@@ -83,8 +83,7 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
       this.configService.length,
       this.bounds,
       (n, bounds) => {
-        const gravity = [0, 10];
-        const world = new World(this.space.innerBound, 0.9, gravity);
+        const world = new World(this.space.innerBound, 0.9, 10);
         range(0, n).forEach(i => {
           const part = new Particle([ Num.mapToRange(i, 0, n, 0, bounds.width || 1), 0 ]);
           part.radius = 0;
@@ -101,7 +100,9 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
         // Map each particle to a sample triplet
         particles.map<Sample>(p => {
           const brightness = mapToRange(0, this.space.height, 0xFF, 0x00, p.position.y);
-          return [brightness, 0, 0];
+          return p.changed.y > 0
+            ? [0, 0, brightness]
+            : [brightness, 0, 0];
         })
       )
     );
@@ -133,9 +134,7 @@ export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
         this.form.fillOnly(color).point(p, 5, 'circle');
       });
       world.update(ftime);
-      // console.log(particles.length);
       this.particles$.next(particles);
-      // (window as any).particles = particles;
     });
 
     this.space.bindMouse().bindTouch().play();
