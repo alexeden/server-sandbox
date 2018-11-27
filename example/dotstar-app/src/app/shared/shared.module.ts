@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import {
   MatAutocompleteModule,
+  MatBadgeModule,
   MatBottomSheetModule,
   MatButtonModule,
   MatCardModule,
@@ -28,6 +29,7 @@ import { SpinDirective } from './spin.directive';
     FlexLayoutModule,
     ReactiveFormsModule,
     MatAutocompleteModule,
+    MatBadgeModule,
     MatBottomSheetModule,
     MatButtonModule,
     MatCardModule,

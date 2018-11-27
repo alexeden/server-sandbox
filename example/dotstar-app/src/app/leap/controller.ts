@@ -1,5 +1,5 @@
 import { Subject, Observable, BehaviorSubject, fromEvent } from 'rxjs';
-import { distinctUntilChanged, map, startWith, takeUntil, share, scan } from 'rxjs/operators';
+import { distinctUntilChanged, map, startWith, takeUntil, share, scan, filter } from 'rxjs/operators';
 import { Frame } from './lib/frame';
 import { Hand } from './lib/hand';
 import { DeviceEventState, ServiceMessage, ControllerOptions, FrameMessage } from './lib/types';
@@ -127,6 +127,13 @@ export class LeapController implements ControllerOptions {
     }
   }
 
+  frameEventsByType<K extends keyof FrameEventMap>(targetType: K): Observable<FrameEventMap[K]> {
+    return this.frameEvents.pipe(
+      filter(({ type }) => targetType === type),
+      map(({ state }) => state)
+    );
+  }
+
   private pushFrameEvent<K extends keyof FrameEventMap>(type: K, state: FrameEventMap[K]) {
     this.frameEvents$.next({ type, state });
   }
@@ -146,6 +153,9 @@ export class LeapController implements ControllerOptions {
 
     // Emit the IDs of the missing hands
     missingHandIds.map(id => this.pushFrameEvent('handDisappeared', +id));
+
+    // Emit the frame itself
+    this.pushFrameEvent('newFrame', frame);
   }
 
   private handleServiceMessage(message: ServiceMessage) {

@@ -1,9 +1,10 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { LeapController } from '@app/leap';
-import { Subject } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { MatSlideToggleChange } from '@angular/material';
+import { LeapPaintService } from '../leap-paint.service';
 
 @Component({
   selector: 'dotstar-leap-device-controls',
@@ -16,6 +17,7 @@ export class LeapDeviceControlsComponent implements OnInit, OnDestroy {
   readonly connectSwitch: FormControl;
 
   constructor(
+    readonly paintService: LeapPaintService,
     readonly controller: LeapController
   ) {
     (window as any).LeapDeviceControlsComponent = this;

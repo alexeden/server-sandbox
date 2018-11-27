@@ -4,3 +4,10 @@
   (change)="switchFlipped($event)">
   {{ (controller.socketConnected | async) ? 'Connected' : 'Leap Service Connection' }}
 </mat-slide-toggle>
+
+<mat-icon
+  matBadgeOverlap="false"
+  [matBadgeColor]="(paintService.handCount | async) ? 'primary' : 'accent'"
+  [matBadge]="paintService.handCount | async">
+  pan_tool
+</mat-icon>
