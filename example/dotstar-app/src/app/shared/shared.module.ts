@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FlexLayoutModule } from '@angular/flex-layout';
 import {
   MatAutocompleteModule,
   MatBottomSheetModule,
@@ -24,6 +25,7 @@ import { SpinDirective } from './spin.directive';
 @NgModule({
   exports: [
     CommonModule,
+    FlexLayoutModule,
     ReactiveFormsModule,
     MatAutocompleteModule,
     MatBottomSheetModule,
