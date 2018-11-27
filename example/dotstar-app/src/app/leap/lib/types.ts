@@ -69,7 +69,7 @@ export enum BoneType {
 }
 
 export enum HandType {
-  Left = 'left',
+  Left  = 'left',
   Right = 'right',
 }
 
@@ -77,12 +77,6 @@ export interface ControllerOptions {
   readonly host: string;
   readonly runInBackground: boolean;
   readonly optimizeHMD: boolean;
-}
-
-export enum ControllerFocus {
-  Focused = 'focus',
-  Hidden = 'blur',
-  Unknown = 'unknown',
 }
 
 export interface PointableData {

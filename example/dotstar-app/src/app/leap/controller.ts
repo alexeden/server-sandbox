@@ -1,10 +1,9 @@
-import { EventEmitter } from 'events';
-import { Frame } from './frame';
-import { Hand } from './hand';
-import { DeviceEventState, ServiceMessage, ControllerFocus, ControllerOptions, Message, FrameMessage } from './types';
-import { Subject, Observable, BehaviorSubject, from, fromEvent } from 'rxjs';
-import { Assertions } from './assertions';
+import { Subject, Observable, BehaviorSubject, fromEvent } from 'rxjs';
 import { distinctUntilChanged, map, startWith, takeUntil } from 'rxjs/operators';
+import { Frame } from './lib/frame';
+import { Hand } from './lib/hand';
+import { DeviceEventState, ServiceMessage, ControllerOptions, FrameMessage } from './lib/types';
+import { Assertions } from './lib/assertions';
 
 
 /**
