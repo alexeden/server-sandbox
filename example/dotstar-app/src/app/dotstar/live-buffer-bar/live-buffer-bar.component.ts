@@ -40,7 +40,6 @@ export class LiveBufferBarComponent implements OnInit, OnDestroy {
 
     this.rgbGroup = this.bufferService.values.pipe(
       sample(this.clock.t),
-      tap(() => this.space.clear()),
       // TODO: Convert this to a scan operator that only creates new points
       // when the buffer length changes (should help performance)
       map(values => {
@@ -59,7 +58,8 @@ export class LiveBufferBarComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.rgbGroup.pipe(
       takeUntil(this.unsubscribe$),
-      skipWhile(() => !this.ready$.getValue())
+      skipWhile(() => !this.ready$.getValue()),
+      tap(() => this.space.clear())
     ).subscribe(group => {
       const w = Math.floor(this.space.innerBound.width / group.length);
       group.map((pt, i) => this.form.fill(pt.id).stroke(false).rect([pt, pt.$add(w, this.height)]));

@@ -1,9 +1,9 @@
 import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/core';
-import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
-import { takeUntil, map, tap, share } from 'rxjs/operators';
-import { CanvasSpace, Pt, CanvasForm, Num, Bound, Group, Curve } from 'pts';
+import { Subject, BehaviorSubject, Observable } from 'rxjs';
+import { takeUntil, map, tap, skipWhile } from 'rxjs/operators';
+import { CanvasSpace, CanvasForm, Group } from 'pts';
 import { transpose } from 'ramda';
-import { Sample, Colors } from '../lib';
+import { Colors, mapToRange } from '../lib';
 import { DotstarBufferService } from '../dotstar-buffer.service';
 
 @Component({
@@ -14,11 +14,9 @@ import { DotstarBufferService } from '../dotstar-buffer.service';
 export class VisualizerComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   private readonly ready$ = new BehaviorSubject(false);
-  private readonly bounds$ = new BehaviorSubject<Bound>(new Bound());
 
   readonly height = 550;
-  readonly channelValues: Observable<Sample[]>;
-  readonly rgbGroup: Observable<Group>;
+  readonly padding = 10;
   readonly rgbChannelGroups: Observable<Group[]>;
   readonly space: CanvasSpace;
   readonly form: CanvasForm;
@@ -32,60 +30,35 @@ export class VisualizerComponent implements OnInit, OnDestroy {
     this.canvas = this.renderer.createElement('canvas');
     this.renderer.setStyle(this.canvas, 'height', `${this.height}px`);
     this.renderer.appendChild(this.elRef.nativeElement, this.canvas);
-    this.space = new CanvasSpace(this.canvas, () => this.ready$.next(true));
-    this.form = new CanvasForm(this.space);
-
-    this.space.setup({
+    this.space = new CanvasSpace(this.canvas, () => this.ready$.next(true)).setup({
       bgcolor: '#ffffff',
       resize: true,
       retina: true,
     });
 
-    this.space.add({
-      resize: bounds => this.bounds$.next(bounds),
-      start: bounds => this.bounds$.next(bounds),
-    });
+    this.form = new CanvasForm(this.space);
 
-    this.channelValues = this.bufferService.values.pipe(
-      tap(() => this.space.clear()),
-      share()
-    );
-
-    this.rgbGroup = combineLatest(this.bounds$, this.channelValues).pipe(
-      map(([{ width }, values]) =>
-        Group.fromPtArray(values.map(([r, g, b], i) => {
-          const pt = new Pt([ Num.mapToRange(i, 0x00, values.length, 0, width), 0 ]);
-          pt.id = `rgb(${r}, ${g}, ${b})`;
-          return pt;
-        }))
-      ),
-      map(group => group.moveBy(0, 5).scale([1 - (10 / this.height), 0], group.centroid()))
-    );
-
-    this.rgbChannelGroups = combineLatest(this.bounds$, this.channelValues).pipe(
-      map(([{ width, height }, values]) =>
-        transpose(values).map(channel =>
+    this.rgbChannelGroups = this.bufferService.values.pipe(
+      // TODO: Convert this to a scan operator that only creates new points
+      // when the buffer length changes (should help performance)
+      map(values => {
+        const { width, height } = this.space.innerBound;
+        return transpose(values).map(channel =>
           Group.fromArray(channel.map((value, i) => [
-            Num.mapToRange(i, 0x00, values.length, 0, width),
-            height - Num.mapToRange(value, 0x00, 0xff, 0, height),
+            mapToRange(0x00, values.length, this.padding, width - this.padding, i),
+            mapToRange(0x00, 0xff, height - this.padding, this.padding, value),
           ]))
-        )
-        .map(group => group.scale(
-          [1 - (10 / this.height), 1 - (40 / this.height)],
-          this.space.center.$add(0, 40)
-        ))
-      )
+        );
+      })
     );
   }
 
   ngOnInit() {
-    this.rgbGroup.pipe(takeUntil(this.unsubscribe$)).subscribe(group => {
-      if (!this.ready$.getValue()) return;
-      group.map((pt, i) => this.form.fill(pt.id).stroke(false).point(pt, 3, 'square'));
-    });
-
-    this.rgbChannelGroups.pipe(takeUntil(this.unsubscribe$)).subscribe(([ r, g, b ]) => {
-      if (!this.ready$.getValue()) return;
+    this.rgbChannelGroups.pipe(
+      takeUntil(this.unsubscribe$),
+      skipWhile(() => !this.ready$.getValue()),
+      tap(() => this.space.clear())
+    ).subscribe(([ r, g, b ]) => {
       this.form.strokeOnly(Colors.Red, 2).line(r);
       this.form.strokeOnly(Colors.Green, 2).line(g);
       this.form.strokeOnly(Colors.Blue, 2).line(b);
@@ -96,6 +69,9 @@ export class VisualizerComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.ready$.unsubscribe();
+    this.space.removeAll();
+    this.space.stop();
     this.unsubscribe$.next('unsubscribe!');
     this.unsubscribe$.unsubscribe();
   }
