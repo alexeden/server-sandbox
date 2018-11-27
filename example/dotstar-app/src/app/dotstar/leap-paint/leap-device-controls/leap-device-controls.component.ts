@@ -22,6 +22,8 @@ export class LeapDeviceControlsComponent implements OnInit, OnDestroy {
   ) {
     (window as any).LeapDeviceControlsComponent = this;
     this.connectSwitch = new FormControl(false);
+
+    setTimeout(() => this.controller.start(), 1500);
   }
 
   ngOnInit() {

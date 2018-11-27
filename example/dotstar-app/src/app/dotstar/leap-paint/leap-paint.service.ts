@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { LeapController, Frame } from '@app/leap';
 import { ConnectableObservable, Observable } from 'rxjs';
-import { publishReplay, shareReplay, map, startWith } from 'rxjs/operators';
+import { publishReplay, shareReplay, map, startWith, tap } from 'rxjs/operators';
 import { Hand } from '@app/leap/lib/hand';
 
 @Injectable()
@@ -15,6 +15,7 @@ export class LeapPaintService {
   ) {
     (window as any).LeapPaintService = this;
     this.latestFrame = this.controller.frameEventsByType('newFrame').pipe(
+      tap(frame => (window as any).frame = frame),
       shareReplay(1)
     );
 
