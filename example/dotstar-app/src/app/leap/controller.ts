@@ -1,5 +1,5 @@
 import { Subject, Observable, BehaviorSubject, fromEvent } from 'rxjs';
-import { distinctUntilChanged, map, startWith, takeUntil } from 'rxjs/operators';
+import { distinctUntilChanged, map, startWith, takeUntil, share, scan } from 'rxjs/operators';
 import { Frame } from './lib/frame';
 import { Hand } from './lib/hand';
 import { DeviceEventState, ServiceMessage, ControllerOptions, FrameMessage } from './lib/types';
@@ -10,23 +10,22 @@ import { Assertions } from './lib/assertions';
  * TODO: Remove EventEmitter subclassing. Create method that generates a
  * stream given an event name.
  */
-export enum DeviceNotificationType {
-  Attached = 'deviceAttached',
-  Connected = 'deviceConnected',
-  Disconnected = 'deviceDisconnected',
-  Event = 'deviceEvent',
-  Removed = 'deviceRemoved',
-  Stopped = 'deviceStopped',
-  Streaming = 'deviceStreaming',
-  StreamingStarted = 'streamingStarted',
-  StreamingStopped = 'streamingStopped',
-}
+// export enum DeviceNotificationType {
+//   Attached = 'deviceAttached',
+//   Connected = 'deviceConnected',
+//   Disconnected = 'deviceDisconnected',
+//   Removed = 'deviceRemoved',
+//   Stopped = 'deviceStopped',
+//   Streaming = 'deviceStreaming',
+//   StreamingStarted = 'streamingStarted',
+//   StreamingStopped = 'streamingStopped',
+// }
 
 
-export interface DeviceNotification {
-  type: DeviceNotificationType;
-  state: DeviceEventState;
-}
+// export interface DeviceNotification {
+//   type: DeviceNotificationType;
+//   state: DeviceEventState;
+// }
 
 export interface FrameEventMap {
   blur: null;
@@ -58,9 +57,16 @@ export class LeapController implements ControllerOptions {
   readonly frameEvents: Observable<FrameEvent<any>>;
   private readonly socketConnected$ = new BehaviorSubject(false);
   readonly socketConnected: Observable<boolean>;
-  private readonly deviceNotifications$ = new Subject<DeviceNotification>();
-  readonly deviceNotifications: Observable<DeviceNotification>;
+  // private readonly deviceNotifications$ = new Subject<DeviceNotification>();
+  // readonly deviceNotifications: Observable<DeviceNotification>;
+  // readonly deviceNotificationLogs: Observable<DeviceNotification[]>;
   private readonly focused: Observable<boolean>;
+
+  // Device state
+  private readonly isStreaming$ = new BehaviorSubject(false);
+  readonly isStreaming: Observable<boolean>;
+  private readonly isAttached$ = new BehaviorSubject(false);
+  readonly isAttached: Observable<boolean>;
 
   private socket: WebSocket | null = null;
 
@@ -70,7 +76,6 @@ export class LeapController implements ControllerOptions {
 
   // Frames
   handMap: { [id: number]: Hand } = {};
-  private streamingCount = 0;
   private devices: { [id: string]: DeviceEventState } = {};
 
 
@@ -80,9 +85,15 @@ export class LeapController implements ControllerOptions {
     readonly optimizeHMD = false
   ) {
     console.log('instantiating LeapController', this);
-    this.socketConnected = this.socketConnected$.asObservable().pipe(distinctUntilChanged());
-    this.deviceNotifications = this.deviceNotifications$.asObservable();
+    this.socketConnected = this.socketConnected$.asObservable(); // .pipe(distinctUntilChanged());
+    // this.deviceNotifications = this.deviceNotifications$.asObservable();
+    // this.deviceNotificationLogs = this.deviceNotifications.pipe(
+    //   scan<DeviceNotification>((accum, note) => [note, ...accum], []),
+    //   share()
+    // );
     this.frameEvents = this.frameEvents$.asObservable();
+    this.isAttached = this.isAttached$.asObservable();
+    this.isStreaming = this.isStreaming$.asObservable();
 
     this.focused = fromEvent(window.document, 'visibilitychange').pipe(
       map(() => !window.document.hidden),
@@ -91,56 +102,28 @@ export class LeapController implements ControllerOptions {
     );
   }
 
-  private pushDeviceNotification(type: DeviceNotificationType, state: DeviceEventState) {
-    this.deviceNotifications$.next({ type, state });
-  }
-
-  private handleDeviceEvent(device: DeviceEventState) {
-    const oldInfo = this.devices[device.id];
+  private handleDeviceEvent(newInfo: DeviceEventState) {
+    const oldInfo = this.devices[newInfo.id];
 
     // Grab a list of changed properties in the device device
     const changed: { [K in keyof DeviceEventState]?: boolean } = {};
-    for (const property in device) {
+    for (const property in newInfo) {
       // If a property i doesn't exist the cache, or has changed...
-      if (!oldInfo || !oldInfo.hasOwnProperty(property) || oldInfo[property] !== device[property]) {
+      if (!oldInfo || !oldInfo.hasOwnProperty(property) || oldInfo[property] !== newInfo[property]) {
         changed[property] = true;
       }
     }
-
+    console.log(changed);
     // Update the device list
-    this.devices[device.id] = device;
+    this.devices[newInfo.id] = newInfo;
 
     // Fire events based on change list
     if (changed.attached) {
-      this.pushDeviceNotification(
-        device.attached ? DeviceNotificationType.Attached : DeviceNotificationType.Removed,
-        device
-      );
+      this.isAttached$.next(newInfo.attached);
     }
 
-    if (!changed.streaming) {
-      return;
-    }
-    else if (device.streaming) {
-      this.streamingCount++;
-      this.pushDeviceNotification(DeviceNotificationType.Streaming, device);
-      if (this.streamingCount === 1) {
-        this.pushDeviceNotification(DeviceNotificationType.StreamingStarted, device);
-      }
-      // if attached & streaming both change to true at the same time, that device was already streaming
-      // when we connected.
-      if (!changed.attached) {
-        this.pushDeviceNotification(DeviceNotificationType.Connected, device);
-      }
-    }
-    // When devices are attached all fields have changed, so don't send events for streaming being false.
-    else if (!(changed.attached && device.attached)) {
-      this.streamingCount--;
-      this.pushDeviceNotification(DeviceNotificationType.Stopped, device);
-      if (this.streamingCount === 0) {
-        this.pushDeviceNotification(DeviceNotificationType.StreamingStopped, device);
-      }
-      this.pushDeviceNotification(DeviceNotificationType.Disconnected, device);
+    if (changed.streaming) {
+      this.isStreaming$.next(newInfo.streaming);
     }
   }
 
@@ -189,6 +172,11 @@ export class LeapController implements ControllerOptions {
   }
 
   start(): this {
+    if (this.socket || this.socketConnected$.getValue()) {
+      this.socketConnected$.next(true);
+      return this;
+    }
+
     this.socket = new WebSocket(this.url);
 
     this.socket.onopen = () => this.socketConnected$.next(true);
@@ -211,16 +199,14 @@ export class LeapController implements ControllerOptions {
     return this;
   }
 
-  streaming() {
-    return this.streamingCount > 0;
-  }
-
   stop(): this {
     if (!this.socket) {
       return this;
     }
     this.socket.close();
     this.socket = null;
+    this.isAttached$.next(false);
+    this.isStreaming$.next(false);
     this.socketConnected$.next(false);
     this.unsubscribe$.next('unsubscribe!');
     return this;

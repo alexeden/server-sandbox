@@ -4,6 +4,7 @@ import { LeapController } from '@app/leap';
 import { LeapPaintComponent } from './leap-paint.component';
 import { LeapPaintCanvasComponent } from './leap-paint-canvas';
 import { LeapPaintService } from './leap-paint.service';
+import { LeapDeviceControlsComponent } from './leap-device-controls';
 
 
 @NgModule({
@@ -13,6 +14,7 @@ import { LeapPaintService } from './leap-paint.service';
   declarations: [
     LeapPaintComponent,
     LeapPaintCanvasComponent,
+    LeapDeviceControlsComponent,
   ],
   providers: [
     {
