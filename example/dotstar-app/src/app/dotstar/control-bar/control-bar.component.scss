@@ -4,7 +4,9 @@
   @include mat-elevation(20);
   z-index: 999;
 
-  position: sticky;
+  position: fixed;
+  left: 0;
+  right: 0;
   bottom: 0;
   height: 90px;
   background-color: #ffffff;
