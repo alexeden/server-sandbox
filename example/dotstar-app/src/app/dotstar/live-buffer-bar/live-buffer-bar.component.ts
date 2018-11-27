@@ -15,7 +15,7 @@ export class LiveBufferBarComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   private readonly ready$ = new BehaviorSubject(false);
 
-  readonly height = 24;
+  readonly height = 16;
   readonly space: CanvasSpace;
   readonly form: CanvasForm;
   readonly canvas: HTMLCanvasElement;
@@ -27,7 +27,6 @@ export class LiveBufferBarComponent implements OnInit, OnDestroy {
     readonly bufferService: DotstarBufferService,
     readonly clock: AnimationClockService
   ) {
-    (window as any).LiveBufferBarComponent = this;
     this.canvas = this.renderer.createElement('canvas');
     this.renderer.setStyle(this.canvas, 'height', `${this.height}px`);
     this.renderer.setStyle(this.canvas, 'width', `100%`);
@@ -42,12 +41,13 @@ export class LiveBufferBarComponent implements OnInit, OnDestroy {
     this.rgbGroup = this.bufferService.values.pipe(
       sample(this.clock.t),
       tap(() => this.space.clear()),
+      // TODO: Convert this to a scan operator that only creates new points
+      // when the buffer length changes (should help performance)
       map(values => {
         const { width } = this.space.innerBound;
-        const y = this.height / 2;
         return Group.fromPtArray(values.map(([r, g, b], i) => {
           const x = mapToRange(0x00, values.length, 0, width, i);
-          const pt = new Pt([ x, y ]);
+          const pt = new Pt([ x, 0 ]);
           pt.id = `rgb(${r}, ${g}, ${b})`;
           return pt;
         }));
@@ -61,11 +61,15 @@ export class LiveBufferBarComponent implements OnInit, OnDestroy {
       takeUntil(this.unsubscribe$),
       skipWhile(() => !this.ready$.getValue())
     ).subscribe(group => {
-      group.map((pt, i) => this.form.fill(pt.id).stroke(false).point(pt, 3, 'square'));
+      const w = Math.floor(this.space.innerBound.width / group.length);
+      group.map((pt, i) => this.form.fill(pt.id).stroke(false).rect([pt, pt.$add(w, this.height)]));
     });
   }
 
   ngOnDestroy() {
+    this.ready$.unsubscribe();
+    this.space.removeAll();
+    this.space.stop();
     this.unsubscribe$.next('unsubscribe!');
     this.unsubscribe$.unsubscribe();
   }
