@@ -74,11 +74,9 @@ export enum HandType {
 }
 
 export interface ControllerOptions {
-  host?: string;
-  scheme?: string;
-  port?: number;
-  runInBackground?: boolean;
-  optimizeHMD?: boolean;
+  readonly host: string;
+  readonly runInBackground: boolean;
+  readonly optimizeHMD: boolean;
 }
 
 export enum ControllerFocus {
