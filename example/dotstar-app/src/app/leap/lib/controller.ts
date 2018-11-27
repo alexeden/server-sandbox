@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import { Frame } from './frame';
 import { Hand } from './hand';
-import * as leap from './types';
+import { DeviceEventState, ServiceMessage, ControllerFocus, ControllerOptions, Message } from './types';
 import { Subject } from 'rxjs';
 import { Assertions } from './assertions';
 
@@ -10,25 +10,37 @@ import { Assertions } from './assertions';
  * TODO: Remove EventEmitter subclassing. Create method that generates a
  * stream given an event name.
  */
+export interface LeapDeviceEventMap {
+  deviceAttached: DeviceEventState;
+  deviceConnected: DeviceEventState;
+  deviceDisconnected: DeviceEventState;
+  deviceEvent: DeviceEventState;
+  deviceRemoved: DeviceEventState;
+  deviceStopped: DeviceEventState;
+  deviceStreaming: DeviceEventState;
+  streamingStarted: DeviceEventState;
+  streamingStopped: DeviceEventState;
+}
+
 export interface LeapControllerEventMap {
   blur: null;
   connect: null;
-  deviceAttached: leap.DeviceEventState;
-  deviceConnected: leap.DeviceEventState;
-  deviceDisconnected: leap.DeviceEventState;
-  deviceEvent: leap.DeviceEventState;
-  deviceRemoved: leap.DeviceEventState;
-  deviceStopped: leap.DeviceEventState;
-  deviceStreaming: leap.DeviceEventState;
+  // deviceAttached: DeviceEventState;
+  // deviceConnected: DeviceEventState;
+  // deviceDisconnected: DeviceEventState;
+  // deviceEvent: DeviceEventState;
+  // deviceRemoved: DeviceEventState;
+  // deviceStopped: DeviceEventState;
+  // deviceStreaming: DeviceEventState;
+  // streamingStarted: DeviceEventState;
+  // streamingStopped: DeviceEventState;
   disconnect: null;
   focus: null;
   frame: Frame;
   handAppeared: Hand;
   handDisappeared: number;
   animationFrameEnd: number;
-  ready: leap.ServiceMessage;
-  streamingStarted: leap.DeviceEventState;
-  streamingStopped: leap.DeviceEventState;
+  ready: ServiceMessage;
 }
 
 
@@ -49,7 +61,7 @@ export class LeapController extends EventEmitter {
   readonly port: number;
   readonly scheme: string;
   private reconnectionTimer: number | void;
-  private focusedState = leap.ControllerFocus.Unknown;
+  private focusedState = ControllerFocus.Unknown;
 
   private socket: WebSocket | null = null;
   connected = false;
@@ -64,15 +76,15 @@ export class LeapController extends EventEmitter {
   lastFrame: Frame | null;
   handMap: { [id: number]: Hand } = {};
   private streamingCount = 0;
-  private devices: { [id: string]: leap.DeviceEventState } = {};
+  private devices: { [id: string]: DeviceEventState } = {};
   readonly frame = new Subject<Frame>();
 
-  static create(opts: leap.ControllerOptions = {}): LeapController {
+  static create(opts: ControllerOptions = {}): LeapController {
     return new LeapController(opts);
   }
 
   private constructor(
-    opts: leap.ControllerOptions = {}
+    opts: ControllerOptions = {}
   ) {
     super();
     this.runInBackground = opts.runInBackground || false;
@@ -108,52 +120,52 @@ export class LeapController extends EventEmitter {
       this.lastFrame = frame;
     });
 
-    this.on('deviceEvent', (device: leap.DeviceEventState) => {
-      const oldInfo = this.devices[device.id];
-
-      // Grab a list of changed properties in the device device
-      const changed: any = {};
-      for (const property in device) {
-        // If a property i doesn't exist the cache, or has changed...
-        if (!oldInfo || !oldInfo.hasOwnProperty(property) || oldInfo[property] !== device[property]) {
-          changed[property] = true;
-        }
-      }
-
-      // Update the device list
-      this.devices[device.id] = device;
-
-      // Fire events based on change list
-      if (changed.attached) {
-        this.emit(device.attached ? 'deviceAttached' : 'deviceRemoved', device);
-      }
-
-      if (!changed.streaming) return;
-
-      if (device.streaming) {
-        this.streamingCount++;
-        this.emit('deviceStreaming', device);
-        if (this.streamingCount === 1) {
-          this.emit('streamingStarted', device);
-        }
-        // if attached & streaming both change to true at the same time, that device was streaming
-        // already when we connected.
-        if (!changed.attached) {
-          this.emit('deviceConnected', device);
-        }
-      }
-      // Since when devices are attached all fields have changed, don't send events for streaming being false.
-      else if (!(changed.attached && device.attached)) {
-        this.streamingCount--;
-        this.emit('deviceStopped', device);
-        if (this.streamingCount === 0) {
-          this.emit('streamingStopped', device);
-        }
-        this.emit('deviceDisconnected', device);
-      }
-    });
-
     // this.startAnimationLoop(); // immediately when started
+  }
+
+  private handleDeviceEvent(device: DeviceEventState) {
+    const oldInfo = this.devices[device.id];
+
+    // Grab a list of changed properties in the device device
+    const changed: any = {};
+    for (const property in device) {
+      // If a property i doesn't exist the cache, or has changed...
+      if (!oldInfo || !oldInfo.hasOwnProperty(property) || oldInfo[property] !== device[property]) {
+        changed[property] = true;
+      }
+    }
+
+    // Update the device list
+    this.devices[device.id] = device;
+
+    // Fire events based on change list
+    if (changed.attached) {
+      this.emit(device.attached ? 'deviceAttached' : 'deviceRemoved', device);
+    }
+
+    if (!changed.streaming) return;
+
+    if (device.streaming) {
+      this.streamingCount++;
+      this.emit('deviceStreaming', device);
+      if (this.streamingCount === 1) {
+        this.emit('streamingStarted', device);
+      }
+      // if attached & streaming both change to true at the same time, that device was streaming
+      // already when we connected.
+      if (!changed.attached) {
+        this.emit('deviceConnected', device);
+      }
+    }
+    // Since when devices are attached all fields have changed, don't send events for streaming being false.
+    else if (!(changed.attached && device.attached)) {
+      this.streamingCount--;
+      this.emit('deviceStopped', device);
+      if (this.streamingCount === 0) {
+        this.emit('streamingStopped', device);
+      }
+      this.emit('deviceDisconnected', device);
+    }
   }
 
   useSecure() {
@@ -186,7 +198,7 @@ export class LeapController extends EventEmitter {
     return this;
   }
 
-  private routeMessage(message: leap.Message) {
+  private routeMessage(message: Message) {
     if (Assertions.messageIsServiceType(message)) {
       this.version = message.version;
       this.serviceVersion = message.serviceVersion;
@@ -195,8 +207,7 @@ export class LeapController extends EventEmitter {
       this.emit('ready', message);
     }
     else if (Assertions.messageIsDeviceType(message)) {
-      const { event } = message;
-      this.emit('deviceEvent', event.state);
+      this.handleDeviceEvent(message.event.state);
     }
     else if (Assertions.messageIsFrameType(message)) {
       const frame = new Frame(message);
@@ -222,8 +233,8 @@ export class LeapController extends EventEmitter {
     const visibilityChangeListener = () => {
       this.setFocused(
         window.document.hidden
-        ? leap.ControllerFocus.Hidden
-        : leap.ControllerFocus.Focused
+        ? ControllerFocus.Hidden
+        : ControllerFocus.Focused
       );
     };
 
@@ -252,7 +263,7 @@ export class LeapController extends EventEmitter {
     this.socket = null;
     delete this.runInBackground; // This is not persisted when reconnecting to the web socket server
     delete this.optimizeHMD;
-    this.focusedState = leap.ControllerFocus.Unknown;
+    this.focusedState = ControllerFocus.Unknown;
     if (this.connected) {
       this.connected = false;
       this.emit('disconnect', null);
@@ -286,11 +297,11 @@ export class LeapController extends EventEmitter {
     return this;
   }
 
-  setFocused(focused: leap.ControllerFocus): this {
-    if (this.focusedState !== focused || this.focusedState === leap.ControllerFocus.Unknown) {
+  setFocused(focused: ControllerFocus): this {
+    if (this.focusedState !== focused || this.focusedState === ControllerFocus.Unknown) {
       this.focusedState = focused;
-      this.send({ focused: focused === leap.ControllerFocus.Focused });
-      this.emit(this.focusedState === leap.ControllerFocus.Focused ? 'focus' : 'blur', null);
+      this.send({ focused: focused === ControllerFocus.Focused });
+      this.emit(this.focusedState === ControllerFocus.Focused ? 'focus' : 'blur', null);
     }
     return this;
   }

@@ -1,5 +1,5 @@
 import { vec3 } from 'gl-matrix';
-import * as leap from './types';
+import { TouchZone, PointableData } from './types';
 
 /**
  * Constructs a Pointable object.
@@ -38,12 +38,12 @@ export class Pointable {
   readonly tipVelocity: vec3;
   readonly tool: boolean;
   readonly touchDistance: number;
-  readonly touchZone: leap.TouchZone;
+  readonly touchZone: TouchZone;
   readonly width: number;
 
 
   protected constructor(
-    data: leap.PointableData
+    data: PointableData
   ) {
     this.direction = vec3.fromValues(...data.direction);
     this.handId = data.handId;

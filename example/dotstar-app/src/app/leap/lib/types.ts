@@ -35,7 +35,10 @@ export interface FrameMessage {
   currentFrameRate: number;
   devices: any[];
   hands: HandData[];
-  interactionBox: InteractionBoxData;
+  interactionBox: {
+    center: Triple<number>;
+    size: Triple<number>;
+  };
   pointables: PointableData[];
   r: Nonet<number>;
   s: number;
@@ -131,11 +134,4 @@ export interface HandData {
   timeVisible: number;
   type: HandType;
   wrist: Triple<number>;
-}
-
-
-
-export interface InteractionBoxData {
-  center: Triple<number>;
-  size: Triple<number>;
 }

@@ -24,7 +24,10 @@ export class Frame {
     data: FrameMessage
   ) {
     this.timestamp = data.timestamp || 0;
-    this.interactionBox = new InteractionBox(data.interactionBox);
+    this.interactionBox = new InteractionBox(
+      vec3.fromValues(...data.interactionBox.center),
+      vec3.fromValues(...data.interactionBox.size)
+    );
     this.translation = vec3.fromValues(...data.t);
     this.rotation = mat3.fromValues(
       data.r[0][0], data.r[0][1], data.r[0][2],
@@ -33,8 +36,11 @@ export class Frame {
     );
     this.scaleFactor = data.s;
     this.currentFrameRate = data.currentFrameRate || 0;
+
+    // Create the hands
     this.hands = data.hands.map(Hand.fromData);
 
+    // Create the fingers
     this.fingers =
       data.pointables
         .filter(Assertions.pointableDataIsFinger)
@@ -42,9 +48,10 @@ export class Frame {
 
     this.pointables = sortBy(pointable => pointable.id, [...this.fingers ]);
 
+    // Add the fingers to the hands
     this.hands.forEach(hand =>
       this.fingers
-        .filter(finger => hand.containsFinger(finger))
+        .filter(({ handId }) => hand.containsFinger(handId))
         .forEach(finger => hand.addFinger(finger))
     );
   }

@@ -86,12 +86,12 @@ export class Hand {
     this.roll = Math.atan2(this.palmNormal[0], -this.palmNormal[1]);
   }
 
-  containsFinger(finger: Finger): boolean {
-    return finger.handId === this.id;
+  containsFinger(handId: number): boolean {
+    return handId === this.id;
   }
 
   addFinger(finger: Finger): Finger {
-    if (!this.containsFinger(finger)) {
+    if (!this.containsFinger(finger.handId)) {
       throw new Error(`Attempted to add a finger to the wrong hand!`);
     }
     this.fingers = { ...this.fingers, [finger.type]: finger };

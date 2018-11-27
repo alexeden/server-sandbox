@@ -1,22 +1,17 @@
 import { vec3 } from 'gl-matrix';
-import * as leap from './types';
 
 export class InteractionBox {
-
-  readonly center: vec3;
-  readonly size: vec3;
   readonly width: number;
   readonly height: number;
   readonly depth: number;
 
   constructor(
-    data: leap.InteractionBoxData
+    readonly center: vec3,
+    readonly size: vec3
   ) {
-    this.center = vec3.fromValues(...data.center);
-    this.size = vec3.fromValues(...data.size);
-    this.width = data.size[0];
-    this.height = data.size[1];
-    this.depth = data.size[2];
+    this.width = this.size[0];
+    this.height = this.size[1];
+    this.depth = this.size[2];
   }
 
   normalizePoint(position: [ number, number, number ], clamp: boolean) {
