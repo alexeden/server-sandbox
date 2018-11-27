@@ -5,8 +5,11 @@
   {{ (controller.socketConnected | async) ? 'Connected' : 'Leap Service Connection' }}
 </mat-slide-toggle>
 
+<span class="grow"></span>
 <mat-icon
+  *ngIf="connectSwitch.value"
   matBadgeOverlap="false"
+  matBadgePosition="above before"
   [matBadgeColor]="(paintService.handCount | async) ? 'primary' : 'accent'"
   [matBadge]="paintService.handCount | async">
   pan_tool
