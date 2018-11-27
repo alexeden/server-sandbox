@@ -75,8 +75,10 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
         sphereRadius,
       }) => {
         const stablePalmPt = new Pt(mapToCanvasSpaceX(stablePalm[0]), mapToCanvasSpaceY(stablePalm[1]));
-        const hue = clamp(0, 360)(Math.floor(mapToRange(60, -20, 0, 359, pitch * 180 / Math.PI)));
-        const radius = mapToRange(palmWidth / 2, 2 * palmWidth, 10, 50, clamp(palmWidth / 2, 2 * palmWidth)(sphereRadius));
+        const hue = clamp(0, 360)(Math.floor(mapToRange(60, -30, 0, 359, roll * 180 / Math.PI)));
+        // const hue = clamp(0, 360)(Math.floor(mapToRange(60, -20, 0, 359, pitch * 180 / Math.PI)));
+        // const radius = mapToRange(palmWidth / 2, 2 * palmWidth, 10, 50, clamp(palmWidth / 2, 2 * palmWidth)(sphereRadius));
+        const radius = Math.max(0.1, 1 - pinchStrength) * 50;
 
         this.form.fillOnly(`hsl(${hue}, 100%, 50%)`).point(stablePalmPt, radius);
         this.form.fill('#777').text(stablePalmPt.$add(25, 0), `[${Math.round(stablePalm[0])}, ${Math.round(stablePalm[1])}]`);
