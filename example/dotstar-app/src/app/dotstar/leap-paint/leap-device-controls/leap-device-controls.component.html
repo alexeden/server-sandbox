@@ -1,0 +1,6 @@
+<mat-slide-toggle
+  [formControl]="connectSwitch"
+  color="primary"
+  (change)="switchFlipped($event)">
+  {{ (controller.socketConnected | async) ? 'Connected' : 'Leap Service Connection' }}
+</mat-slide-toggle>
