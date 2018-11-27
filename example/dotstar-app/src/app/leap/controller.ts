@@ -79,6 +79,7 @@ export class LeapController implements ControllerOptions {
     readonly host: string,
     readonly optimizeHMD: boolean
   ) {
+    console.log('instantiating LeapController');
     this.socketConnected = this.socketConnected$.asObservable().pipe(distinctUntilChanged());
     this.deviceNotifications = this.deviceNotifications$.asObservable();
     this.frameEvents = this.frameEvents$.asObservable();

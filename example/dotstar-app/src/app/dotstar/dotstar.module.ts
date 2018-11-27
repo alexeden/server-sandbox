@@ -19,10 +19,7 @@ import { DotstarRoutingModule } from './dotstar-routing.module';
 import { PhysicsFormComponent } from './physics-form/physics-form.component';
 import { PointerParticlesComponent } from './pointer-particles/pointer-particles.component';
 import { ColorspaceFunctionsComponent } from './colorspace-functions/colorspace-functions.component';
-import {
-  LeapPaintComponent,
-  LeapPaintCanvasComponent,
-} from './leap-paint';
+import { LeapPaintModule } from './leap-paint';
 
 @NgModule({
   declarations: [
@@ -31,17 +28,16 @@ import {
     ConfigFormComponent,
     ControlBarComponent,
     InputCanvasComponent,
-    LeapPaintComponent,
     OpenConfigFormDirective,
     PhysicsFormComponent,
     PointerParticlesComponent,
     SamplerFormComponent,
     SocketNotifierComponent,
     VisualizerComponent,
-    LeapPaintCanvasComponent,
   ],
   imports: [
     SharedModule,
+    LeapPaintModule,
     DotstarRoutingModule,
   ],
   exports: [
