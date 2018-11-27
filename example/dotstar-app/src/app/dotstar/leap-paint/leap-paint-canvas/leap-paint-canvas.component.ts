@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy, Renderer2, ElementRef } from '@angular/core';
-import { Subject, BehaviorSubject } from 'rxjs';
+import { Subject, BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { AnimationClockService } from '@app/dotstar/animation-clock.service';
-import { Bound, CanvasForm, CanvasSpace, Pt } from 'pts';
-import { skipWhile, takeUntil, sample } from 'rxjs/operators';
-import { Colors, mapToRange, clamp } from '@app/dotstar/lib';
+import { Bound, CanvasForm, CanvasSpace, Pt, World, Num, Particle } from 'pts';
+import { skipWhile, takeUntil, sample, map, withLatestFrom } from 'rxjs/operators';
+import { Colors, mapToRange, clamp, range } from '@app/dotstar/lib';
 import { LeapPaintService } from '../leap-paint.service';
+import { DotstarDeviceConfigService } from '@app/dotstar/device-config.service';
 
 @Component({
   selector: 'dotstar-leap-paint-canvas',
@@ -15,15 +16,16 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   private readonly ready$ = new BehaviorSubject(false);
   private readonly bounds$ = new BehaviorSubject<Bound>(new Bound());
-
   readonly height = 550;
   readonly space: CanvasSpace;
   readonly form: CanvasForm;
   readonly canvas: HTMLCanvasElement;
+  readonly world: Observable<World>;
 
   constructor(
     readonly elRef: ElementRef,
     readonly renderer: Renderer2,
+    readonly configService: DotstarDeviceConfigService,
     readonly paintService: LeapPaintService,
     readonly clock: AnimationClockService
   ) {
@@ -37,13 +39,26 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
       retina: true,
     });
 
+    this.world = this.configService.length.pipe(
+      map(n => {
+        const bounds = this.space.innerBound;
+        const friction = 0.9;
+        const world = new World(bounds, friction, 10);
+        range(0, n).forEach(i => {
+          const part = new Particle([ Num.mapToRange(i, 0, n, 0, bounds.width || 1), 0 ]);
+          part.radius = 0;
+          part.id = i;
+          part.mass = 5;
+          world.add(part);
+        });
+        return world;
+      })
+    );
+
     this.form = new CanvasForm(this.space);
 
     this.space.add({
-      resize: () => {
-        console.log('resize event!');
-        this.bounds$.next(this.space.innerBound);
-      },
+      resize: () => this.bounds$.next(this.space.innerBound),
       start: () => this.bounds$.next(this.space.innerBound),
     });
 
@@ -51,12 +66,12 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     (window as any).renderCount = 0;
-    this.paintService.latestFrame.pipe(
+    this.clock.dt.pipe(
       takeUntil(this.unsubscribe$),
       skipWhile(() => !this.ready$.getValue()),
-      sample(this.clock.t)
+      withLatestFrom(this.paintService.latestFrame, this.world)
     )
-    .subscribe(({ interactionBox, hands }) => {
+    .subscribe(([dt, { interactionBox, hands }, world]) => {
       this.space.clear();
       const { height: iBoxH, width: iBoxW, center: iBoxCenter } = interactionBox;
       const iBoxCenterY = iBoxCenter[1];
