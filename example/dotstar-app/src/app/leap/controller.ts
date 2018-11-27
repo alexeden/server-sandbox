@@ -84,8 +84,8 @@ export class LeapController implements ControllerOptions {
     this.frameEvents = this.frameEvents$.asObservable();
 
     this.focused = fromEvent(window.document, 'visibilitychange').pipe(
-      map(() => window.document.hidden),
-      startWith(window.document.hidden),
+      map(() => !window.document.hidden),
+      startWith(!window.document.hidden),
       distinctUntilChanged()
     );
   }
@@ -182,7 +182,7 @@ export class LeapController implements ControllerOptions {
 
   get url() {
     const secure = window.location.protocol === 'https:';
-    const scheme = secure ? 'wss:' : 'ws:';
+    const scheme = secure ? 'wss' : 'ws';
     const port = secure ? 6436 : 6437;
     return `${scheme}://${this.host}:${port}/v${LeapController.protocolVersion}.json`;
   }
