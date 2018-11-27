@@ -7,7 +7,7 @@ import { DotstarSocketService } from './dotstar-socket.service';
   selector: 'dotstar-socket-notifier',
   template: '',
 })
-export class DotstarSocketNotifierComponent {
+export class SocketNotifierComponent {
   constructor(
     private snackBar: MatSnackBar,
     private dotstar: DotstarSocketService

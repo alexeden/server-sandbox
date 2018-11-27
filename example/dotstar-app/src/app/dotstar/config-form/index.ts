@@ -1,2 +1,2 @@
-export { DotstarConfigFormComponent } from './config-form.component';
-export { DotstarOpenConfigFormDirective } from './open-config-form.directive';
+export { ConfigFormComponent } from './config-form.component';
+export { OpenConfigFormDirective } from './open-config-form.directive';

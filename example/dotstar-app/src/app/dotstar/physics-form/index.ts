@@ -1,2 +1,2 @@
 export * from './types';
-export { DotstarPhysicsFormComponent } from './physics-form.component';
+export { PhysicsFormComponent } from './physics-form.component';

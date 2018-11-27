@@ -1,1 +1,1 @@
-export { DotstarInputCanvasComponent } from './input-canvas.component';
+export { InputCanvasComponent } from './input-canvas.component';

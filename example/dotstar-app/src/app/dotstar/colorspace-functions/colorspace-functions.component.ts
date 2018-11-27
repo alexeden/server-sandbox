@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core';
   templateUrl: './colorspace-functions.component.html',
   styleUrls: ['./colorspace-functions.component.scss'],
 })
-export class DotstarColorspaceFunctionsComponent implements OnInit {
+export class ColorspaceFunctionsComponent implements OnInit {
 
   constructor() { }
 

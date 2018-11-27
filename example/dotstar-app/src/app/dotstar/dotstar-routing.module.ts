@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { DotstarMainComponent } from './dotstar-main.component';
-import { DotstarColorspaceFunctionsComponent } from './colorspace-functions';
-import { DotstarPointerParticlesComponent } from './pointer-particles';
+import { ColorspaceFunctionsComponent } from './colorspace-functions';
+import { PointerParticlesComponent } from './pointer-particles';
 
 const dotstarRoutes: Routes = [
   {
@@ -11,14 +11,14 @@ const dotstarRoutes: Routes = [
     children: [
       {
         path: 'functions',
-        component: DotstarColorspaceFunctionsComponent,
+        component: ColorspaceFunctionsComponent,
         data: {
           label: 'Colorspace Functions',
         },
       },
       {
         path: 'particles',
-        component: DotstarPointerParticlesComponent,
+        component: PointerParticlesComponent,
         data: {
           label: 'Particles',
         },

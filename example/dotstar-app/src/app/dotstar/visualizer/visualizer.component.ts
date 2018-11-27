@@ -11,7 +11,7 @@ import { DotstarBufferService } from '../dotstar-buffer.service';
   templateUrl: './visualizer.component.html',
   styleUrls: ['./visualizer.component.scss'],
 })
-export class DotstarVisualizerComponent implements OnInit, OnDestroy {
+export class VisualizerComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   private readonly ready$ = new BehaviorSubject(false);
   private readonly bounds$ = new BehaviorSubject<Bound>(new Bound());

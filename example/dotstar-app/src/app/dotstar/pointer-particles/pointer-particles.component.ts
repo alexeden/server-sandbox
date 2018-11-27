@@ -6,7 +6,7 @@ import { PhysicsConfigService } from './physics-config.service';
   styleUrls: ['./pointer-particles.component.scss'],
   providers: [ PhysicsConfigService ],
 })
-export class DotstarPointerParticlesComponent implements OnInit {
+export class PointerParticlesComponent implements OnInit {
 
   constructor() { }
 

@@ -15,7 +15,7 @@ import { functionBodyValidator } from './function-body.validator';
   templateUrl: './sampler-form.component.html',
   styleUrls: ['./sampler-form.component.scss'],
 })
-export class DotstarSamplerFormComponent implements OnInit, OnDestroy {
+export class SamplerFormComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   private readonly fnValidator = functionBodyValidator(samplerFnHead, [0, 0, 1]);
   private readonly channelSampler: Observable<ChannelSampler>;

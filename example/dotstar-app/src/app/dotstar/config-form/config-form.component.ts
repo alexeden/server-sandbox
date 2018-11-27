@@ -13,7 +13,7 @@ import { MatBottomSheetRef } from '@angular/material';
   templateUrl: './config-form.component.html',
   styleUrls: ['./config-form.component.scss'],
 })
-export class DotstarConfigFormComponent implements OnInit, OnDestroy {
+export class ConfigFormComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   readonly connected: Observable<boolean>;
   readonly configForm: FormGroup;
@@ -24,7 +24,7 @@ export class DotstarConfigFormComponent implements OnInit, OnDestroy {
     private configService: DotstarDeviceConfigService,
     private socketService: DotstarSocketService,
     @Optional()
-    public bottomSheetRef: MatBottomSheetRef<DotstarConfigFormComponent>
+    public bottomSheetRef: MatBottomSheetRef<ConfigFormComponent>
   ) {
     this.connected = this.socketService.connected$.asObservable();
 

@@ -28,7 +28,7 @@ interface ParticleSnapshot {
   templateUrl: './input-canvas.component.html',
   styleUrls: ['./input-canvas.component.scss'],
 })
-export class DotstarInputCanvasComponent implements OnInit, OnDestroy {
+export class InputCanvasComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   private readonly ready$ = new BehaviorSubject(false);
   private readonly time$ = new BehaviorSubject(0);

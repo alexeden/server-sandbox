@@ -5,34 +5,36 @@ import { AnimationClockService } from './animation-clock.service';
 import { DotstarDeviceConfigService } from './device-config.service';
 import { DotstarSocketService } from './dotstar-socket.service';
 import { DotstarMainComponent } from './dotstar-main.component';
-import { DotstarSocketNotifierComponent } from './dotstar-notifiers.component';
-import { DotstarInputCanvasComponent } from './input-canvas';
-import { DotstarVisualizerComponent } from './visualizer/visualizer.component';
+import { SocketNotifierComponent } from './dotstar-notifiers.component';
+import { InputCanvasComponent } from './input-canvas';
+import { VisualizerComponent } from './visualizer/visualizer.component';
 import {
-  DotstarConfigFormComponent,
-  DotstarOpenConfigFormDirective,
+  ConfigFormComponent,
+  OpenConfigFormDirective,
 } from './config-form';
 import { DotstarBufferService } from './dotstar-buffer.service';
-import { DotstarSamplerFormComponent } from './sampler-form/sampler-form.component';
-import { DotstarControlBarComponent } from './control-bar/control-bar.component';
+import { SamplerFormComponent } from './sampler-form/sampler-form.component';
+import { ControlBarComponent } from './control-bar/control-bar.component';
 import { DotstarRoutingModule } from './dotstar-routing.module';
-import { DotstarPhysicsFormComponent } from './physics-form/physics-form.component';
-import { DotstarPointerParticlesComponent } from './pointer-particles/pointer-particles.component';
-import { DotstarColorspaceFunctionsComponent } from './colorspace-functions/colorspace-functions.component';
+import { PhysicsFormComponent } from './physics-form/physics-form.component';
+import { PointerParticlesComponent } from './pointer-particles/pointer-particles.component';
+import { ColorspaceFunctionsComponent } from './colorspace-functions/colorspace-functions.component';
+import { LeapPaintComponent } from './leap-paint/leap-paint.component';
 
 @NgModule({
   declarations: [
     DotstarMainComponent,
-    DotstarSamplerFormComponent,
-    DotstarConfigFormComponent,
-    DotstarInputCanvasComponent,
-    DotstarOpenConfigFormDirective,
-    DotstarSocketNotifierComponent,
-    DotstarVisualizerComponent,
-    DotstarControlBarComponent,
-    DotstarPhysicsFormComponent,
-    DotstarPointerParticlesComponent,
-    DotstarColorspaceFunctionsComponent,
+    ColorspaceFunctionsComponent,
+    ConfigFormComponent,
+    ControlBarComponent,
+    InputCanvasComponent,
+    LeapPaintComponent,
+    OpenConfigFormDirective,
+    PhysicsFormComponent,
+    PointerParticlesComponent,
+    SamplerFormComponent,
+    SocketNotifierComponent,
+    VisualizerComponent,
   ],
   imports: [
     SharedModule,
@@ -42,7 +44,7 @@ import { DotstarColorspaceFunctionsComponent } from './colorspace-functions/colo
     DotstarMainComponent,
   ],
   entryComponents: [
-    DotstarConfigFormComponent,
+    ConfigFormComponent,
   ],
   providers: [
     AnimationClockService,

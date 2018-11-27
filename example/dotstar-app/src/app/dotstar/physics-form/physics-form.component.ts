@@ -10,7 +10,7 @@ import { PhysicsConfigService } from '../pointer-particles/physics-config.servic
   templateUrl: './physics-form.component.html',
   styleUrls: ['./physics-form.component.scss'],
 })
-export class DotstarPhysicsFormComponent implements OnInit, OnDestroy {
+export class PhysicsFormComponent implements OnInit, OnDestroy {
 
   static readonly defaultConfig: PhysicsConfig = {
     friction: 0.9,

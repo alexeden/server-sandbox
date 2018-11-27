@@ -13,7 +13,7 @@ import { map, takeUntil, startWith, filter } from 'rxjs/operators';
   templateUrl: './control-bar.component.html',
   styleUrls: ['./control-bar.component.scss'],
 })
-export class DotstarControlBarComponent implements OnInit, OnDestroy {
+export class ControlBarComponent implements OnInit, OnDestroy {
   @HostBinding('attr.class') classes = 'row gap-40';
   private readonly unsubscribe$ = new Subject<any>();
 
