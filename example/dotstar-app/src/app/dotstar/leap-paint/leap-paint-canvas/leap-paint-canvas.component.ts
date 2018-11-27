@@ -108,20 +108,20 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
           palmPosition: palm,
           pitch,
           roll,
-          pinchStrength,
+          pinchStrength: pinch,
           palmWidth,
           sphereRadius,
         }) => {
           const stablePt = new Pt(mapToCanvasSpaceX(stable[0]), mapToCanvasSpaceY(stable[1]));
           const hue = clamp(0, 360)(Math.floor(mapToRange(60, -30, 0, 359, roll * 180 / Math.PI)));
-          const radius = Math.max(0.1, 1 - pinchStrength) * 50;
+          const radius = Math.max(0.1, 1 - pinch) * 50;
 
           this.form.fillOnly(`hsl(${hue}, 100%, 50%)`).point(stablePt, radius, 'circle');
           this.form.fill('#777').text(stablePt.$add(25, 0), `[${Math.round(stablePalm[0])}, ${Math.round(stablePalm[1])}]`);
           this.form.fill('#777').text(stablePt.$add(25, -15), `Pitch ${Math.round(pitch * 180 / Math.PI)}`);
           this.form.fill('#777').text(stablePt.$add(25, -30), `Roll  ${Math.round(roll * 180 / Math.PI)}`);
           this.form.fill('#777').text(stablePt.$add(25, -45), `Palm Radius  ${Math.round(sphereRadius)}`);
-          this.form.fill('#777').text(stablePt.$add(25, -60), `Pinch  ${Math.round(pinchStrength * 100)}%`);
+          this.form.fill('#777').text(stablePt.$add(25, -60), `Pinch  ${Math.round(pinch * 100)}%`);
           this.form.fill('#777').text(stablePt.$add(25, -75), `Palm Width  ${Math.round(palmWidth)}`);
         });
 

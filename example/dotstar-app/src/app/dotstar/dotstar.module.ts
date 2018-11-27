@@ -7,19 +7,17 @@ import { DotstarSocketService } from './dotstar-socket.service';
 import { DotstarMainComponent } from './dotstar-main.component';
 import { SocketNotifierComponent } from './dotstar-notifiers.component';
 import { InputCanvasComponent } from './input-canvas';
-import { VisualizerComponent } from './visualizer/visualizer.component';
-import {
-  ConfigFormComponent,
-  OpenConfigFormDirective,
-} from './config-form';
+import { VisualizerComponent } from './visualizer';
+import { ConfigFormComponent, OpenConfigFormDirective } from './config-form';
 import { DotstarBufferService } from './dotstar-buffer.service';
-import { SamplerFormComponent } from './sampler-form/sampler-form.component';
-import { ControlBarComponent } from './control-bar/control-bar.component';
+import { SamplerFormComponent } from './sampler-form';
+import { ControlBarComponent } from './control-bar';
 import { DotstarRoutingModule } from './dotstar-routing.module';
-import { PhysicsFormComponent } from './physics-form/physics-form.component';
-import { PointerParticlesComponent } from './pointer-particles/pointer-particles.component';
-import { ColorspaceFunctionsComponent } from './colorspace-functions/colorspace-functions.component';
+import { PhysicsFormComponent } from './physics-form';
+import { PointerParticlesComponent } from './pointer-particles';
+import { ColorspaceFunctionsComponent } from './colorspace-functions';
 import { LeapPaintModule } from './leap-paint';
+import { LiveBufferBarComponent } from './live-buffer-bar';
 
 @NgModule({
   declarations: [
@@ -28,6 +26,7 @@ import { LeapPaintModule } from './leap-paint';
     ConfigFormComponent,
     ControlBarComponent,
     InputCanvasComponent,
+    LiveBufferBarComponent,
     OpenConfigFormDirective,
     PhysicsFormComponent,
     PointerParticlesComponent,
