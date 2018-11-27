@@ -74,12 +74,12 @@ export class LeapController implements ControllerOptions {
   private devices: { [id: string]: DeviceEventState } = {};
 
 
-  private constructor(
-    readonly runInBackground: boolean,
-    readonly host: string,
-    readonly optimizeHMD: boolean
+  constructor(
+    readonly runInBackground = false,
+    readonly host = '127.0.0.1',
+    readonly optimizeHMD = false
   ) {
-    console.log('instantiating LeapController');
+    console.log('instantiating LeapController', this);
     this.socketConnected = this.socketConnected$.asObservable().pipe(distinctUntilChanged());
     this.deviceNotifications = this.deviceNotifications$.asObservable();
     this.frameEvents = this.frameEvents$.asObservable();

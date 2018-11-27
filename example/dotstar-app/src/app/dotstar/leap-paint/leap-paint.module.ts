@@ -3,6 +3,8 @@ import { SharedModule } from '@app/shared';
 import { LeapController } from '@app/leap';
 import { LeapPaintComponent } from './leap-paint.component';
 import { LeapPaintCanvasComponent } from './leap-paint-canvas';
+import { LeapPaintService } from './leap-paint.service';
+
 
 @NgModule({
   imports: [
@@ -15,8 +17,10 @@ import { LeapPaintCanvasComponent } from './leap-paint-canvas';
   providers: [
     {
       provide: LeapController,
-      useFactory: () => LeapController.create(),
+      useClass: LeapController,
+      deps: [],
     },
+    LeapPaintService,
   ],
 })
 export class LeapPaintModule {}

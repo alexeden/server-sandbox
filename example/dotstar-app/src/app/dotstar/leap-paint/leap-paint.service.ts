@@ -3,6 +3,10 @@ import { LeapController } from '@app/leap';
 
 @Injectable()
 export class LeapPaintService {
-  controller = LeapController.create();
+  constructor(
+    readonly controller: LeapController
+  ) {
+    (window as any).LeapPaintService = this;
+  }
 
 }
