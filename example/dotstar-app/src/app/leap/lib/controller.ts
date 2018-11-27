@@ -2,8 +2,9 @@ import { EventEmitter } from 'events';
 import { Frame } from './frame';
 import { Hand } from './hand';
 import { DeviceEventState, ServiceMessage, ControllerFocus, ControllerOptions, Message, FrameMessage } from './types';
-import { Subject, Observable } from 'rxjs';
+import { Subject, Observable, BehaviorSubject, from, fromEvent } from 'rxjs';
 import { Assertions } from './assertions';
+import { distinctUntilChanged, map, startWith, takeUntil } from 'rxjs/operators';
 
 
 /**
@@ -22,52 +23,28 @@ export enum DeviceNotificationType {
   StreamingStopped = 'streamingStopped',
 }
 
+
 export interface DeviceNotification {
   type: DeviceNotificationType;
   state: DeviceEventState;
 }
 
-export interface LeapControllerEventMap {
+export interface FrameEventMap {
   blur: null;
-  connect: null;
-  disconnect: null;
   focus: null;
-  frame: Frame;
+  newFrame: Frame;
   handAppeared: Hand;
   handDisappeared: number;
-  animationFrameEnd: number;
-  ready: ServiceMessage;
 }
 
+export type FrameEvent<K extends keyof FrameEventMap> = {
+  type: K,
+  state: FrameEventMap[K],
+};
 
-export class LeapController extends EventEmitter implements ControllerOptions {
+
+export class LeapController implements ControllerOptions {
   static protocolVersion = 6;
-
-  on<K extends keyof LeapControllerEventMap>(eventName: K, cb: (arg: LeapControllerEventMap[K]) => void): this {
-    return super.on(eventName, cb);
-  }
-  emit<K extends keyof LeapControllerEventMap>(eventName: K, arg: LeapControllerEventMap[K]): boolean {
-    return super.emit(eventName, arg);
-  }
-
-  private readonly deviceNotifications$ = new Subject<DeviceNotification>();
-  readonly deviceNotifications: Observable<DeviceNotification>;
-  private reconnectionTimer: number | void;
-  private focusedState = ControllerFocus.Unknown;
-
-  private socket: WebSocket | null = null;
-  connected = false;
-  protocolVersionVerified = false;
-
-  // Protocol
-  version: number;
-  serviceVersion: string;
-
-  // Frames
-  handMap: { [id: number]: Hand } = {};
-  private streamingCount = 0;
-  private devices: { [id: string]: DeviceEventState } = {};
-  readonly frame = new Subject<Frame>();
 
   static create(opts: Partial<ControllerOptions> = {}): LeapController {
     return new LeapController(
@@ -77,13 +54,41 @@ export class LeapController extends EventEmitter implements ControllerOptions {
     );
   }
 
+  private readonly unsubscribe$ = new Subject<any>();
+  private readonly frameEvents$ = new Subject<FrameEvent<any>>();
+  readonly frameEvents: Observable<FrameEvent<any>>;
+  private readonly socketConnected$ = new BehaviorSubject(false);
+  readonly socketConnected: Observable<boolean>;
+  private readonly deviceNotifications$ = new Subject<DeviceNotification>();
+  readonly deviceNotifications: Observable<DeviceNotification>;
+  private readonly focused: Observable<boolean>;
+
+  private socket: WebSocket | null = null;
+
+  // Protocol
+  version: number;
+  serviceVersion: string;
+
+  // Frames
+  handMap: { [id: number]: Hand } = {};
+  private streamingCount = 0;
+  private devices: { [id: string]: DeviceEventState } = {};
+
+
   private constructor(
     readonly runInBackground: boolean,
     readonly host: string,
     readonly optimizeHMD: boolean
   ) {
-    super();
+    this.socketConnected = this.socketConnected$.asObservable().pipe(distinctUntilChanged());
     this.deviceNotifications = this.deviceNotifications$.asObservable();
+    this.frameEvents = this.frameEvents$.asObservable();
+
+    this.focused = fromEvent(window.document, 'visibilitychange').pipe(
+      map(() => window.document.hidden),
+      startWith(window.document.hidden),
+      distinctUntilChanged()
+    );
   }
 
   private pushDeviceNotification(type: DeviceNotificationType, state: DeviceEventState) {
@@ -139,6 +144,10 @@ export class LeapController extends EventEmitter implements ControllerOptions {
     }
   }
 
+  private pushFrameEvent<K extends keyof FrameEventMap>(type: K, state: FrameEventMap[K]) {
+    this.frameEvents$.next({ type, state });
+  }
+
   private handleFrameMessage(message: FrameMessage) {
     const frame = new Frame(message);
     // Track incoming and outgoing hands
@@ -147,24 +156,29 @@ export class LeapController extends EventEmitter implements ControllerOptions {
     const missingHandIds = existingHandIds.filter(id => !frameHandIds.includes(id));
     const newHands = frame.hands.filter(hand => !existingHandIds.includes(`${hand.id}`));
     // Remove the missing hands from the hand map
-    this.handMap = frame.hands.reduce((map, hand) => ({ ...map, [`${hand.id}`]: hand }), {});
+    this.handMap = frame.hands.reduce((handMap, hand) => ({ ...handMap, [`${hand.id}`]: hand }), {});
 
     // Emit the new hands
-    newHands.map(hand => this.emit('handAppeared', hand));
+    newHands.map(hand => this.pushFrameEvent('handAppeared', hand));
 
     // Emit the IDs of the missing hands
-    missingHandIds.map(id => this.emit('handDisappeared', +id));
+    missingHandIds.map(id => this.pushFrameEvent('handDisappeared', +id));
   }
 
   private handleServiceMessage(message: ServiceMessage) {
     this.version = message.version;
     this.serviceVersion = message.serviceVersion;
-    this.protocolVersionVerified = true;
 
-    this.startFocusLoop()
+    this
       .send({ enableGestures: false })
       .send({ background: this.runInBackground })
       .send({ optimizeHMD: this.optimizeHMD });
+
+    this.focused.pipe(takeUntil(this.unsubscribe$)).subscribe(focused => {
+      console.log('sending focus change: ', focused);
+      this.pushFrameEvent(focused ? 'focus' : 'blur', null);
+      this.send({ focused });
+    });
   }
 
   get url() {
@@ -176,9 +190,16 @@ export class LeapController extends EventEmitter implements ControllerOptions {
 
   start(): this {
     this.socket = new WebSocket(this.url);
-    this.socket.onopen = () => this.handleOpen();
-    this.socket.onclose = (data: CloseEvent) => this.handleClose(data);
-    this.socket.onerror = error => console.error('Leap socket error: ', error);
+
+    this.socket.onopen = () => this.socketConnected$.next(true);
+
+    this.socket.onclose = () => this.stop();
+
+    this.socket.onerror = error => {
+      console.error('Leap socket error: ', error);
+      this.stop();
+    };
+
     this.socket.onmessage = ({ data }) => {
       const message: unknown = JSON.parse(data);
       if (Assertions.messageIsServiceType(message))     this.handleServiceMessage(message);
@@ -190,97 +211,25 @@ export class LeapController extends EventEmitter implements ControllerOptions {
     return this;
   }
 
-  private reconnect() {
-    if (this.connected) {
-      this.stopReconnection();
-    }
-    else {
-      this.stop(true);
-      this.start();
-    }
-  }
-
-  private startFocusLoop(): this {
-    const visibilityChangeListener = () => {
-      this.setFocused(
-        window.document.hidden
-        ? ControllerFocus.Hidden
-        : ControllerFocus.Focused
-      );
-    };
-
-    window.document.addEventListener('visibilitychange', visibilityChangeListener);
-    this.on('disconnect', () =>
-      window.document.removeEventListener('visibilitychange', visibilityChangeListener)
-    );
-    visibilityChangeListener();
-    return this;
-  }
-
   streaming() {
     return this.streamingCount > 0;
   }
 
-  // By default, disconnect will prevent auto-reconnection.
-  // Pass in true to allow the reconnection loop not be interrupted continue
-  stop(allowReconnect = false): this {
-    if (!allowReconnect) {
-      this.stopReconnection();
-    }
+  stop(): this {
     if (!this.socket) {
       return this;
     }
     this.socket.close();
     this.socket = null;
-    this.focusedState = ControllerFocus.Unknown;
-    if (this.connected) {
-      this.connected = false;
-      this.emit('disconnect', null);
-    }
+    this.socketConnected$.next(false);
+    this.unsubscribe$.next('unsubscribe!');
     return this;
-  }
-
-  private handleOpen() {
-    if (!this.connected) {
-      this.connected = true;
-      this.emit('connect', null);
-    }
   }
 
   private send(state: object): this {
-    if (this.connected) {
+    if (this.socketConnected$.getValue()) {
       this.socket!.send(JSON.stringify(state));
     }
     return this;
-  }
-
-  setFocused(focused: ControllerFocus): this {
-    if (this.focusedState !== focused || this.focusedState === ControllerFocus.Unknown) {
-      this.focusedState = focused;
-      this.send({ focused: focused === ControllerFocus.Focused });
-      this.emit(this.focusedState === ControllerFocus.Focused ? 'focus' : 'blur', null);
-    }
-    return this;
-  }
-
-  private handleClose(event: CloseEvent) {
-    if (!this.connected) {
-      return;
-    }
-    this.stop();
-
-    // 1001 - an active connection is closed
-    if (event.code === 1001) this.protocolVersionVerified = false;
-    this.startReconnection();
-  }
-
-  private startReconnection() {
-    if (!this.reconnectionTimer) {
-      this.reconnectionTimer = window.setInterval(() => this.reconnect(), 500);
-    }
-  }
-
-  private stopReconnection() {
-    this.reconnectionTimer = window.clearInterval(this.reconnectionTimer as number);
   }
 }
