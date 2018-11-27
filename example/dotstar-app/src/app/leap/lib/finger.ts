@@ -1,6 +1,6 @@
 import { vec3 } from 'gl-matrix';
-import { LeapPointable } from './pointable';
-import { LeapBone } from './bone';
+import { Pointable } from './pointable';
+import { Bone } from './bone';
 import { Triple, FingerType, FingerData, BoneType } from './types';
 
 
@@ -29,7 +29,7 @@ import { Triple, FingerType, FingerData, BoneType } from './types';
  * property.
  */
 
-export class LeapFinger extends LeapPointable {
+export class Finger extends Pointable {
   readonly tool = false;
   readonly bases: Array<Triple<vec3>>;
   readonly btipPosition: vec3;
@@ -41,14 +41,14 @@ export class LeapFinger extends LeapPointable {
   readonly type: FingerType;
 
   readonly positions: vec3[];
-  readonly bones: LeapBone[];
-  readonly metacarpal: LeapBone;
-  readonly proximal: LeapBone;
-  readonly medial: LeapBone;
-  readonly distal: LeapBone;
+  readonly bones: Bone[];
+  readonly metacarpal: Bone;
+  readonly proximal: Bone;
+  readonly medial: Bone;
+  readonly distal: Bone;
 
   static fromData(data: FingerData) {
-    return new LeapFinger(data);
+    return new Finger(data);
   }
 
   private constructor(
@@ -65,7 +65,7 @@ export class LeapFinger extends LeapPointable {
     this.type = data.type;
     this.positions = [this.carpPosition, this.mcpPosition, this.pipPosition, this.dipPosition, this.tipPosition];
 
-    this.metacarpal = new LeapBone(
+    this.metacarpal = new Bone(
       BoneType.metacarpal,
       this.bases![0],
       this.carpPosition,
@@ -73,7 +73,7 @@ export class LeapFinger extends LeapPointable {
       this.width
     );
 
-    this.proximal = new LeapBone(
+    this.proximal = new Bone(
       BoneType.proximal,
       this.bases![1],
       this.mcpPosition,
@@ -81,7 +81,7 @@ export class LeapFinger extends LeapPointable {
       this.width
     );
 
-    this.medial = new LeapBone(
+    this.medial = new Bone(
        BoneType.medial,
        this.bases![2],
        this.pipPosition,
@@ -89,7 +89,7 @@ export class LeapFinger extends LeapPointable {
        this.width
     );
 
-    this.distal = new LeapBone(
+    this.distal = new Bone(
       BoneType.distal,
       this.bases![3],
       this.dipPosition,

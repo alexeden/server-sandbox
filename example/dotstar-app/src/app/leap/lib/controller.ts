@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
-import { LeapFrame } from './frame';
-import { LeapHand } from './hand';
+import { Frame } from './frame';
+import { Hand } from './hand';
 import * as leap from './types';
 import { Subject } from 'rxjs';
 import { Assertions } from './assertions';
@@ -22,8 +22,8 @@ export interface LeapControllerEventMap {
   deviceStreaming: leap.DeviceEventState;
   disconnect: null;
   focus: null;
-  frame: LeapFrame;
-  handAppeared: LeapHand;
+  frame: Frame;
+  handAppeared: Hand;
   handDisappeared: number;
   animationFrameEnd: number;
   ready: leap.ServiceMessage;
@@ -61,11 +61,11 @@ export class LeapController extends EventEmitter {
   versionLong: string;
 
   // Frames
-  lastFrame: LeapFrame | null;
-  handMap: { [id: number]: LeapHand } = {};
+  lastFrame: Frame | null;
+  handMap: { [id: number]: Hand } = {};
   private streamingCount = 0;
   private devices: { [id: string]: leap.DeviceEventState } = {};
-  readonly frame = new Subject<LeapFrame>();
+  readonly frame = new Subject<Frame>();
 
   static create(opts: leap.ControllerOptions = {}): LeapController {
     return new LeapController(opts);
@@ -76,7 +76,6 @@ export class LeapController extends EventEmitter {
   ) {
     super();
     this.runInBackground = opts.runInBackground || false;
-    this.enableGestures = opts.enableGestures || true;
     this.host = opts.host || '127.0.0.1';
     this.optimizeHMD = opts.optimizeHMD || false;
     this.port = opts.port || 6437;
@@ -84,14 +83,14 @@ export class LeapController extends EventEmitter {
 
     this.on('ready', () => {
       this.startFocusLoop()
-        .setGesturesEnabled(this.enableGestures)
+        .setGesturesEnabled(false)
         .setBackground(this.runInBackground)
         .setOptimizeHMD(this.optimizeHMD);
     });
 
     this.lastFrame = null;
 
-    this.on('frame', (frame: LeapFrame) => {
+    this.on('frame', (frame: Frame) => {
       // Track incoming and outgoing hands
       const existingHandIds = Object.keys(this.handMap);
       const frameHandIds = frame.hands.map(hand => `${hand.id}`);
@@ -200,7 +199,7 @@ export class LeapController extends EventEmitter {
       this.emit('deviceEvent', event.state);
     }
     else if (Assertions.messageIsFrameType(message)) {
-      const frame = new LeapFrame(message);
+      const frame = new Frame(message);
       this.emit('frame', frame);
       this.frame.next(frame);
     }

@@ -1,77 +1,80 @@
-import { LeapBone } from './bone';
-import { LeapFinger } from './finger';
-import { LeapPointable } from './pointable';
-import { Vector3, Matrix3 } from 'three';
-import { MatrixUtils } from './matrix.utils';
-import * as leap from './types';
+import { Bone } from './bone';
+import { Finger } from './finger';
+import { Pointable } from './pointable';
+import { vec3, mat3 } from 'gl-matrix';
+import { Triple, HandData, BoneType } from './types';
 
-export class LeapHand {
+export class Hand {
 
-  readonly armBasis: leap.Triple<Vector3>;
+  readonly armBasis: Triple<vec3>;
   readonly armWidth: number;
   readonly confidence: number;
-  readonly direction: Vector3;
-  readonly elbow: Vector3;
+  readonly direction: vec3;
+  readonly elbow: vec3;
   readonly grabStrength: number;
   readonly id: number;
-  readonly palmNormal: Vector3;
-  readonly palmPosition: Vector3;
-  readonly palmVelocity: Vector3;
+  readonly palmNormal: vec3;
+  readonly palmPosition: vec3;
+  readonly palmVelocity: vec3;
   readonly palmWidth: number;
   readonly pinchStrength: number;
-  readonly r: Matrix3;
+  readonly r: mat3;
   readonly s: number;
-  readonly sphereCenter: Vector3;
+  readonly sphereCenter: vec3;
   readonly sphereRadius: number;
-  readonly stabilizedPalmPosition: Vector3;
-  readonly t: Vector3;
+  readonly stabilizedPalmPosition: vec3;
+  readonly t: vec3;
   readonly timeVisible: number;
   readonly type: 'left' | 'right';
-  readonly wrist: Vector3;
+  readonly wrist: vec3;
 
   readonly pitch: number;
   readonly yaw: number;
   readonly roll: number;
 
-  readonly arm: LeapBone;
-  fingers: { [fingerType: string]: LeapFinger | null };
-  pointables: LeapPointable[];
+  readonly arm: Bone;
+  fingers: { [fingerType: string]: Finger | null };
+  pointables: Pointable[];
 
-  static fromData(data: leap.HandData) {
-    return new LeapHand(data);
+  static fromData(data: HandData) {
+    return new Hand(data);
   }
 
   private constructor(
-    data: leap.HandData
+    data: HandData
   ) {
-    this.armBasis = data.armBasis.map(basis => new Vector3(...basis)) as leap.Triple<Vector3>;
+    this.armBasis = data.armBasis.map(basis => vec3.fromValues(...basis)) as Triple<vec3>;
     this.armWidth = data.armWidth;
     this.confidence = data.confidence;
-    this.direction = new Vector3(...data.direction);
-    this.elbow = new Vector3(...data.elbow);
+    this.direction = vec3.fromValues(...data.direction);
+    this.elbow = vec3.fromValues(...data.elbow);
     this.grabStrength = data.grabStrength;
     this.id = data.id;
-    this.palmNormal = new Vector3(...data.palmNormal);
-    this.palmPosition = new Vector3(...data.palmPosition);
-    this.palmVelocity = new Vector3(...data.palmVelocity);
+    this.palmNormal = vec3.fromValues(...data.palmNormal);
+    this.palmPosition = vec3.fromValues(...data.palmPosition);
+    this.palmVelocity = vec3.fromValues(...data.palmVelocity);
     this.palmWidth = data.palmWidth;
     this.pinchStrength = data.pinchStrength;
-    this.r = MatrixUtils.matrixFromTriplets(data.r);
+    this.r = mat3.fromValues(
+      data.r[0][0], data.r[0][1], data.r[0][2],
+      data.r[1][0], data.r[1][1], data.r[1][2],
+      data.r[2][0], data.r[2][1], data.r[2][2]
+    );
     this.s = data.s;
-    this.sphereCenter = new Vector3(...data.sphereCenter);
+    this.sphereCenter = vec3.fromValues(...data.sphereCenter);
     this.sphereRadius = data.sphereRadius;
-    this.stabilizedPalmPosition = new Vector3(...data.stabilizedPalmPosition);
-    this.t = new Vector3(...data.t);
+    this.stabilizedPalmPosition = vec3.fromValues(...data.stabilizedPalmPosition);
+    this.t = vec3.fromValues(...data.t);
     this.timeVisible = data.timeVisible;
     this.type = data.type;
-    this.wrist = new Vector3(...data.wrist);
+    this.wrist = vec3.fromValues(...data.wrist);
 
 
     this.pointables = [];
     this.fingers = {};
 
-    this.arm = new LeapBone(
-      leap.BoneType.arm,
+    this.arm = new Bone(
+      BoneType.arm,
       this.armBasis,
       this.elbow,
       this.wrist,
@@ -83,11 +86,11 @@ export class LeapHand {
     this.roll = Math.atan2(this.palmNormal[0], -this.palmNormal[1]);
   }
 
-  containsFinger(finger: LeapFinger): boolean {
+  containsFinger(finger: Finger): boolean {
     return finger.handId === this.id;
   }
 
-  addFinger(finger: LeapFinger): LeapFinger {
+  addFinger(finger: Finger): Finger {
     if (!this.containsFinger(finger)) {
       throw new Error(`Attempted to add a finger to the wrong hand!`);
     }

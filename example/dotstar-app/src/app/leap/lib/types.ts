@@ -1,4 +1,4 @@
-import { Vector3 } from 'three';
+import { vec3 } from 'gl-matrix';
 
 export type Double<T>     = [T, T];
 export type Triple<T>     = [T, T, T];
@@ -10,7 +10,7 @@ export type TouchZone
   | 'hovering'  /* The Pointable is close to, but not touching the touch plane. */
   | 'touching'; /* The Pointable has penetrated the touch plane. */
 
-export type Basis = Triple<Vector3>;
+export type Basis = Triple<vec3>;
 
 export interface ServiceMessage {
   serviceVersion: string;
@@ -72,7 +72,6 @@ export enum HandType {
 
 export interface ControllerOptions {
   host?: string;
-  enableGestures?: boolean;
   scheme?: string;
   port?: number;
   runInBackground?: boolean;

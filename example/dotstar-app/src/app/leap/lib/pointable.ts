@@ -1,4 +1,4 @@
-import { Vector3 } from 'three';
+import { vec3 } from 'gl-matrix';
 import * as leap from './types';
 
 /**
@@ -27,15 +27,15 @@ import * as leap from './types';
  * property.
  */
 
-export class LeapPointable {
-  readonly direction: Vector3;
+export class Pointable {
+  readonly direction: vec3;
   readonly handId: number;
   readonly id: number;
   readonly length: number;
-  readonly stabilizedTipPosition: Vector3;
+  readonly stabilizedTipPosition: vec3;
   readonly timeVisible: number;
-  readonly tipPosition: Vector3;
-  readonly tipVelocity: Vector3;
+  readonly tipPosition: vec3;
+  readonly tipVelocity: vec3;
   readonly tool: boolean;
   readonly touchDistance: number;
   readonly touchZone: leap.TouchZone;
@@ -45,14 +45,14 @@ export class LeapPointable {
   protected constructor(
     data: leap.PointableData
   ) {
-    this.direction = new Vector3(...data.direction);
+    this.direction = vec3.fromValues(...data.direction);
     this.handId = data.handId;
     this.id = data.id;
     this.length = data.length;
-    this.stabilizedTipPosition = new Vector3(...data.stabilizedTipPosition);
+    this.stabilizedTipPosition = vec3.fromValues(...data.stabilizedTipPosition);
     this.timeVisible = data.timeVisible;
-    this.tipPosition = new Vector3(...data.tipPosition);
-    this.tipVelocity = new Vector3(...data.tipVelocity);
+    this.tipPosition = vec3.fromValues(...data.tipPosition);
+    this.tipVelocity = vec3.fromValues(...data.tipVelocity);
     this.touchDistance = data.touchDistance;
     this.touchZone = data.touchZone || 'none';
     this.width = data.width;
