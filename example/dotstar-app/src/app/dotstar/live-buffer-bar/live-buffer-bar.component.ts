@@ -8,14 +8,15 @@ import { mapToRange } from '../lib';
 
 @Component({
   selector: 'dotstar-live-buffer-bar',
-  templateUrl: './live-buffer-bar.component.html',
+  template: '',
+  // templateUrl: './live-buffer-bar.component.html',
   styleUrls: [ './live-buffer-bar.component.scss' ],
 })
 export class LiveBufferBarComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   private readonly ready$ = new BehaviorSubject(false);
 
-  readonly height = 16;
+  readonly height = 12;
   readonly space: CanvasSpace;
   readonly form: CanvasForm;
   readonly canvas: HTMLCanvasElement;
@@ -32,7 +33,7 @@ export class LiveBufferBarComponent implements OnInit, OnDestroy {
     this.renderer.setStyle(this.canvas, 'width', `100%`);
     this.renderer.appendChild(this.elRef.nativeElement, this.canvas);
     this.space = new CanvasSpace(this.canvas, () => this.ready$.next(true)).setup({
-      bgcolor: 'black',
+      // bgcolor: 'black',
       resize: true,
       retina: true,
     });

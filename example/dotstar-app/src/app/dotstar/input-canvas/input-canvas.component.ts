@@ -1,7 +1,7 @@
 import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/core';
 import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
 import { share, distinctUntilChanged, filter, takeUntil, skipUntil, skipWhile, map, tap, take } from 'rxjs/operators';
-import { CanvasSpace, Pt, CanvasForm, Num, Bound, Group, World, Particle } from 'pts';
+import { CanvasSpace, Pt, CanvasForm, Bound, Group, World, Particle } from 'pts';
 import { Sample, range, Colors, clamp, mapToRange } from '../lib';
 // import { DotstarBufferService } from '../dotstar-buffer.service';
 import { DotstarDeviceConfigService } from '../device-config.service';
@@ -35,7 +35,7 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
   private readonly ftime$ = new BehaviorSubject(0);
   private readonly bounds$ = new BehaviorSubject<Bound>(new Bound(Pt.make(2), Pt.make(2)));
   private readonly actions$ = new Subject<Action>();
-  private readonly particles$ = new Subject<ParticleSnapshot[]>();
+  private readonly particles$ = new Subject<Particle[]>();
   private readonly mappedValues: Observable<Sample[]>;
 
   readonly height = 550;
@@ -89,8 +89,9 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
       (n, bounds) => {
         const friction = 0.9;
         const world = new World(this.space.innerBound, friction, 10);
+        const mapToX = mapToRange(0, n, 0, bounds.width || 1);
         range(0, n).forEach(i => {
-          const part = new Particle([ Num.mapToRange(i, 0, n, 0, bounds.width || 1), 0 ]);
+          const part = new Particle([ mapToX(i), 0 ]);
           part.radius = 0;
           part.id = i;
           part.mass = 5;
@@ -101,15 +102,16 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
     );
 
     this.mappedValues = this.particles$.pipe(
-      map(particles =>
+      map(particles => {
+        const mapToBrightness = mapToRange(0, this.space.height, 0xFF, 0x00);
         // Map each particle to a sample triplet
-        particles.map<Sample>(p => {
-          const brightness = mapToRange(0, this.space.height, 0xFF, 0x00, p.position.y);
+        return particles.map<Sample>(p => {
+          const brightness = mapToBrightness(p.y);
           return p.changed.y > 0
             ? [0, 0, brightness]
             : [brightness, 0, 0];
-        })
-      )
+        });
+      })
     );
   }
 
@@ -123,21 +125,21 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
     .subscribe(([ftime, world]) => {
       const pointer = this.space.pointer;
       const { height } = this.space;
-      const particles: ParticleSnapshot[] = [];
+      const particles: Particle[] = [];
       world.drawParticles((p, i) => {
-        const color = Colors.Black;
-        // [Colors.Red, Colors.Green, Colors.Blue][i % 3];
         const fy = (height - p.y + pointer.y) - parabola(p.x - pointer.x);
         p.addForce(0, 50 * fy);
-        p.y = clamp(0, height)(p.y);
-        particles.push({
-          position: new Pt([p.x, p.y]),
-          force: p.force.clone(),
-          mass: p.mass,
-          id: p.id,
-          changed: p.changed,
-        });
-        this.form.fillOnly(color).point(p, 5, 'circle');
+        p.y = clamp(0, height, p.y);
+        // p.cl
+        particles.push(p as any);
+        // {
+        //   position: new Pt([p.x, p.y]),
+        //   force: p.force.clone(),
+        //   mass: p.mass,
+        //   id: p.id,
+        //   changed: p.changed,
+        // });
+        this.form.fillOnly(`#5f5f5f`).point(p, 5, 'circle');
       });
       world.update(ftime);
       this.particles$.next(particles);
