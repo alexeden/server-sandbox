@@ -128,18 +128,14 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
         if (pointers.length > 0) {
           const [{ x: pointerX, y: pointerY }] = pointers;
           const coeff = pointerCoeff(absDiff(pointerX, particle.x));
-          // const fy = (height - absDiff(pointerY, particle.y)) * -coeff * this.pointerGravity;
+          const dy = particle.y - pointerY;
           const fy = coeff > 0
-            ? (height - particle.y + pointerY) - (coeff * this.pointerGravity) - height
+            ? - dy * (coeff * 2 * this.pointerGravity) / height
             : 0;
-          // const fy = (height - pointerY) - coeff * this.pointerGravity;
-          //  Math.max(0, parabola(particle.x - pointerX));
-          // this.form.alignText('left').text([particle.x, height - 20 - ((i % 12) * 10) ], `C ${Math.round(100 * coeff)}`, 500);
           if (i % 2 === 0) {
             this.form.alignText('left').text([particle.x, height - 20 - ((i % 12) * 20) ], `Fy ${Math.round(fy)}`, 500);
           }
           particle.addForce(0, fy);
-          // particle.addForce(0, pointerGravityDirection * coeff * this.pointerGravity);
           this.form.fillOnly(`#3f3f3f`).point(particle, 2 + clamp(0, 1, coeff) * 10, 'circle');
           this.form.fillOnly(`red`).point([particle.x, fy + height], 3, 'circle');
         }
