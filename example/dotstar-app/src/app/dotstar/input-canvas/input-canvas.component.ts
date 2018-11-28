@@ -35,10 +35,11 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
   readonly space: CanvasSpace;
   readonly form: CanvasForm;
   readonly canvas: HTMLCanvasElement;
+  readonly friction = 0.96;
   readonly gravity = 100;
-  readonly pointerGravity = 10 * this.gravity;
+  readonly pointerGravity = 100 * this.gravity;
   readonly pointerSpread = 30;
-  readonly mass = 1;
+  readonly particleMass = 1;
 
   constructor(
     readonly elRef: ElementRef,
@@ -67,14 +68,13 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
       this.configService.length,
       this.bounds$,
       (n, bounds) => {
-        const friction = 0.95;
-        const world = (window as any).world = new World(bounds, friction, this.gravity);
+        const world = (window as any).world = new World(bounds, this.friction, this.gravity);
         const mapToX = mapToRange(0, n, 0, bounds.width || 1);
         range(0, n).forEach(i => {
           const part = new Particle([ mapToX(i), 0 ]);
           part.radius = 0;
           part.id = i;
-          part.mass = 1;
+          part.mass = this.particleMass;
           world.add(part);
         });
         return world;
@@ -118,25 +118,29 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
       tap(() => this.space.clear())
     )
     .subscribe(([dt, world, bounds, pointers]) => {
-      // const pointer = this.space.pointer;
       const { height, width } = bounds;
       const particles: Particle[] = [];
-      const parabola = (x: number) => -0.005 * Math.pow(x, 2) + height;
-      const pointerSpread = Math.pow((width / world.particleCount) * (this.pointerSpread / 2), 2);
-      const pointerCoeff = (dx: number) => -1 * Math.pow(dx, 2) / pointerSpread + 1;
+      const pointerSpread = Math.pow((width / world.particleCount) * this.pointerSpread, 2);
+      const forceDecayX = (dx: number) => clamp(0, 1, -1 * Math.pow(dx, 2) / pointerSpread + 1);
+
       world.drawParticles((particle, i) => {
         if (pointers.length > 0) {
           const [{ x: pointerX, y: pointerY }] = pointers;
-          const coeff = pointerCoeff(absDiff(pointerX, particle.x));
-          const dy = particle.y - pointerY;
-          const fy = coeff > 0
-            ? - dy * (coeff * 2 * this.pointerGravity) / height
-            : 0;
-          if (i % 2 === 0) {
-            this.form.alignText('left').text([particle.x, height - 20 - ((i % 12) * 20) ], `Fy ${Math.round(fy)}`, 500);
+          const dx = absDiff(pointerX, particle.x);
+          const xDecay = forceDecayX(dx);
+          const antigravity = this.pointerGravity * xDecay;
+          // yMag will always be a value within range [-1, 1]
+          const yMag = xDecay * ((particle.y - pointerY) / height);
+          const fy = antigravity <= 0
+            ? 0
+            : - (yMag * antigravity);
+
+          if (i % 2 === 0 && fy) {
+            this.form.alignText('left').fill('red').text([particle.x, height - 30 - ((i % 12) * 20) ], `g ${Math.round(antigravity)}`, 500);
+            this.form.alignText('left').fill('blue').text([particle.x, height - 15 - ((i % 12) * 20) ], `yMag ${yMag.toFixed(1)}`, 500);
           }
           particle.addForce(0, fy);
-          this.form.fillOnly(`#3f3f3f`).point(particle, 2 + clamp(0, 1, coeff) * 10, 'circle');
+          this.form.fillOnly(`#3f3f3f`).point(particle, 5, 'circle');
           this.form.fillOnly(`red`).point([particle.x, fy + height], 3, 'circle');
         }
         else {
