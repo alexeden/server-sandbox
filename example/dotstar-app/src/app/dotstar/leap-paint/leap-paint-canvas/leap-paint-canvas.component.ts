@@ -1,11 +1,13 @@
 import { Component, OnInit, OnDestroy, Renderer2, ElementRef } from '@angular/core';
 import { Subject, BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { AnimationClockService } from '@app/dotstar/animation-clock.service';
-import { Bound, CanvasForm, CanvasSpace, Pt, World, Num, Particle } from 'pts';
-import { skipWhile, takeUntil, sample, map, withLatestFrom, tap } from 'rxjs/operators';
-import { Colors, mapToRange, clamp, range } from '@app/dotstar/lib';
+import { Bound, CanvasForm, CanvasSpace, Pt, World, Num, Particle, Color } from 'pts';
+import { skipWhile, takeUntil, sample, map, withLatestFrom, tap, take } from 'rxjs/operators';
+import { Colors, mapToRange, clamp, range, Sample, normalize, clampLoop } from '@app/dotstar/lib';
 import { LeapPaintService } from '../leap-paint.service';
 import { DotstarDeviceConfigService } from '@app/dotstar/device-config.service';
+import { DotstarBufferService } from '@app/dotstar/dotstar-buffer.service';
+import { Hand, InteractionBox } from '@app/leap';
 
 @Component({
   selector: 'dotstar-leap-paint-canvas',
@@ -22,14 +24,18 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
   readonly canvas: HTMLCanvasElement;
   readonly world: Observable<World>;
 
+  private readonly particles$ = new Subject<{ particles: Particle[] }>();
+  private readonly mappedValues: Observable<Sample[]>;
+
   constructor(
     readonly elRef: ElementRef,
     readonly renderer: Renderer2,
     readonly configService: DotstarDeviceConfigService,
+    readonly bufferService: DotstarBufferService,
     readonly paintService: LeapPaintService,
     readonly clock: AnimationClockService
   ) {
-    (window as any).LeapPaintCanvasComponent = this;
+
     this.canvas = this.renderer.createElement('canvas');
     this.renderer.setStyle(this.canvas, 'height', `${this.height}px`);
     this.renderer.appendChild(this.elRef.nativeElement, this.canvas);
@@ -45,12 +51,12 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
       this.configService.length,
       (bounds, n) => {
         const friction = 0.9;
-        const world = new World(bounds, friction, 10);
+        const world = new World(bounds, friction, 100);
         range(0, n).forEach(i => {
-          const part = new Particle([ Num.mapToRange(i, 0, n, 0, bounds.width || 1), 0 ]);
+          const part = new Particle([ Num.mapToRange(i, 0, n, 0, bounds.width || 1), bounds.height, 0 ]);
           part.radius = 0;
           part.id = i;
-          part.mass = 5;
+          part.mass = 1;
           world.add(part);
         });
         return world;
@@ -64,10 +70,20 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
       start: () => this.bounds$.next(this.space.innerBound),
     });
 
+    this.mappedValues = this.particles$.pipe(
+      map(({ particles }) => {
+        const bounds = this.bounds$.getValue();
+        const l = y => clamp(0, 1, 1 - normalize(0, bounds.height, y));
+        return particles.map<Sample>(p => {
+          const hsl = Color.hsl(p.z || 0, 1, 0.5 * l(p.y));
+          const rgb = Color.HSLtoRGB(hsl);
+          return [rgb.x, rgb.y, rgb.z];
+        });
+      })
+    );
   }
 
   ngOnInit() {
-    (window as any).renderCount = 0;
 
     this.clock.dt.pipe(
       takeUntil(this.unsubscribe$),
@@ -88,44 +104,77 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
           n
         );
 
-        const [{
+        const [ hand ] = hands;
+        const {
           stabilizedPalmPosition: stablePalm,
           pinchStrength,
-        }] = hands;
+        } = hand;
         const stablePalmPt = new Pt(mapToCanvasSpaceX(stablePalm[0]), mapToCanvasSpaceY(stablePalm[1]));
-        const spread = pinchStrength / 100;
-        const parabola = (x: number) => -1 * spread * Math.pow(x, 2) + this.space.height;
+        // const spread = pinchStrength / 100;
+        const parabola = (x: number) => -1 * 0.01 * Math.pow(x, 2) + this.space.height;
 
+        const particles: Particle[] = [];
+        const hue = clampLoop(0, 360, Math.floor(mapToRange(-iBox.depth / 2, iBox.depth / 2, 0, 360, hand.palmPosition[2])));
         world.drawParticles((p, i) => {
-          const color = Colors.Black;
-          const fy = (bounds.height - p.y + stablePalmPt.y) - parabola(p.x - stablePalmPt.x);
-          p.addForce(0, 50 * fy);
+          const decay = parabola(p.x - stablePalmPt.x);
+          const fy = (bounds.height - p.y + stablePalmPt.y) - decay;
+          if (decay >= 0) {
+            p.addForce(0, 10 * fy);
+            p.z = hue;
+            if (pinchStrength >= 1) {
+              p.y = bounds.height;
+            }
+          }
           p.y = clamp(0, bounds.height)(p.y);
-          this.form.fillOnly(color).point(p, 5, 'circle');
-        });
-        hands.forEach(({
-          stabilizedPalmPosition: stable,
-          palmPosition: palm,
-          pitch,
-          roll,
-          pinchStrength: pinch,
-          palmWidth,
-          sphereRadius,
-        }) => {
-          const stablePt = new Pt(mapToCanvasSpaceX(stable[0]), mapToCanvasSpaceY(stable[1]));
-          const hue = clamp(0, 360)(Math.floor(mapToRange(60, -30, 0, 359, roll * 180 / Math.PI)));
-          const radius = Math.max(0.1, 1 - pinch) * 50;
 
-          this.form.fillOnly(`hsl(${hue}, 100%, 50%)`).point(stablePt, radius, 'circle');
-          this.form.fill('#777').text(stablePt.$add(25, 0), `[${Math.round(stablePalm[0])}, ${Math.round(stablePalm[1])}]`);
-          this.form.fill('#777').text(stablePt.$add(25, -15), `Pitch ${Math.round(pitch * 180 / Math.PI)}`);
-          this.form.fill('#777').text(stablePt.$add(25, -30), `Roll  ${Math.round(roll * 180 / Math.PI)}`);
-          this.form.fill('#777').text(stablePt.$add(25, -45), `Palm Radius  ${Math.round(sphereRadius)}`);
-          this.form.fill('#777').text(stablePt.$add(25, -60), `Pinch  ${Math.round(pinch * 100)}%`);
-          this.form.fill('#777').text(stablePt.$add(25, -75), `Palm Width  ${Math.round(palmWidth)}`);
+          this.form.fillOnly(`hsl(${p.z}, 100%, 50%)`).point(p, 5, 'circle');
+          // this.form.fill('#777').text(p, `${p.z}`);
+          particles.push(p);
         });
+
+        const stablePt = new Pt(mapToCanvasSpaceX(stablePalm[0]), mapToCanvasSpaceY(stablePalm[1]));
+        // const hue = clamp(0, 360)(Math.floor(mapToRange(60, -30, 0, 359, roll * 180 / Math.PI)));
+        const radius = Math.max(0.1, 1 - pinchStrength) * 50;
+
+        this.form.fillOnly(`hsl(${hue}, 100%, 50%)`).point(stablePt, radius, 'circle');
+
+        // hands.forEach(({
+        //   stabilizedPalmPosition: stable,
+        //   palmPosition: palm,
+        //   pitch,
+        //   roll,
+        //   pinchStrength: pinch,
+        //   palmWidth,
+        //   sphereRadius,
+        // }) => {
+        //   const stablePt = new Pt(mapToCanvasSpaceX(stable[0]), mapToCanvasSpaceY(stable[1]));
+        //   const hue = clamp(0, 360)(Math.floor(mapToRange(60, -30, 0, 359, roll * 180 / Math.PI)));
+        //   const radius = Math.max(0.1, 1 - pinch) * 50;
+
+        //   this.form.fillOnly(`hsl(${hue}, 100%, 50%)`).point(stablePt, radius, 'circle');
+        // tslint:disable-next-line:max-line-length
+        //   // this.form.fill('#777').text(stablePt.$add(25, 0), `[${Math.round(stablePalm[0])}, ${Math.round(stablePalm[1])}, ${Math.round(palm[2])}]`);
+        //   // this.form.fill('#777').text(stablePt.$add(25, -15), `Pitch ${Math.round(pitch * 180 / Math.PI)}`);
+        //   // this.form.fill('#777').text(stablePt.$add(25, -30), `Roll  ${Math.round(roll * 180 / Math.PI)}`);
+        //   // this.form.fill('#777').text(stablePt.$add(25, -45), `Palm Radius  ${Math.round(sphereRadius)}`);
+        //   // this.form.fill('#777').text(stablePt.$add(25, -60), `Pinch  ${Math.round(pinch * 100)}%`);
+        //   // this.form.fill('#777').text(stablePt.$add(25, -75), `Palm Width  ${Math.round(palmWidth)}`);
+        // });
 
         world.update(dt);
+        this.particles$.next({ particles });
+      }
+      else {
+        const particles: Particle[] = [];
+        world.drawParticles((p, i) => {
+          this.form.fillOnly(`hsl(${p.z}, 100%, 50%)`).point(p, 5, 'circle');
+          // this.form.fill('#777').text(p, `${p.z}`);
+          particles.push(p);
+        });
+
+
+        world.update(dt);
+        this.particles$.next({ particles });
       }
 
     //   const { height: iBoxH, width: iBoxW, center: iBoxCenter } = interactionBox;
@@ -134,7 +183,6 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
     //   const mapToCanvasSpaceX = (n: number) => mapToRange(-iBoxW / 2, iBoxW / 2, p1.x, p2.x, n);
     //   const mapToCanvasSpaceY = (n: number) => mapToRange(iBoxCenterY - iBoxH / 2, iBoxCenterY + iBoxH / 2, p2.y, p1.y, n);
 
-    //   (window as any).renderCount++;
     //   hands.forEach(({
     //     stabilizedPalmPosition: stablePalm,
     //     palmPosition: palm,
@@ -167,6 +215,7 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
 
     });
 
+    this.bufferService.setSource(this.mappedValues);
   }
 
   ngOnDestroy() {
