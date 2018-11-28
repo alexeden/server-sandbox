@@ -50,8 +50,8 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
       this.bounds$,
       this.configService.length,
       (bounds, n) => {
-        const friction = 0.99;
-        const world = new World(bounds, friction, 1000);
+        const friction = 0.8;
+        const world = new World(bounds, friction, 2000);
         range(0, n).forEach(i => {
           const part = new Particle([ Num.mapToRange(i, 0, n, 0, bounds.width || 1), bounds.height, 0 ]);
           part.radius = 0;
@@ -119,7 +119,7 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
           const decay = parabola(p.x - stablePalmPt.x);
           const fy = (bounds.height - p.y + stablePalmPt.y) - decay;
           if (decay >= 0) {
-            p.addForce(0, 10 * fy);
+            p.addForce(0, 40 * fy);
             p.z = hue;
             if (pinchStrength >= 1) {
               p.y = bounds.height;
