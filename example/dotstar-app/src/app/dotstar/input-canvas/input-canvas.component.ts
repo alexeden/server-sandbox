@@ -1,26 +1,19 @@
 import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/core';
 import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
-import { share, distinctUntilChanged, filter, takeUntil, skipUntil, skipWhile, map, tap, take } from 'rxjs/operators';
+import { share, distinctUntilChanged, filter, takeUntil, skipUntil, skipWhile, map, tap, take, withLatestFrom, scan } from 'rxjs/operators';
 import { CanvasSpace, Pt, CanvasForm, Bound, Group, World, Particle } from 'pts';
-import { Sample, range, Colors, clamp, mapToRange } from '../lib';
-// import { DotstarBufferService } from '../dotstar-buffer.service';
+import { Sample, range, Colors, clamp, mapToRange, absDiff } from '../lib';
 import { DotstarDeviceConfigService } from '../device-config.service';
 import { DotstarBufferService } from '../dotstar-buffer.service';
 import { PhysicsConfigService } from '../pointer-particles/physics-config.service';
+import { AnimationClockService } from '../animation-clock.service';
 
 type ActionType = 'move' | 'up' | 'down' | 'drag' | 'over' | 'out';
 
 interface Action {
   type: ActionType;
   pt: Pt;
-}
-
-interface ParticleSnapshot {
-  readonly position: Pt;
-  readonly changed: Pt;
-  readonly id: string;
-  readonly mass: number;
-  readonly force: Pt;
+  evt: Event;
 }
 
 @Component({
@@ -30,75 +23,76 @@ interface ParticleSnapshot {
 })
 export class InputCanvasComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
-  private readonly ready$ = new BehaviorSubject(false);
-  private readonly time$ = new BehaviorSubject(0);
-  private readonly ftime$ = new BehaviorSubject(0);
-  private readonly bounds$ = new BehaviorSubject<Bound>(new Bound(Pt.make(2), Pt.make(2)));
   private readonly actions$ = new Subject<Action>();
+  private readonly ready$ = new BehaviorSubject(false);
+  private readonly bounds$ = new BehaviorSubject<Bound>(new Bound(Pt.make(2), Pt.make(2)));
   private readonly particles$ = new Subject<Particle[]>();
   private readonly mappedValues: Observable<Sample[]>;
+  private readonly pointers: Observable<Pt[]>;
 
   readonly height = 550;
   readonly world: Observable<World>;
-  readonly bounds: Observable<Bound>;
   readonly space: CanvasSpace;
   readonly form: CanvasForm;
   readonly canvas: HTMLCanvasElement;
+  readonly gravity = 100;
+  readonly pointerGravity = 10 * this.gravity;
+  readonly pointerSpread = 30;
+  readonly mass = 1;
 
   constructor(
     readonly elRef: ElementRef,
     readonly renderer: Renderer2,
     readonly configService: DotstarDeviceConfigService,
     readonly bufferService: DotstarBufferService,
-    readonly physicsConfig: PhysicsConfigService
+    readonly physicsConfig: PhysicsConfigService,
+    readonly clock: AnimationClockService
   ) {
-    console.log(this.physicsConfig);
-
     (window as any).inputCanvas = this;
     this.canvas = this.renderer.createElement('canvas');
     this.renderer.setStyle(this.canvas, 'height', `${this.height}px`);
     this.renderer.appendChild(this.elRef.nativeElement, this.canvas);
-    this.space = new CanvasSpace(this.canvas, () => this.ready$.next(true));
+    this.space = new CanvasSpace(this.canvas, () => this.ready$.next(true))
+      .bindMouse()
+      .setup({ bgcolor: 'transparent', resize: true, retina: true })
+      .add({
+        resize: () => this.bounds$.next(this.space.innerBound),
+        start: () => this.bounds$.next(this.space.innerBound),
+        action: (type: ActionType, px, py, evt) => this.actions$.next({ type, pt: new Pt(px, py), evt }),
+      });
+
     this.form = new CanvasForm(this.space);
-
-    this.space.setup({
-      bgcolor: '#ffffff',
-      resize: true,
-      retina: true,
-    });
-
-    this.space.add({
-      animate: (t, ft) => {
-        this.time$.next(t);
-        this.ftime$.next(ft);
-      },
-      resize: bounds => this.bounds$.next(bounds),
-      start: bounds => this.bounds$.next(bounds),
-      action: (type: ActionType, px, py) => this.actions$.next({ type, pt: new Pt(px, py) }),
-    });
-
-    this.bounds = this.bounds$.asObservable().pipe(
-      filter(bounds => bounds.length === 2),
-      distinctUntilChanged((b1, b2) => b1.p1.equals(b2.p1) && b2.p2.equals(b2.p2)),
-      share()
-    );
 
     this.world = combineLatest(
       this.configService.length,
-      this.bounds,
+      this.bounds$,
       (n, bounds) => {
-        const friction = 0.9;
-        const world = new World(this.space.innerBound, friction, 10);
+        const friction = 0.95;
+        const world = (window as any).world = new World(bounds, friction, this.gravity);
         const mapToX = mapToRange(0, n, 0, bounds.width || 1);
         range(0, n).forEach(i => {
           const part = new Particle([ mapToX(i), 0 ]);
           part.radius = 0;
           part.id = i;
-          part.mass = 5;
+          part.mass = 1;
           world.add(part);
         });
         return world;
       }
+    );
+
+    this.pointers = this.actions$.pipe(
+      withLatestFrom(this.bounds$),
+      scan<[Action, Bound], Pt[]>(
+        (pointers, [action, bound]) => {
+          // console.log(action);
+          switch (action.type) {
+            case 'out': return [];
+            default: return [action.pt];
+          }
+        },
+        []
+      )
     );
 
     this.mappedValues = this.particles$.pipe(
@@ -113,39 +107,52 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
         });
       })
     );
+
   }
 
   ngOnInit() {
-    const parabola = (x: number) => -0.005 * Math.pow(x, 2) + this.space.height;
-
-    combineLatest(this.ftime$, this.world).pipe(
+    this.clock.dt.pipe(
       takeUntil(this.unsubscribe$),
-      skipWhile(() => !this.ready$.getValue())
+      skipWhile(() => !this.ready$.getValue()),
+      withLatestFrom(this.world, this.bounds$, this.pointers),
+      tap(() => this.space.clear())
     )
-    .subscribe(([ftime, world]) => {
-      const pointer = this.space.pointer;
-      const { height } = this.space;
+    .subscribe(([dt, world, bounds, pointers]) => {
+      // const pointer = this.space.pointer;
+      const { height, width } = bounds;
       const particles: Particle[] = [];
-      world.drawParticles((p, i) => {
-        const fy = (height - p.y + pointer.y) - parabola(p.x - pointer.x);
-        p.addForce(0, 50 * fy);
-        p.y = clamp(0, height, p.y);
-        // p.cl
-        particles.push(p as any);
-        // {
-        //   position: new Pt([p.x, p.y]),
-        //   force: p.force.clone(),
-        //   mass: p.mass,
-        //   id: p.id,
-        //   changed: p.changed,
-        // });
-        this.form.fillOnly(`#5f5f5f`).point(p, 5, 'circle');
+      const parabola = (x: number) => -0.005 * Math.pow(x, 2) + height;
+      const pointerSpread = Math.pow((width / world.particleCount) * (this.pointerSpread / 2), 2);
+      const pointerCoeff = (dx: number) => -1 * Math.pow(dx, 2) / pointerSpread + 1;
+      world.drawParticles((particle, i) => {
+        if (pointers.length > 0) {
+          const [{ x: pointerX, y: pointerY }] = pointers;
+          const coeff = pointerCoeff(absDiff(pointerX, particle.x));
+          // const fy = (height - absDiff(pointerY, particle.y)) * -coeff * this.pointerGravity;
+          const fy = coeff > 0
+            ? (height - particle.y + pointerY) - (coeff * this.pointerGravity) - height
+            : 0;
+          // const fy = (height - pointerY) - coeff * this.pointerGravity;
+          //  Math.max(0, parabola(particle.x - pointerX));
+          // this.form.alignText('left').text([particle.x, height - 20 - ((i % 12) * 10) ], `C ${Math.round(100 * coeff)}`, 500);
+          if (i % 2 === 0) {
+            this.form.alignText('left').text([particle.x, height - 20 - ((i % 12) * 20) ], `Fy ${Math.round(fy)}`, 500);
+          }
+          particle.addForce(0, fy);
+          // particle.addForce(0, pointerGravityDirection * coeff * this.pointerGravity);
+          this.form.fillOnly(`#3f3f3f`).point(particle, 2 + clamp(0, 1, coeff) * 10, 'circle');
+          this.form.fillOnly(`red`).point([particle.x, fy + height], 3, 'circle');
+        }
+        else {
+          this.form.fillOnly(`#3f3f3f`).point(particle, 5, 'circle');
+        }
+        // particle.y = clamp(0, height, particle.y);
+        particles.push(particle);
       });
-      world.update(ftime);
+      world.update(dt);
       this.particles$.next(particles);
     });
 
-    this.space.bindMouse().bindTouch().play();
     this.bufferService.setSource(this.mappedValues);
   }
 
@@ -154,10 +161,8 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
     this.unsubscribe$.next('unsubscribe!');
     this.unsubscribe$.unsubscribe();
     this.particles$.unsubscribe();
-    this.ready$.unsubscribe();
-    this.time$.unsubscribe();
-    this.ftime$.unsubscribe();
-    this.bounds$.unsubscribe();
     this.actions$.unsubscribe();
+    this.ready$.unsubscribe();
+    this.bounds$.unsubscribe();
   }
 }

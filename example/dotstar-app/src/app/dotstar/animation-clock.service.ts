@@ -1,5 +1,5 @@
-import { Observable, BehaviorSubject, empty, interval, animationFrameScheduler, Scheduler } from 'rxjs';
-import { distinctUntilChanged, switchMap, map, share, scan, pairwise } from 'rxjs/operators';
+import { Observable, BehaviorSubject, empty, interval, animationFrameScheduler, Scheduler, ConnectableObservable } from 'rxjs';
+import { distinctUntilChanged, switchMap, map, share, scan, pairwise, publishReplay } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 
 @Injectable()
@@ -8,10 +8,12 @@ export class AnimationClockService {
 
   readonly running: Observable<boolean>;
   readonly t: Observable<number>;
+  // readonly t: ConnectableObservable<number>;
   readonly dt: Observable<number>;
   readonly fps: Observable<number>;
 
   constructor() {
+    (window as any).clock = this;
     this.running = this.running$.asObservable();
     this.t = this.running.pipe(
       distinctUntilChanged(),
@@ -21,20 +23,23 @@ export class AnimationClockService {
         : (startTime => interval(0, animationFrameScheduler).pipe(
             map(() => Scheduler.now() - startTime)
           ))(Scheduler.now())
-      ),
-      share()
+      )
     );
+    //   publishReplay(1)
+    // ) as ConnectableObservable<number>;
 
     this.dt = this.t.pipe(
       pairwise(),
-      map(([t1, t2]) => t2 - t1),
-      share()
+      map(([t1, t2]) => t2 - t1)
+      // share()
     );
 
     this.fps = this.dt.pipe(
       scan((fps, dt) => Math.floor((fps + (1000 / dt)) / 2), 0),
       share()
     );
+
+    // this.t.connect();
   }
 
   get isRunning() {
