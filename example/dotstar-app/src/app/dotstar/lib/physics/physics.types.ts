@@ -1,15 +1,7 @@
-export interface PhysicsConfig {
-  particleMass: number;
-  friction: number;
-  gravity: number;
-  pointerForce: number;
-  pointerSpread: number;
-}
-
 export enum PhysConstName {
-  ParticleMass = 'particleMass',
   Friction = 'friction',
   Gravity = 'gravity',
+  ParticleMass = 'particleMass',
   PointerForce = 'pointerForce',
   PointerSpread = 'pointerSpread',
 }
@@ -19,6 +11,11 @@ export type PhysConst<T = number> = {
   min: T;
   max: T;
   default: T;
-  value: T;
+  increments: number;
+  // value: T;
   label: string;
+};
+
+export type PhysicsConfig = {
+  [P in PhysConstName]: PhysConst;
 };
