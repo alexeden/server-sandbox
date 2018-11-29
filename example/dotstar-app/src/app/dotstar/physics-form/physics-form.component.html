@@ -3,30 +3,14 @@
     <mat-icon>tune</mat-icon>
     <span>Physical Constants</span>
   </div>
-  <mat-form-field>
-    <mat-label>Particle Mass</mat-label>
-    <input matInput type="number" formControlName="particleMass">
+  <mat-form-field *ngFor="let constant of physicalConstList">
+    <mat-label>{{ constant.label }} ({{ constant.min  }}, {{ constant.max }})</mat-label>
+    <input matInput
+      type="number"
+      [formControlName]="constant.name"
+      [min]="constant.min"
+      [max]="constant.max"
+      [step]="constant.step">
+      <mat-error *ngIf="physicsForm.get(constant.name).invalid">Not a valid value</mat-error>
   </mat-form-field>
-  <mat-form-field>
-    <mat-label>Pointer Force</mat-label>
-    <input matInput type="number" formControlName="pointerForce">
-  </mat-form-field>
-  <mat-form-field>
-    <mat-label>Pointer Spread</mat-label>
-    <input matInput type="number" formControlName="pointerSpread" step="0.001">
-  </mat-form-field>
-  <mat-form-field>
-    <mat-label>Gravity</mat-label>
-    <input matInput type="number" formControlName="gravity">
-  </mat-form-field>
-  <div class="row gap-10 align-center">
-    <mat-label>Friction</mat-label>
-    <mat-slider
-      thumbLabel
-      formControlName="friction"
-      min="0"
-      max="1"
-      step="0.05">
-    </mat-slider>
-  </div>
 </div>

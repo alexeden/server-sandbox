@@ -1,44 +1,54 @@
-import { PhysicsConfig, PhysConstName } from './physics.types';
+import { PhysicalConstName, PhysicalConst, PhysicsConfig } from './physics.types';
 
-export const DEFAULT_PHYSICS_CONFIG: PhysicsConfig = {
-  [PhysConstName.Friction]: {
-    name: PhysConstName.Friction,
+export const PHYSICAL_CONSTS: { [P in PhysicalConstName]: PhysicalConst } = {
+  [PhysicalConstName.Friction]: {
+    name: PhysicalConstName.Friction,
     min: 0,
     max: 1,
     default: 0.97,
-    increments: 0.01,
+    step: 0.01,
     label: 'Friction',
   },
-  [PhysConstName.Gravity]: {
-    name: PhysConstName.Gravity,
+  [PhysicalConstName.Gravity]: {
+    name: PhysicalConstName.Gravity,
     min: -Infinity,
     max: Infinity,
     default: 100,
-    increments: 1,
+    step: 1,
     label: 'Gravity',
   },
-  [PhysConstName.ParticleMass]: {
-    name: PhysConstName.ParticleMass,
+  [PhysicalConstName.ParticleMass]: {
+    name: PhysicalConstName.ParticleMass,
     min: 1,
     max: Infinity,
     default: 1,
-    increments: 1,
+    step: 1,
     label: 'Particle Mass',
   },
-  [PhysConstName.PointerForce]: {
-    name: PhysConstName.PointerForce,
+  [PhysicalConstName.PointerForce]: {
+    name: PhysicalConstName.PointerForce,
     min: -Infinity,
     max: Infinity,
     default: 1000,
-    increments: 1,
+    step: 1,
     label: 'Pointer Force',
   },
-  [PhysConstName.PointerSpread]: {
-    name: PhysConstName.PointerSpread,
+  [PhysicalConstName.PointerSpread]: {
+    name: PhysicalConstName.PointerSpread,
     min: 1,
     max: 1000,
     default: 10,
-    increments: 1,
+    step: 1,
     label: 'Pointer Spread',
   },
 };
+
+
+export const DEFAULT_PHYSICS_CONFIG: PhysicsConfig =
+  Object.values(PHYSICAL_CONSTS).reduce<PhysicsConfig>(
+    (accum, constant) => ({
+      ...accum,
+      [constant.name]: constant.default,
+    }),
+    {} as PhysicsConfig
+  );

@@ -1,4 +1,4 @@
-export enum PhysConstName {
+export enum PhysicalConstName {
   Friction = 'friction',
   Gravity = 'gravity',
   ParticleMass = 'particleMass',
@@ -6,16 +6,15 @@ export enum PhysConstName {
   PointerSpread = 'pointerSpread',
 }
 
-export type PhysConst<T = number> = {
-  name: PhysConstName;
+export type PhysicalConst<T = number> = {
+  name: PhysicalConstName;
   min: T;
   max: T;
   default: T;
-  increments: number;
-  // value: T;
+  step: number;
   label: string;
 };
 
 export type PhysicsConfig = {
-  [P in PhysConstName]: PhysConst;
+  [P in PhysicalConstName]: number;
 };
