@@ -15,10 +15,6 @@ enum ConfigMenuType {
   selector: 'dotstar-main',
   templateUrl: './dotstar-main.component.html',
   styleUrls: ['./dotstar-main.component.scss'],
-  // viewProviders: [{
-  //   provide: 'menuTypes',
-  //   useValue: Object.values(ConfigMenuType),
-  // }],
 })
 export class DotstarMainComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();

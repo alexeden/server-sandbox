@@ -1,5 +1,8 @@
 <div [formGroup]="configForm" class="column gap-10">
-  <div class="mat-h2 m-b-20">Device configuration</div>
+  <div class="mat-h2 m-b-20 row gap-5 align-center">
+    <mat-icon>wb_sunny</mat-icon>
+    <span>Configure the lights</span>
+  </div>
   <mat-form-field>
     <input type="text" placeholder="Device Path" matInput formControlName="devicePath" [matAutocomplete]="auto">
     <mat-autocomplete #auto="matAutocomplete">
