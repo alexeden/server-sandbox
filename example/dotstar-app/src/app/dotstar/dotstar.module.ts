@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { SharedModule } from '@app/shared';
 import { AnimationClockService } from './animation-clock.service';
 import { DotstarDeviceConfigService } from './device-config.service';
+import { PhysicsConfigService } from './physics-config.service';
 import { DotstarSocketService } from './dotstar-socket.service';
 import { DotstarMainComponent } from './dotstar-main.component';
 import { SocketNotifierComponent } from './dotstar-notifiers.component';
@@ -49,6 +50,7 @@ import { LiveBufferBarComponent } from './live-buffer-bar';
     AnimationClockService,
     DotstarBufferService,
     DotstarDeviceConfigService,
+    PhysicsConfigService,
     DotstarSocketService,
   ],
 })

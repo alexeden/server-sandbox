@@ -9,7 +9,6 @@ import { mapToRange } from '../lib';
 @Component({
   selector: 'dotstar-live-buffer-bar',
   template: '',
-  // templateUrl: './live-buffer-bar.component.html',
   styleUrls: [ './live-buffer-bar.component.scss' ],
 })
 export class LiveBufferBarComponent implements OnInit, OnDestroy {
@@ -33,7 +32,7 @@ export class LiveBufferBarComponent implements OnInit, OnDestroy {
     this.renderer.setStyle(this.canvas, 'width', `100%`);
     this.renderer.appendChild(this.elRef.nativeElement, this.canvas);
     this.space = new CanvasSpace(this.canvas, () => this.ready$.next(true)).setup({
-      // bgcolor: 'black',
+      bgcolor: 'white',
       resize: true,
       retina: true,
     });

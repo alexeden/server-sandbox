@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PhysicsConfig } from './types';
 import { Subject, Observable } from 'rxjs';
 import { startWith, filter } from 'rxjs/operators';
-import { PhysicsConfigService } from '../pointer-particles/physics-config.service';
+import { PhysicsConfigService } from '../physics-config.service';
 
 @Component({
   selector: 'dotstar-physics-form',
@@ -30,7 +30,6 @@ export class PhysicsFormComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private readonly physicsConfig: PhysicsConfigService
   ) {
-    console.log(this.physicsConfig);
     this.physicsForm = this.fb.group({
       friction: [0.9, [
         Validators.min(0),

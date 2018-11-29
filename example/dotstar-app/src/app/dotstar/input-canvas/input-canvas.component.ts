@@ -5,8 +5,8 @@ import { CanvasSpace, Pt, CanvasForm, Bound, Group, World, Particle } from 'pts'
 import { Sample, range, Colors, clamp, mapToRange, absDiff } from '../lib';
 import { DotstarDeviceConfigService } from '../device-config.service';
 import { DotstarBufferService } from '../dotstar-buffer.service';
-import { PhysicsConfigService } from '../pointer-particles/physics-config.service';
 import { AnimationClockService } from '../animation-clock.service';
+import { PhysicsConfigService } from '../physics-config.service';
 
 type ActionType = 'move' | 'up' | 'down' | 'drag' | 'over' | 'out';
 

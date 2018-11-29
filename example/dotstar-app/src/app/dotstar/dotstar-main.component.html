@@ -1,6 +1,6 @@
 <dotstar-socket-notifier></dotstar-socket-notifier>
 
-<nav mat-tab-nav-bar>
+<nav mat-tab-nav-bar color="accent" backgroundColor="primary">
   <a mat-tab-link
     *ngFor="let route of dotstarRoutes"
     [routerLink]="[route.path]"
@@ -11,7 +11,39 @@
   </a>
 </nav>
 
-<router-outlet></router-outlet>
+<mat-sidenav-container class="grow">
+  <mat-sidenav mode="side" position="end" opened fixedInViewport class="elevation-5">
+    <div class="row p-10">
+      <span class="grow"></span>
+      <button mat-icon-button [matMenuTriggerFor]="configMenu">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+    </div>
+    <div class="p-10">
+      <ng-container [ngSwitch]="selectedConfigMenuType">
+        <dotstar-config-form *ngSwitchCase="MenuTypes.Lights"></dotstar-config-form>
+        <dotstar-physics-form *ngSwitchCase="MenuTypes.Physics"></dotstar-physics-form>
+      </ng-container>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+
+</mat-sidenav-container>
+
+
+<!-- Configuration panel-select menu -->
+<mat-menu #configMenu="matMenu">
+  <ng-container *ngFor="let menu of configMenus">
+    <button mat-menu-item (click)="selectMenuType(menu.type)">
+      <mat-icon>{{ menu.icon }}</mat-icon>
+      <span>{{ menu.label }}</span>
+    </button>
+  </ng-container>
+</mat-menu>
+
 
 <dotstar-control-bar></dotstar-control-bar>
 <dotstar-live-buffer-bar></dotstar-live-buffer-bar>
