@@ -2,7 +2,7 @@ import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/co
 import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
 import { share, distinctUntilChanged, filter, takeUntil, skipUntil, skipWhile, map, tap, take, withLatestFrom, scan } from 'rxjs/operators';
 import { CanvasSpace, Pt, CanvasForm, Bound, Group, World, Particle } from 'pts';
-import { Sample, range, Colors, clamp, mapToRange, absDiff } from '../lib';
+import { Sample, range, Colors, clamp, mapToRange, absDiff, PhysicalConstName } from '../lib';
 import { DotstarDeviceConfigService } from '../device-config.service';
 import { DotstarBufferService } from '../dotstar-buffer.service';
 import { AnimationClockService } from '../animation-clock.service';
@@ -46,9 +46,10 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
     readonly renderer: Renderer2,
     readonly configService: DotstarDeviceConfigService,
     readonly bufferService: DotstarBufferService,
-    readonly physicsConfig: PhysicsConfigService,
+    readonly physicsService: PhysicsConfigService,
     readonly clock: AnimationClockService
   ) {
+
     (window as any).inputCanvas = this;
     this.canvas = this.renderer.createElement('canvas');
     this.renderer.setStyle(this.canvas, 'height', `${this.height}px`);

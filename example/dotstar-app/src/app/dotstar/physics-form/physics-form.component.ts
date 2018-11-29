@@ -24,14 +24,12 @@ export class PhysicsFormComponent implements OnInit, OnDestroy {
     // Dynamically generate the physical constant form controls
     this.physicsForm = this.fb.group({});
     this.physicalConstList.forEach(({ name, default: defaultValue, min, max }) => {
-      // const value = this.savedConfig[name];
       const validators = [ Validators.min(min), Validators.max(max) ];
       const control = this.fb.control(defaultValue, validators);
       this.physicsForm.addControl(name, control);
     });
 
     this.physicsConfig = this.physicsForm.valueChanges.pipe(
-      startWith(this.physicsForm.value),
       filter(() => this.physicsForm.valid)
     );
   }

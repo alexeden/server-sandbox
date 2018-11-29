@@ -1,27 +1,38 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
-import { PhysicsConfig, DEFAULT_PHYSICS_CONFIG } from './lib';
+import { Observable, Subject, ConnectableObservable } from 'rxjs';
+import { PhysicsConfig, DEFAULT_PHYSICS_CONFIG, PhysicalConstName } from './lib';
 import { LocalStorage } from '@app/shared';
-import { startWith, tap, scan } from 'rxjs/operators';
+import { startWith, tap, scan, map, share, publishReplay, distinctUntilChanged } from 'rxjs/operators';
 
 @Injectable()
 export class PhysicsConfigService {
 
   private readonly configUpdates$ = new Subject<Partial<PhysicsConfig>>();
-  readonly physicsConfig: Observable<PhysicsConfig>;
+  readonly physicsConfig: ConnectableObservable<PhysicsConfig>;
 
   @LocalStorage()
   private savedPhysicsConfig: PhysicsConfig;
 
   constructor() {
     (window as any).PhysicsConfigService = this;
+
     // Initialize the saved config without deleting any values in local storage
     this.savedPhysicsConfig = { ...DEFAULT_PHYSICS_CONFIG, ...(this.savedPhysicsConfig || {}) };
 
     this.physicsConfig = this.configUpdates$.asObservable().pipe(
-      startWith(this.savedPhysicsConfig),
+      startWith({}),
       scan((config, update) => ({ ...config, ...update }), this.savedPhysicsConfig),
-      tap(config => this.savedPhysicsConfig = config)
+      tap(config => this.savedPhysicsConfig = config),
+      publishReplay(1)
+    ) as ConnectableObservable<PhysicsConfig>;
+
+    this.physicsConfig.connect();
+  }
+
+  streamPhysicalConst(name: PhysicalConstName): Observable<number> {
+    return this.physicsConfig.pipe(
+      map(config => config[name]),
+      distinctUntilChanged()
     );
   }
 
