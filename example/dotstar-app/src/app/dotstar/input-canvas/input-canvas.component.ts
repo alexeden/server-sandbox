@@ -35,11 +35,7 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
   readonly space: CanvasSpace;
   readonly form: CanvasForm;
   readonly canvas: HTMLCanvasElement;
-  readonly friction = 0.96;
-  readonly gravity = 100;
-  readonly pointerGravity = 100 * this.gravity;
   readonly pointerSpread = 30;
-  readonly particleMass = 1;
 
   constructor(
     readonly elRef: ElementRef,
@@ -69,13 +65,12 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
       this.configService.length,
       this.bounds$,
       (n, bounds) => {
-        const world = (window as any).world = new World(bounds, this.friction, this.gravity);
+        const world = (window as any).world = new World(bounds);
         const mapToX = mapToRange(0, n, 0, bounds.width || 1);
         range(0, n).forEach(i => {
           const part = new Particle([ mapToX(i), 0 ]);
           part.radius = 0;
           part.id = i;
-          part.mass = this.particleMass;
           world.add(part);
         });
         return world;
@@ -115,21 +110,32 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
     this.clock.dt.pipe(
       takeUntil(this.unsubscribe$),
       skipWhile(() => !this.ready$.getValue()),
-      withLatestFrom(this.world, this.bounds$, this.pointers),
+      withLatestFrom(
+        this.world,
+        this.bounds$,
+        this.pointers,
+        this.physicsService.streamPhysicalConst(PhysicalConstName.PointerForce),
+        this.physicsService.streamPhysicalConst(PhysicalConstName.ParticleMass),
+        this.physicsService.streamPhysicalConst(PhysicalConstName.Friction),
+        this.physicsService.streamPhysicalConst(PhysicalConstName.Gravity)
+      ),
       tap(() => this.space.clear())
     )
-    .subscribe(([dt, world, bounds, pointers]) => {
+    .subscribe(([dt, world, bounds, pointers, pointerGravity, particleMass, friction, gravity]) => {
+      world.friction = friction;
+      world.gravity = [0, gravity];
       const { height, width } = bounds;
       const particles: Particle[] = [];
       const pointerSpread = Math.pow((width / world.particleCount) * this.pointerSpread, 2);
       const forceDecayX = (dx: number) => clamp(0, 1, -1 * Math.pow(dx, 2) / pointerSpread + 1);
 
       world.drawParticles((particle, i) => {
+        particle.mass = particleMass;
         if (pointers.length > 0) {
           const [{ x: pointerX, y: pointerY }] = pointers;
           const dx = absDiff(pointerX, particle.x);
           const xDecay = forceDecayX(dx);
-          const antigravity = this.pointerGravity * xDecay;
+          const antigravity = pointerGravity * xDecay;
           // yMag will always be a value within range [-1, 1]
           const yMag = xDecay * ((particle.y - pointerY) / height);
           const fy = antigravity <= 0

@@ -13,5 +13,4 @@
       [step]="constant.step">
       <mat-error *ngIf="physicsForm.get(constant.name).invalid">Not a valid value</mat-error>
   </mat-form-field>
-  <pre>{{ physicsConfigService.physicsConfig | async | json }}</pre>
 </div>
