@@ -97,11 +97,13 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
         this.physicsService.streamPhysicalConst(PhysicalConstName.PointerForce),
         this.physicsService.streamPhysicalConst(PhysicalConstName.ParticleMass),
         this.physicsService.streamPhysicalConst(PhysicalConstName.Friction),
-        this.physicsService.streamPhysicalConst(PhysicalConstName.Gravity)
+        this.physicsService.streamPhysicalConst(PhysicalConstName.Gravity),
+        this.physicsService.streamPhysicalConst(PhysicalConstName.Damping)
       ),
       tap(() => this.space.clear())
     )
-    .subscribe(([dt, bounds, { interactionBox: iBox, hands }, world, pointerGravity, particleMass, friction, gravity]) => {
+    .subscribe(([dt, bounds, { interactionBox: iBox, hands }, world, pointerGravity, particleMass, friction, gravity, damping]) => {
+      world.damping = damping;
       world.friction = friction;
       world.gravity = [0, gravity];
       const particles: Particle[] = [];
@@ -122,12 +124,12 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
           mapToCanvasSpaceX(hand.palmPosition[0]),
           mapToCanvasSpaceY(hand.palmPosition[1])
         );
-        const parabola = (x: number) => -1 * 0.01 * Math.pow(x, 2) + this.space.height;
+        const parabola = (x: number, y: number) => -1 * 0.01 * Math.pow(x, 2) + (this.space.height + y);
         const hue = LeapPaintCanvasComponent.hueFromPitch(hand.pitch);
         world.drawParticles((p, i) => {
           p.mass = particleMass;
           if (hand.pinchStrength < 0.99) {
-            const decay = parabola(p.x - stablePalmPt.x);
+            const decay = parabola(p.x - stablePalmPt.x, p.y);
             const fy = (bounds.height - p.y + stablePalmPt.y) - decay;
             if (decay >= 0) {
               p.addForce(0, pointerGravity * fy);

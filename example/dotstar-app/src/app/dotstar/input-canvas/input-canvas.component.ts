@@ -117,11 +117,13 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
         this.physicsService.streamPhysicalConst(PhysicalConstName.PointerForce),
         this.physicsService.streamPhysicalConst(PhysicalConstName.ParticleMass),
         this.physicsService.streamPhysicalConst(PhysicalConstName.Friction),
-        this.physicsService.streamPhysicalConst(PhysicalConstName.Gravity)
+        this.physicsService.streamPhysicalConst(PhysicalConstName.Gravity),
+        this.physicsService.streamPhysicalConst(PhysicalConstName.Damping)
       ),
       tap(() => this.space.clear())
     )
-    .subscribe(([dt, world, bounds, pointers, pointerGravity, particleMass, friction, gravity]) => {
+    .subscribe(([dt, world, bounds, pointers, pointerGravity, particleMass, friction, gravity, damping]) => {
+      world.damping = damping;
       world.friction = friction;
       world.gravity = [0, gravity];
       const { height, width } = bounds;
