@@ -45,8 +45,10 @@
   </button>
   <div class="column justify-center">
     <div class="mat-h3 m-0">Player</div>
-    <span *ngIf="!(clock.running | async)" class="mat-caption">Paused</span>
-    <span *ngIf="clock.running | async" class="mat-caption">Running</span>
+    <span [ngSwitch]="clock.running | async" class="mat-caption">
+      <ng-container *ngSwitchCase="true">Running</ng-container>
+      <ng-container *ngSwitchDefault>Paused</ng-container>
+    </span>
   </div>
 </div>
 
@@ -69,7 +71,9 @@
   </button>
   <div class="column justify-center">
     <div class="mat-h3 m-0">Connection</div>
-    <span *ngIf="!(socketService.connected$ | async)" class="mat-caption">Not Connected</span>
-    <span *ngIf="socketService.connected$ | async" class="mat-caption">Syncing updates</span>
+    <span [ngSwitch]="socketService.connected$ | async" class="mat-caption">
+      <ng-container *ngSwitchCase="true">Sending updates</ng-container>
+      <ng-container *ngSwitchDefault>Not connected</ng-container>
+    </span>
   </div>
 </div>
