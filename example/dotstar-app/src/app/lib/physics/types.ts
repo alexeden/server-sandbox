@@ -1,4 +1,5 @@
 import { vec3 } from 'gl-matrix';
+import { Particle } from './particle';
 
 export interface ParticleSnapshot {
   i: number;
@@ -9,4 +10,6 @@ export interface ParticleSnapshot {
   x: vec3;
 }
 
-export type Force = (p: ParticleSnapshot) => vec3;
+export type Force = (p: Particle) => vec3;
+
+export type Constraint = (next: Particle, prev: Particle) => Particle;

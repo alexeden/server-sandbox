@@ -1,7 +1,35 @@
 import { vec3 } from 'gl-matrix';
+import { curry, transpose } from 'ramda';
+
+type SingleValueOp = (value: number) => number;
+type MultiValueOp = (...values: number[]) => number;
+
+export class V3 {
+  private static readonly vectorOp = curry((op: MultiValueOp, vecs: vec3[]): vec3 => {
+    const [xs, ys, zs] = transpose<number>(vecs as any);
+    return vec3.fromValues(
+      op(...xs),
+      op(...ys),
+      op(...zs)
+    );
+  });
+
+  private static readonly scalarOp = curry((op: SingleValueOp, vec: vec3): vec3 => {
+    return vec3.fromValues(
+      op(vec[0]),
+      op(vec[1]),
+      op(vec[2])
+    );
+  });
+
+  static readonly diff = V3.vectorOp((first = 0, ...values) => values.reduce((d, v) => d - v, first));
+  static readonly sum = V3.vectorOp((first = 0, ...values) => values.reduce((d, v) => d + v, first));
+  static readonly scale = (s: number, vec: vec3) => V3.scalarOp(value => s * value, vec);
+}
 
 export class PhysicsUtils {
   static sum(...vecs: vec3[]): vec3 {
+    console.log('summing these: ', ...vecs);
     return vecs.reduce((sum, v) => vec3.add(sum, sum, v), vec3.create());
   }
 }
