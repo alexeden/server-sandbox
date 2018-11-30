@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, Subject, ConnectableObservable } from 'rxjs';
 import { PhysicsConfig, DEFAULT_PHYSICS_CONFIG, PhysicalConstName } from './lib';
 import { LocalStorage } from '@app/shared';
-import { startWith, tap, scan, map, share, publishReplay, distinctUntilChanged } from 'rxjs/operators';
+import { startWith, tap, scan, map, publishReplay, distinctUntilChanged } from 'rxjs/operators';
 
 @Injectable()
 export class PhysicsConfigService {
@@ -14,8 +14,6 @@ export class PhysicsConfigService {
   private savedPhysicsConfig: PhysicsConfig;
 
   constructor() {
-    (window as any).PhysicsConfigService = this;
-
     // Initialize the saved config without deleting any values in local storage
     this.savedPhysicsConfig = { ...DEFAULT_PHYSICS_CONFIG, ...(this.savedPhysicsConfig || {}) };
 

@@ -124,12 +124,12 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
           mapToCanvasSpaceX(hand.palmPosition[0]),
           mapToCanvasSpaceY(hand.palmPosition[1])
         );
-        const parabola = (x: number, y: number) => -1 * 0.01 * Math.pow(x, 2) + (this.space.height + y);
+        const parabola = (x: number, y: number) => -1 * 0.01 * Math.pow(x, 2) + (this.space.height);
         const hue = LeapPaintCanvasComponent.hueFromPitch(hand.pitch);
         world.drawParticles((p, i) => {
           p.mass = particleMass;
-          if (hand.pinchStrength < 0.99) {
-            const decay = parabola(p.x - stablePalmPt.x, p.y);
+          if (hand.pinchStrength < 0.9) {
+            const decay = parabola(p.x - stablePalmPt.x, stablePalmPt.y);
             const fy = (bounds.height - p.y + stablePalmPt.y) - decay;
             if (decay >= 0) {
               p.addForce(0, pointerGravity * fy);
