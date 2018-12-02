@@ -1,7 +1,7 @@
 import { Component, OnInit, ElementRef, Renderer2 } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { CanvasSpace, CanvasForm, Pt, Group } from 'pts';
-import { Particle, V3, PhysicsUtils } from '@app/lib';
+import { Particle, V3, PhysicsUtils, Force } from '@app/lib';
 import { vec3 } from 'gl-matrix';
 
 @Component({
@@ -35,7 +35,14 @@ export class SandboxComponent implements OnInit {
 
   ngOnInit() {
     const particle = new Particle(vec3.fromValues(20, 20, 0), 1);
-
+    const a = 10;
+    const b = 250;
+    const cog = vec3.fromValues(b - a, b - a, b - a);
+    const gravity: Force = p => {
+      // // const r = vec3.length(vec3.subtract(vec3.create(), p.X, cog));
+      // return vec3.scale(vec3.create(), cog, 100 * p.mass / Math.pow(r, 2));
+      return vec3.scale(vec3.create(), vec3.subtract(vec3.create(), cog, p.X), p.mass);
+    };
     this.space.add({
       animate: (t, dt) => {
         // const forces = [
@@ -48,27 +55,31 @@ export class SandboxComponent implements OnInit {
 
         const change = particle.next(
           dt / 1000,
-          [ () => vec3.fromValues(15, 20, 0) ],
+          [
+            // () => vec3.fromValues(15, 20, 0),
+            gravity,
+          ],
           // forces,
           [
-            PhysicsUtils.verticalWall(10),
-            PhysicsUtils.verticalWall(250),
-            PhysicsUtils.horizontalWall(10),
-            PhysicsUtils.horizontalWall(250),
+            PhysicsUtils.verticalWall(a),
+            PhysicsUtils.verticalWall(b),
+            PhysicsUtils.horizontalWall(a),
+            PhysicsUtils.horizontalWall(b),
           ]
         );
 
         particle.apply(change);
 
         this.form.fillOnly('red').point(new Pt(particle.X), 9);
+        this.form.fillOnly('red').point(new Pt(particle.netF), 2);
         // this.form.fillOnly('red').point(new Pt(particle._X), 1);
-        // this.form.font(10).fillOnly('black').alignText('start', 'hanging')
+        // this.form.font(a).fillOnly('black').alignText('start', 'hanging')
         //   .text([0, 0], `Vx ${V3.round(particle.v)[0]}`)
-        //   .text([0, 10], `Vy ${V3.round(particle.v)[1]}`)
+        //   .text([0, a], `Vy ${V3.round(particle.v)[1]}`)
         //   .text([0, 20], `Xx ${V3.round(particle.X)[0]}`)
         //   .text([0, 30], `Xy ${V3.round(particle.X)[1]}`);
 
-        this.form.strokeOnly('black').rect(Group.from([[10, 10, 0], [250, 250, 0]]));
+        this.form.strokeOnly('black').rect(Group.from([[a, a, 0], [b, b, 0]]));
       },
     });
 

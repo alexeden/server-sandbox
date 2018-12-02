@@ -7,6 +7,7 @@ export class Particle {
   i = 0;
   _dt = 0;
   _X: vec3;
+  netF: vec3;
 
   constructor(
     public X = vec3.create(),
@@ -25,8 +26,8 @@ export class Particle {
   next(dt: number, fs: Force[] = [], constraints: Constraint[] = []): ParticleState {
     if (this._dt < 1) this._dt = dt;
 
-    const netF = V3.sum(fs.map(f => f(this)));
-    const A = V3.scale(1 / this.mass, netF);
+    const netF = this.netF = V3.sum(fs.map(f => f(this)));
+    const A = V3.scale(0.1 / this.mass, netF);
 
     const X = V3.sum([
       this.X,
