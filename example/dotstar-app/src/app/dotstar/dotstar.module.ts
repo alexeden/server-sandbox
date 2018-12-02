@@ -19,6 +19,7 @@ import { PointerParticlesComponent } from './pointer-particles';
 import { ColorspaceFunctionsComponent } from './colorspace-functions';
 import { LeapPaintModule } from './leap-paint';
 import { LiveBufferBarComponent } from './live-buffer-bar';
+import { SandboxComponent } from './sandbox/sandbox.component';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { LiveBufferBarComponent } from './live-buffer-bar';
     SamplerFormComponent,
     SocketNotifierComponent,
     VisualizerComponent,
+    SandboxComponent,
   ],
   imports: [
     SharedModule,
