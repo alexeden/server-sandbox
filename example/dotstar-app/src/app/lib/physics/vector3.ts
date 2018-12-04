@@ -144,4 +144,9 @@ export class Vector3 implements Triplet {
     if (mag > 0) mag = 1 / Math.sqrt(mag);
     return new Vector3(this.x * mag, this.y * mag, this.z * mag);
   }
+
+  setMagnitude(arg: number | Vector3ish) {
+    const mag = Vector3.from(this.forceVector(arg)).magnitude();
+    return this.normalize().multiply(mag);
+  }
 }
