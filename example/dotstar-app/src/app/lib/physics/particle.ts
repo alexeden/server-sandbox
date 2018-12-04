@@ -5,37 +5,42 @@ import { V3 } from './utils';
 
 export class Particle {
   i = 0;
-  _dt = 0;
-  _X: vec3;
+  V0: vec3 = vec3.create();
+  X0: vec3;
   netF: vec3;
 
   constructor(
     public X = vec3.create(),
     public mass = 1
   ) {
-    this._X = vec3.clone(this.X);
+    this.X0 = vec3.clone(this.X);
   }
 
-  apply({ dt, _X, X }: ParticleState): number {
-    this._dt = dt;
-    this._X = _X;
-    this.X = X;
-    return this.i++;
-  }
-
-  next(dt: number, fs: Force[] = [], constraints: Constraint[] = []): ParticleState {
-    if (this._dt < 1) this._dt = dt;
-
+  next(t: number, fs: Force[] = [], constraints: Constraint[] = []) {
     const netF = this.netF = V3.sum(fs.map(f => f(this)));
-    const A = V3.scale(0.1 / this.mass, netF);
+    const a = V3.scale(1 / this.mass, netF);
+    // const a = V3.scale(Math.pow(t, 2) / 2, A);
+    const v_t = V3.scale(t / 2, V3.sum([this.V0, this.V0, V3.scale(t, a)]));
+    // const v = V3.scale(t, this.V0);
+    // const x = vec3.clone(this.X);
+    const X = V3.sum([this.X, v_t]);
+    // V3.add(this.X, V3.scale(t / 2, V3.add(V, this.V)));
 
-    const X = V3.sum([
-      this.X,
-      V3.scale(dt / this._dt, V3.diff([this.X, this._X])),
-      V3.scale((dt / 2) * (dt + this._dt), A),
-    ]);
-
-    const next = { dt, _X: vec3.clone(this.X), X };
-    return constraints.reduce((state, constraint) => constraint(state), next);
+    this.X0 = this.X;
+    this.X = X;
+    this.V0 = v_t;
+    // return {
+    //   X,
+    //   X0: vec3.clone(this.X),
+    //   V: v,
+    //   t,
+    // };
+    // const next = {
+    //   X,
+    //   X0: vec3.clone(this.X),
+    //   V,
+    //   t,
+    // };
+    // return constraints.reduce((state, constraint) => constraint(state), next);
   }
 }

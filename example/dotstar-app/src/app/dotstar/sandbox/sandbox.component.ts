@@ -39,10 +39,12 @@ export class SandboxComponent implements OnInit {
     const b = 250;
     const cog = vec3.fromValues(b - a, b - a, b - a);
     const gravity: Force = p => {
-      // // const r = vec3.length(vec3.subtract(vec3.create(), p.X, cog));
-      // return vec3.scale(vec3.create(), cog, 100 * p.mass / Math.pow(r, 2));
-      return vec3.scale(vec3.create(), vec3.subtract(vec3.create(), cog, p.X), p.mass);
+      const r = vec3.squaredDistance(p.X, cog);
+      // vec3.length(vec3.subtract(vec3.create(), p.X, cog));
+      return vec3.scale(vec3.create(), vec3.subtract(vec3.create(), cog, p.X), p.mass / r);
+      // return vec3.scale(vec3.create(), vec3.subtract(vec3.create(), cog, p.X), p.mass);
     };
+
     this.space.add({
       animate: (t, dt) => {
         // const forces = [
@@ -53,31 +55,32 @@ export class SandboxComponent implements OnInit {
         // forces.push(() => vec3.fromValues(25, 0, 0));
         // }
 
-        const change = particle.next(
-          dt / 1000,
+        // const change =
+        particle.next(
+          t / 1000,
           [
-            // () => vec3.fromValues(15, 20, 0),
+            // () => vec3.fromValues(0.001, 0, 0),
             gravity,
           ],
           // forces,
           [
-            PhysicsUtils.verticalWall(a),
-            PhysicsUtils.verticalWall(b),
-            PhysicsUtils.horizontalWall(a),
-            PhysicsUtils.horizontalWall(b),
+            // PhysicsUtils.verticalWall(a),
+            // PhysicsUtils.verticalWall(b),
+            // PhysicsUtils.horizontalWall(a),
+            // PhysicsUtils.horizontalWall(b),
           ]
         );
 
-        particle.apply(change);
+        // particle.apply(change);
 
-        this.form.fillOnly('red').point(new Pt(particle.X), 9);
-        this.form.fillOnly('red').point(new Pt(particle.netF), 2);
+        this.form.fillOnly('red').point(new Pt(particle.X0), 2);
+        this.form.fillOnly('red').point(new Pt(particle.X), 4);
         // this.form.fillOnly('red').point(new Pt(particle._X), 1);
-        // this.form.font(a).fillOnly('black').alignText('start', 'hanging')
-        //   .text([0, 0], `Vx ${V3.round(particle.v)[0]}`)
-        //   .text([0, a], `Vy ${V3.round(particle.v)[1]}`)
-        //   .text([0, 20], `Xx ${V3.round(particle.X)[0]}`)
-        //   .text([0, 30], `Xy ${V3.round(particle.X)[1]}`);
+        this.form.font(a).fillOnly('black').alignText('start', 'hanging')
+          .text([0, 0], `net x ${particle.netF[0]}`)
+          .text([0, a], `net y ${particle.netF[1]}`)
+          .text([0, 20], `Xx ${V3.round(particle.X)[0]}`)
+          .text([0, 30], `Xy ${V3.round(particle.X)[1]}`);
 
         this.form.strokeOnly('black').rect(Group.from([[a, a, 0], [b, b, 0]]));
       },

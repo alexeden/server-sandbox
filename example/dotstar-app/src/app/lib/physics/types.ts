@@ -2,8 +2,9 @@ import { vec3 } from 'gl-matrix';
 import { Particle } from './particle';
 
 export interface ParticleState {
-  dt: number;
-  _X: vec3;
+  t: number;
+  V: vec3;
+  X0: vec3;
   X: vec3;
 }
 
