@@ -1,4 +1,4 @@
-interface Triplet {
+interface Triplet extends Array<number> {
   [Symbol.iterator]();
   [0]: number;
   [1]: number;
@@ -7,12 +7,16 @@ interface Triplet {
 
 type Vector3ish = Vector3 | Triplet | number[];
 
-export class Vector3 implements Triplet {
+export class Vector3 extends Array<number> implements Triplet {
+  static of(...args: any[]): never {
+    throw new Error(`Vector3.of(...) will return a new Array. Use Array.of(...) instead.`);
+  }
+
   static empty() {
     return new Vector3(0, 0, 0);
   }
 
-  static of(...values: number[]) {
+  static set(...values: number[]) {
     return new Vector3(values[0], values[1], values[2]);
   }
 
@@ -24,7 +28,9 @@ export class Vector3 implements Triplet {
     readonly x: number,
     readonly y: number,
     readonly z: number
-  ) {}
+  ) {
+    super();
+  }
 
   *[Symbol.iterator]() {
     yield this.x;

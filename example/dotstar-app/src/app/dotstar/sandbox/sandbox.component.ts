@@ -45,7 +45,7 @@ export class SandboxComponent implements OnInit {
 
     const a = 10;
     const b = 250;
-    const cog = Vector3.of((b - a) / 2, (b - a) / 2, (b - a) / 2);
+    const cog = Vector3.set((b - a) / 2, (b - a) / 2, (b - a) / 2);
 
 
     const drag: Force = p => {
