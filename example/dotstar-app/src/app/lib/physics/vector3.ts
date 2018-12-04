@@ -83,14 +83,26 @@ export class Vector3 implements Triplet {
     return new Vector3(this.x + x, this.y + y, this.z + z);
   }
 
+  plus(arg: number | Vector3ish): Vector3 {
+    return this.add(arg);
+  }
+
   subtract(arg: number | Vector3ish): Vector3 {
     const [x, y, z] = this.forceVector(arg);
     return new Vector3(this.x - x, this.y - y, this.z - z);
   }
 
+  minus(arg: number | Vector3ish): Vector3 {
+    return this.subtract(arg);
+  }
+
   multiply(arg: number | Vector3ish): Vector3 {
     const [x, y, z] = this.forceVector(arg);
     return new Vector3(this.x * x, this.y * y, this.z * z);
+  }
+
+  times(arg: number | Vector3ish): Vector3 {
+    return this.multiply(arg);
   }
 
   divide(arg: number | Vector3ish): Vector3 {

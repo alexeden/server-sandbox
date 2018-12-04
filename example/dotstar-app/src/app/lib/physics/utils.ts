@@ -1,29 +1,5 @@
 import { vec3 } from 'gl-matrix';
-import { curry, transpose } from 'ramda';
 import { Constraint } from './types';
-
-type MultiValueOp = (...values: number[]) => number;
-
-export class V3 {
-  private static readonly vectorOp = curry((op: MultiValueOp, vecs: vec3[]): vec3 => {
-    const [xs, ys, zs] = transpose<number>(vecs as any);
-    return vec3.fromValues(
-      op(...xs),
-      op(...ys),
-      op(...zs)
-    );
-  });
-
-  static readonly diff = V3.vectorOp((first = 0, ...values) => values.reduce((d, v) => d - v, first));
-  static readonly sum = V3.vectorOp((first = 0, ...values) => values.reduce((d, v) => d + v, first));
-  static readonly scale = curry((s: number, v: vec3) => vec3.fromValues(v[0] * s, v[1] * s, v[2] * s));
-  static readonly floor = (v: vec3) => vec3.floor(vec3.create(), v);
-  static readonly ceil = (v: vec3) => vec3.ceil(vec3.create(), v);
-  static readonly round = (v: vec3) => vec3.round(vec3.create(), v);
-  static readonly add = (v1: vec3, v2: vec3) => vec3.add(vec3.create(), v1, v2);
-  static readonly subtract = (v1: vec3, v2: vec3) => vec3.subtract(vec3.create(), v1, v2);
-  static readonly multiply = (v1: vec3, v2: vec3) => vec3.multiply(vec3.create(), v1, v2);
-}
 
 export class PhysicsUtils {
   static readonly verticalWall = (wallX: number): Constraint => {
@@ -37,7 +13,7 @@ export class PhysicsUtils {
         // X0,
         // X,
         // V,
-        V: vec3.multiply(vec3.create(), V, [-1, 1, 1]),
+        V: V.times([-1, 1, 1]),
         t,
       };
     };

@@ -1,13 +1,13 @@
-import { vec3 } from 'gl-matrix';
 import { Particle } from './particle';
+import { Vector3 } from './vector3';
 
 export interface ParticleState {
   t: number;
-  V: vec3;
-  X0: vec3;
-  X: vec3;
+  V: Vector3;
+  X0: Vector3;
+  X: Vector3;
 }
 
-export type Force = (p: Particle) => vec3;
+export type Force = (p: Particle) => Vector3;
 
 export type Constraint = (state: ParticleState) => ParticleState;
