@@ -116,5 +116,10 @@
       }
     }
   },
-  "defaultProject": "dotstar-app"
+  "defaultProject": "dotstar-app",
+  "cli": {
+    "warnings": {
+      "typescriptMismatch": false
+    }
+  }
 }
