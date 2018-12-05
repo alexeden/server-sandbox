@@ -40,11 +40,13 @@ export class Particle implements InitialValues {
   next(_t: number, fs: Force[] = []) {
     const dt = _t - this.t0;
     const netF = fs.reduce((net, f) => net.plus(f(this)), Vector3.empty());
+    // A = F / m
     const A = netF.divide(this.mass);
+    // V = V0 + A·t
     const V = this.V0.plus(A.times(dt));
-    const P = this.P0
-      .add(this.V0.times(dt))
-      .add(A.times(Math.pow(dt, 2) / 2));
+    // P = X0 + (V0 + V) · t/2
+    const P = this.P0.add(this.V0.add(V).times(dt / 2));
+      // .add(A.times(Math.pow(dt, 2) / 2));
 
     return new Particle(this.mass, {
       P0: P,

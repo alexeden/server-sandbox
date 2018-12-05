@@ -2,7 +2,6 @@ import { Component, OnInit, ElementRef, Renderer2 } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { CanvasSpace, CanvasForm, Pt, Group } from 'pts';
 import { Particle, Vector3, PhysicsUtils, Force } from '@app/lib';
-import { vec3 } from 'gl-matrix';
 import { Colors } from '../lib';
 
 @Component({
@@ -38,27 +37,35 @@ export class SandboxComponent implements OnInit {
       retina: true,
     });
     this.form = new CanvasForm(this.space);
-    this.particle = new Particle(1);
+    const a = 10;
+    const b = 250;
+    const cog = Vector3.of((b - a) / 2, (b - a) / 2, (b - a) / 2);
+    this.particle = new Particle(1, {
+      P0: Vector3.random().setMagnitude((b - a) / 2).add((b - a) / 2),
+      V0: Vector3.random().setMagnitude(20),
+    });
   }
 
   nextFrame() {
 
     const a = 10;
     const b = 250;
-    const cog = Vector3.set((b - a) / 2, (b - a) / 2, (b - a) / 2);
+    const cog = Vector3.of((b - a) / 2, (b - a) / 2, (b - a) / 2);
 
 
     const drag: Force = p => {
       // const dragF = p.V0.negate().normalize();
       // const speed = p.V0.magnitude();
-      return p.V0.negate();
+      // console.log(p.V0);
+      return p.V0.negate().multiply(0.1);
       // return dragF.multiply(speed);
     };
 
     const gravity: Force = p => {
       const direction = cog.minus(p.P0).normalize();
-      const r = direction.magnitudeSquared();
-      return direction.multiply(p.mass * 9.8).divide(r);
+      return direction.multiply(100);
+      // const r = direction.magnitudeSquared();
+      // return direction.multiply(10 * p.mass * 9.8).divide(r);
     };
 
     const t = performance.now() / 1000;
@@ -77,12 +84,6 @@ export class SandboxComponent implements OnInit {
     const fontSize = 15;
     this.form.font(fontSize).fillOnly('black').alignText('end', 'hanging');
     [
-      // `t ${t}`,
-      // `t0 ${this.particle.t0}`,
-      // `net x ${this.particle.netF[0]}`,
-      // `net y ${this.particle.netF[1]}`,
-      `Vx ${this.particle.V0.round()[0]}`,
-      `Vy ${this.particle.V0.round()[1]}`,
       `Xx ${this.particle.P0.round()[0]}`,
       `Xy ${this.particle.P0.round()[1]}`,
     ]
@@ -90,7 +91,7 @@ export class SandboxComponent implements OnInit {
       this.form.text([this.width, i * fontSize], text);
     });
 
-    this.form.strokeOnly(Colors.Green).line([this.particle.P0 as any, this.particle.V0]);
+    this.form.strokeOnly(Colors.Green).line([this.particle.P0.asArray(), this.particle.P0.add(this.particle.V0).asArray()]);
     // this.form.strokeOnly(Colors.Blue).line([this.particle.X as any, this.particle.netF]);
     this.form.strokeOnly('black').rect(Group.from([[a, a, 0], [b, b, 0]]));
 
