@@ -1,36 +1,27 @@
-interface Triplet extends Array<number> {
-  [Symbol.iterator]();
-  [0]: number;
-  [1]: number;
-  [2]: number;
-}
+type Triple = [number, number, number];
+type VectorLike = Vector3 | Triple | number[];
 
-type Vector3ish = Vector3 | Triplet | number[];
-
-export class Vector3 extends Array<number> implements Triplet {
-  static of(...args: any[]): never {
-    throw new Error(`Vector3.of(...) will return a new Array. Use Array.of(...) instead.`);
-  }
+export class Vector3 {
 
   static empty() {
     return new Vector3(0, 0, 0);
   }
 
-  static set(...values: number[]) {
+  static of(...values: number[]) {
     return new Vector3(values[0], values[1], values[2]);
   }
 
-  static from(vectorish: Vector3ish) {
+  static from(vectorish: VectorLike) {
     return new Vector3(vectorish[0], vectorish[1], vectorish[2]);
   }
+
+  readonly length = 3;
 
   private constructor(
     readonly x: number,
     readonly y: number,
     readonly z: number
-  ) {
-    super();
-  }
+  ) {}
 
   *[Symbol.iterator]() {
     yield this.x;
@@ -50,7 +41,7 @@ export class Vector3 extends Array<number> implements Triplet {
   setY(y: number) { return new Vector3(this.x, y, this.z); }
   setZ(z: number) { return new Vector3(this.x, this.y, z); }
 
-  asArray(): Triplet {
+  asArray(): Triple {
     return [this.x, this.y, this.z];
   }
 
@@ -66,71 +57,75 @@ export class Vector3 extends Array<number> implements Triplet {
     return this.x * this.x + this.y * this.y + this.z * this.z;
   }
 
-  private forceVector(arg: number | Vector3ish): Vector3ish {
+  private forceVector(arg: number | VectorLike): VectorLike {
     return typeof arg === 'number'
       ? [arg, arg, arg]
       : arg;
   }
 
+  apply(fn: (n: number) => number): Vector3 {
+    return new Vector3(fn(this.x), fn(this.y), fn(this.z));
+  }
+
   ceil(): Vector3 {
-    return new Vector3(Math.ceil(this.x), Math.ceil(this.y), Math.ceil(this.z));
+    return this.apply(Math.ceil);
   }
 
   floor(): Vector3 {
-    return new Vector3(Math.floor(this.x), Math.floor(this.y), Math.floor(this.z));
+    return this.apply(Math.floor);
   }
 
   round(): Vector3 {
-    return new Vector3(Math.round(this.x), Math.round(this.y), Math.round(this.z));
+    return this.apply(Math.round);
   }
 
-  add(arg: number | Vector3ish): Vector3 {
+  add(arg: number | VectorLike): Vector3 {
     const [x, y, z] = this.forceVector(arg);
     return new Vector3(this.x + x, this.y + y, this.z + z);
   }
 
-  plus(arg: number | Vector3ish): Vector3 {
+  plus(arg: number | VectorLike): Vector3 {
     return this.add(arg);
   }
 
-  subtract(arg: number | Vector3ish): Vector3 {
+  subtract(arg: number | VectorLike): Vector3 {
     const [x, y, z] = this.forceVector(arg);
     return new Vector3(this.x - x, this.y - y, this.z - z);
   }
 
-  minus(arg: number | Vector3ish): Vector3 {
+  minus(arg: number | VectorLike): Vector3 {
     return this.subtract(arg);
   }
 
-  multiply(arg: number | Vector3ish): Vector3 {
+  multiply(arg: number | VectorLike): Vector3 {
     const [x, y, z] = this.forceVector(arg);
     return new Vector3(this.x * x, this.y * y, this.z * z);
   }
 
-  times(arg: number | Vector3ish): Vector3 {
+  times(arg: number | VectorLike): Vector3 {
     return this.multiply(arg);
   }
 
-  divide(arg: number | Vector3ish): Vector3 {
+  divide(arg: number | VectorLike): Vector3 {
     const [x, y, z] = this.forceVector(arg);
     return new Vector3(this.x / x, this.y / y, this.z / z);
   }
 
-  min(arg: number | Vector3ish): Vector3 {
+  min(arg: number | VectorLike): Vector3 {
     const [x, y, z] = this.forceVector(arg);
     return new Vector3(Math.min(this.x, x), Math.min(this.y, y), Math.min(this.z, z));
   }
 
-  max(arg: number | Vector3ish): Vector3 {
+  max(arg: number | VectorLike): Vector3 {
     const [x, y, z] = this.forceVector(arg);
     return new Vector3(Math.max(this.x, x), Math.max(this.y, y), Math.max(this.z, z));
   }
 
-  distanceFrom(v: Vector3ish): number {
+  distanceFrom(v: VectorLike): number {
     return Math.sqrt(this.squaredDistanceFrom(v));
   }
 
-  squaredDistanceFrom([x, y, z]: Vector3ish): number {
+  squaredDistanceFrom([x, y, z]: VectorLike): number {
     const dx = this.x - x;
     const dy = this.y - y;
     const dz = this.z - z;
@@ -151,8 +146,16 @@ export class Vector3 extends Array<number> implements Triplet {
     return new Vector3(this.x * mag, this.y * mag, this.z * mag);
   }
 
-  setMagnitude(arg: number | Vector3ish) {
+  setMagnitude(arg: number | VectorLike): Vector3 {
     const mag = Vector3.from(this.forceVector(arg)).magnitude();
     return this.normalize().multiply(mag);
+  }
+
+  lerp(target: Vector3, t: number): Vector3 {
+    return new Vector3(
+      this.x + t * (target[0] - this.x),
+      this.y + t * (target[1] - this.y),
+      this.z + t * (target[2] - this.z)
+    );
   }
 }
