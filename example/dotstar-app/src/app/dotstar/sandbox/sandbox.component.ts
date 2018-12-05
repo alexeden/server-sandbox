@@ -117,9 +117,9 @@ export class SandboxComponent implements OnInit, OnDestroy {
 
     // this.space.play();
     const bounds = this.bounds$.getValue();
-    range(0, 1).map(i => {
+    range(0, 100).map(i => {
       this.system.particles.push(new Particle(1, {
-        P: Vector3.of(100, 100, 100),
+        P: Vector3.of(100, 100, 0),
         // P: Vector3.random().add(bounds.width / 2),
         V: Vector3.random().setMagnitude(20),
       }));
@@ -131,8 +131,8 @@ export class SandboxComponent implements OnInit, OnDestroy {
       withLatestFrom(this.forces, this.constraints)
     )
     .subscribe(([t, forces, constraints]) => {
-      this.system.next(t, forces, constraints);
       this.space.clear();
+      this.system.next(t / 1000, forces, constraints);
       this.system.particles.forEach(p => {
         this.form.fillOnly('red').point(new Pt(p.P), 4);
         this.form.strokeOnly(Colors.Green).line([p.P.asArray(), p.P.add(p.V).asArray()]);
