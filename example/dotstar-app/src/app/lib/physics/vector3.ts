@@ -15,6 +15,10 @@ export class Vector3 {
     return new Vector3(vectorish[0], vectorish[1], vectorish[2]);
   }
 
+  static random() {
+    return new Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
+  }
+
   readonly length = 3;
 
   private constructor(
@@ -57,7 +61,7 @@ export class Vector3 {
     return this.x * this.x + this.y * this.y + this.z * this.z;
   }
 
-  private forceVector(arg: number | VectorLike): VectorLike {
+  private makeVectorLike(arg: number | VectorLike): VectorLike {
     return typeof arg === 'number'
       ? [arg, arg, arg]
       : arg;
@@ -80,7 +84,7 @@ export class Vector3 {
   }
 
   add(arg: number | VectorLike): Vector3 {
-    const [x, y, z] = this.forceVector(arg);
+    const [x, y, z] = this.makeVectorLike(arg);
     return new Vector3(this.x + x, this.y + y, this.z + z);
   }
 
@@ -89,7 +93,7 @@ export class Vector3 {
   }
 
   subtract(arg: number | VectorLike): Vector3 {
-    const [x, y, z] = this.forceVector(arg);
+    const [x, y, z] = this.makeVectorLike(arg);
     return new Vector3(this.x - x, this.y - y, this.z - z);
   }
 
@@ -98,7 +102,7 @@ export class Vector3 {
   }
 
   multiply(arg: number | VectorLike): Vector3 {
-    const [x, y, z] = this.forceVector(arg);
+    const [x, y, z] = this.makeVectorLike(arg);
     return new Vector3(this.x * x, this.y * y, this.z * z);
   }
 
@@ -107,17 +111,17 @@ export class Vector3 {
   }
 
   divide(arg: number | VectorLike): Vector3 {
-    const [x, y, z] = this.forceVector(arg);
+    const [x, y, z] = this.makeVectorLike(arg);
     return new Vector3(this.x / x, this.y / y, this.z / z);
   }
 
   min(arg: number | VectorLike): Vector3 {
-    const [x, y, z] = this.forceVector(arg);
+    const [x, y, z] = this.makeVectorLike(arg);
     return new Vector3(Math.min(this.x, x), Math.min(this.y, y), Math.min(this.z, z));
   }
 
   max(arg: number | VectorLike): Vector3 {
-    const [x, y, z] = this.forceVector(arg);
+    const [x, y, z] = this.makeVectorLike(arg);
     return new Vector3(Math.max(this.x, x), Math.max(this.y, y), Math.max(this.z, z));
   }
 
@@ -147,7 +151,7 @@ export class Vector3 {
   }
 
   setMagnitude(arg: number | VectorLike): Vector3 {
-    const mag = Vector3.from(this.forceVector(arg)).magnitude();
+    const mag = Vector3.from(this.makeVectorLike(arg)).magnitude();
     return this.normalize().multiply(mag);
   }
 
