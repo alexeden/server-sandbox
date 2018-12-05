@@ -57,7 +57,7 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
         range(0, n).forEach(i => {
           const part = new Particle([ Num.mapToRange(i, 0, n, 0, bounds.width || 1), bounds.height, 0 ]);
           part.radius = 0;
-          part.id = i;
+          part.id = `${i}`;
           part.mass = 1;
           world.add(part);
         });
@@ -75,7 +75,7 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
     this.mappedValues = this.particles$.pipe(
       map(({ particles }) => {
         const bounds = this.bounds$.getValue();
-        const l = y => clamp(0, 1, 1 - normalize(0, bounds.height, y));
+        const l = (y: number) => clamp(0, 1, 1 - normalize(0, bounds.height, y));
         return particles.map<Sample>(p => {
           const hsl = Color.hsl(p.z || 0, 1, 0.5 * l(p.y));
           const rgb = Color.HSLtoRGB(hsl);
@@ -94,18 +94,14 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
         this.bounds$,
         this.paintService.latestFrame,
         this.world,
-        this.physicsService.streamPhysicalConst(PhysicalConstName.PointerForce),
-        this.physicsService.streamPhysicalConst(PhysicalConstName.ParticleMass),
-        this.physicsService.streamPhysicalConst(PhysicalConstName.Friction),
-        this.physicsService.streamPhysicalConst(PhysicalConstName.Gravity),
-        this.physicsService.streamPhysicalConst(PhysicalConstName.Damping)
+        this.physicsService.physicsConfig
       ),
       tap(() => this.space.clear())
     )
-    .subscribe(([dt, bounds, { interactionBox: iBox, hands }, world, pointerGravity, particleMass, friction, gravity, damping]) => {
+    .subscribe(([dt, bounds, { interactionBox: iBox, hands }, world, { pointerForce, particleMass, friction, gravity, damping }]) => {
       world.damping = damping;
       world.friction = friction;
-      world.gravity = [0, gravity];
+      world.gravity = new Pt([0, gravity]);
       const particles: Particle[] = [];
       if (hands.length > 0) {
 
@@ -132,7 +128,7 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
             const decay = parabola(p.x - stablePalmPt.x, stablePalmPt.y);
             const fy = (bounds.height - p.y + stablePalmPt.y) - decay;
             if (decay >= 0) {
-              p.addForce(0, pointerGravity * fy);
+              p.addForce(0, pointerForce * fy);
               p.z = hue;
             }
           }

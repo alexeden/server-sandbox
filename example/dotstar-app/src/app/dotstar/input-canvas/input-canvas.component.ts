@@ -70,7 +70,7 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
         range(0, n).forEach(i => {
           const part = new Particle([ mapToX(i), 0 ]);
           part.radius = 0;
-          part.id = i;
+          part.id = `${i}`;
           world.add(part);
         });
         return world;
@@ -114,18 +114,19 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
         this.world,
         this.bounds$,
         this.pointers,
-        this.physicsService.streamPhysicalConst(PhysicalConstName.PointerForce),
-        this.physicsService.streamPhysicalConst(PhysicalConstName.ParticleMass),
-        this.physicsService.streamPhysicalConst(PhysicalConstName.Friction),
-        this.physicsService.streamPhysicalConst(PhysicalConstName.Gravity),
-        this.physicsService.streamPhysicalConst(PhysicalConstName.Damping)
+        this.physicsService.physicsConfig
+        // this.physicsService.streamPhysicalConst(PhysicalConstName.PointerForce),
+        // this.physicsService.streamPhysicalConst(PhysicalConstName.ParticleMass),
+        // this.physicsService.streamPhysicalConst(PhysicalConstName.Friction),
+        // this.physicsService.streamPhysicalConst(PhysicalConstName.Gravity),
+        // this.physicsService.streamPhysicalConst(PhysicalConstName.Damping)
       ),
       tap(() => this.space.clear())
     )
-    .subscribe(([dt, world, bounds, pointers, pointerGravity, particleMass, friction, gravity, damping]) => {
+    .subscribe(([dt, world, bounds, pointers, { pointerForce, particleMass, friction, gravity, damping }]) => {
       world.damping = damping;
       world.friction = friction;
-      world.gravity = [0, gravity];
+      world.gravity = new Pt(0, gravity);
       const { height, width } = bounds;
       const particles: Particle[] = [];
       const pointerSpread = Math.pow((width / world.particleCount) * this.pointerSpread, 2);
@@ -137,7 +138,7 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
           const [{ x: pointerX, y: pointerY }] = pointers;
           const dx = absDiff(pointerX, particle.x);
           const xDecay = forceDecayX(dx);
-          const antigravity = pointerGravity * xDecay;
+          const antigravity = pointerForce * xDecay;
           // yMag will always be a value within range [-1, 1]
           const yMag = xDecay * ((particle.y - pointerY) / height);
           const fy = antigravity <= 0

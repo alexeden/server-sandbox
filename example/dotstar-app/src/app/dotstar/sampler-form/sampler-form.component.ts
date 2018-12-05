@@ -57,9 +57,9 @@ export class SamplerFormComponent implements OnInit, OnDestroy {
       switchMap(mode => {
         const formGroup = this.samplerForm.get(mode);
 
-        return formGroup.valueChanges.pipe(
-          startWith(formGroup.value),
-          filter(() => formGroup.valid),
+        return formGroup!.valueChanges.pipe(
+          startWith(formGroup!.value),
+          filter(() => formGroup!.valid),
           tap(samplerStrs => this.savedSamplers = { ...this.savedSamplers, ...samplerStrs }),
           map(samplerStrs => Object.values(samplerStrs).map(body => eval(`${samplerFnHead}${body}`)) as Triplet<Sampler>),
           map(SamplerUtils.samplersToChannelSampler(mode))
@@ -77,8 +77,8 @@ export class SamplerFormComponent implements OnInit, OnDestroy {
     )
     .subscribe(([newMode, oldMode]) => {
       console.log(newMode, oldMode);
-      this.samplerForm.get(oldMode).enable();
-      this.samplerForm.get(newMode).disable();
+      this.samplerForm.get(oldMode)!.enable();
+      this.samplerForm.get(newMode)!.disable();
     });
 
     this.channelSampler.pipe(

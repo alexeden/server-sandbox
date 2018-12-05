@@ -107,10 +107,12 @@ export class LeapController implements ControllerOptions {
 
     // Grab a list of changed properties in the device device
     const changed: { [K in keyof DeviceEventState]?: boolean } = {};
+    // tslint:disable-next-line:forin
     for (const property in newInfo) {
       // If a property i doesn't exist the cache, or has changed...
-      if (!oldInfo || !oldInfo.hasOwnProperty(property) || oldInfo[property] !== newInfo[property]) {
-        changed[property] = true;
+      // tslint:disable-next-line:max-line-length
+      if (!oldInfo || !oldInfo.hasOwnProperty(property) || oldInfo[property as keyof DeviceEventState] !== newInfo[property  as keyof DeviceEventState]) {
+        changed[property as keyof DeviceEventState] = true;
       }
     }
     console.log(changed);

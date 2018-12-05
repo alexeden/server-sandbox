@@ -47,7 +47,7 @@ export class DotstarMainComponent implements OnInit, OnDestroy {
   ) {
     const dotstarParentRoute = this.injectedRoutes[0].find(r => r.path === 'dotstar');
     if (!dotstarParentRoute) throw new Error(`No parent route wth path "/dotstar" found!`);
-    this.dotstarRoutes = (dotstarParentRoute.children || []).filter(r => r.path.length > 0);
+    this.dotstarRoutes = (dotstarParentRoute.children || []).filter(r => r.path!.length > 0);
 
     this.selectedConfigMenuType = this.selectedConfigMenuType || ConfigMenuType.Physics;
   }

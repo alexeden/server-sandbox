@@ -38,7 +38,7 @@ export class PhysicsUtils {
  * its current value will be moved into the object kept at the backup key.
  */
 export function backup(backupKey: string): PropertyDecorator {
-  return (target: {}, propertyName: string): void => {
+  return (target: any, propertyName: string): void => {
     let value: any;
     let firstSet = true;
 

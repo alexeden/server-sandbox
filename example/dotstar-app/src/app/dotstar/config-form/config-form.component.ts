@@ -79,7 +79,7 @@ export class ConfigFormComponent implements OnInit, OnDestroy {
   }
 
   connect() {
-    this.socketService.connect(this.configForm.get('url').value);
+    this.socketService.connect(this.configForm.get('url')!.value);
   }
 
   ngOnDestroy() {
