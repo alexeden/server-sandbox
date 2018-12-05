@@ -1,66 +1,44 @@
 // tslint:disable variable-name
-import { Force } from './types';
+import { Force, Constraint, ParticleState } from './types';
 import { Vector3 } from './vector3';
 
-(window as any).Vector3 = Vector3;
-
-interface InitialValues {
-  P0: Vector3;
-  V0: Vector3;
-  t0: number;
-}
-
-export class Particle implements InitialValues {
-  readonly P0: Vector3;
-  readonly V0: Vector3;
-  readonly t0: number;
+export class Particle implements ParticleState {
+  readonly P: Vector3;
+  readonly V: Vector3;
+  readonly t: number;
 
   constructor(
     readonly mass = 1,
-    private inits: Partial<InitialValues> = {}
+    inits: Partial<ParticleState> = {}
   ) {
-    this.P0 = this.inits.P0 || Vector3.empty();
-    this.V0 = this.inits.V0 || Vector3.empty();
-    this.t0 = this.inits.t0 || 1;
-    (window as any).particle = this;
+    this.P = inits.P || Vector3.empty();
+    this.V = inits.V || Vector3.empty();
+    this.t = inits.t || 1;
   }
 
-  // static v_t(a: Vector3, v0: Vector3): FnOfTime {
-  //   return (t: number) => V3.sum([v0, V3.scale(t, a)]);
-  // }
+  get state(): ParticleState {
+    return {
+      t: this.t,
+      V: this.V,
+      P: this.P,
+    };
+  }
 
-  // static p_t(a: Vector3, v0: Vector3, p0: Vector3): FnOfTime {
-  //   return t => {
-  //     const at2 = Vector3.scale(Vector3.create(), a, Math.pow(t, 2) / 2);
-  //     const vt = Vector3.scale(Vector3.create(), v0, t);
-  //     return V3.sum([p0, vt, at2])
-  //   };
-  // }
-
-  next(_t: number, fs: Force[] = []) {
-    const dt = _t - this.t0;
-    const netF = fs.reduce((net, f) => net.plus(f(this)), Vector3.empty());
-    // A = F / m
-    const A = netF.divide(this.mass);
+  next(t: number, fs: Force[] = [], constraints: Constraint[] = []) {
+    // A = ∑F / m
     // V = V0 + A·t
-    const V = this.V0.plus(A.times(dt));
-    // P = X0 + (V0 + V) · t/2
-    const P = this.P0.add(this.V0.add(V).times(dt / 2));
-      // .add(A.times(Math.pow(dt, 2) / 2));
+    // P = X0 + (V0 + V) · ∆t/2
+    const dt = t - this.t;
+    const netF = fs.reduce((net, f) => net.plus(f(this)), Vector3.empty());
+    const A = netF.divide(this.mass);
+    const V = this.V.plus(A.times(dt));
+    const P = this.P.add(this.V.add(V).times(dt / 2));
 
-    return new Particle(this.mass, {
-      P0: P,
-      V0: V,
-      t0: _t,
-    });
+    const nextValues = constraints.reduce(
+      (next, c) => c(this.state, next),
+      { t, V, P }
+    );
 
-    // const v = this.v = Particle.v_t(a, this.V0)(dt);
-    // const v_t = V3.scale(dt / 2, V3.sum([this.V0, this.V0, V3.scale(dt, a)]));
-    // const X = V3.sum([this.X, v_t]);
-
-    // this.t0 = t;
-    // this.X0 = this.X;
-    // this.X = X;
-    // this.V0 = v_t;
+    return new Particle(this.mass, nextValues);
   }
 }

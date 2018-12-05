@@ -33,6 +33,12 @@ export class Vector3 {
     yield this.z;
   }
 
+  private makeVectorLike(arg: number | VectorLike): VectorLike {
+    return typeof arg === 'number'
+      ? [arg, arg, arg]
+      : arg;
+  }
+
   get [0]() { return this.x; }
   get [1]() { return this.y; }
   get [2]() { return this.z; }
@@ -59,12 +65,6 @@ export class Vector3 {
 
   magnitudeSquared(): number {
     return this.x * this.x + this.y * this.y + this.z * this.z;
-  }
-
-  private makeVectorLike(arg: number | VectorLike): VectorLike {
-    return typeof arg === 'number'
-      ? [arg, arg, arg]
-      : arg;
   }
 
   apply(fn: (n: number) => number): Vector3 {
@@ -139,6 +139,9 @@ export class Vector3 {
   negate(): Vector3 {
     return new Vector3(-this.x, -this.y, -this.z);
   }
+  negateX(): Vector3 { return new Vector3(-this.x, this.y, this.z); }
+  negateY(): Vector3 { return new Vector3(this.x, -this.y, this.z); }
+  negateZ(): Vector3 { return new Vector3(this.x, this.y, -this.z); }
 
   invert(): Vector3 {
     return new Vector3(1 / this.x, 1 / this.y, 1 / this.z);
