@@ -3,42 +3,45 @@ import { Force, Constraint, ParticleState } from './types';
 import { Vector3 } from './vector3';
 
 export class Particle implements ParticleState {
-  readonly P: Vector3;
+  readonly X: Vector3;
   readonly V: Vector3;
+  readonly A: Vector3;
   readonly t: number;
+  readonly mass: number;
 
-  constructor(
-    readonly mass = 1,
-    inits: Partial<ParticleState> = {}
-  ) {
-    this.P = inits.P || Vector3.empty();
-    this.V = inits.V || Vector3.empty();
-    this.t = inits.t || 1;
+  constructor(state: Partial<ParticleState> = {}) {
+    this.X = state.X || Vector3.empty();
+    this.V = state.V || Vector3.empty();
+    this.A = state.A || Vector3.empty();
+    this.mass = state.mass || 1;
+    this.t = state.t || 1;
   }
 
   get state(): ParticleState {
     return {
-      t: this.t,
+      X: this.X,
       V: this.V,
-      P: this.P,
+      A: this.A,
+      t: this.t,
+      mass: this.mass,
     };
   }
 
   next(t: number, fs: Force[] = [], constraints: Constraint[] = []) {
-    // A = ∑F / m
+    // A = ∑F / mass
     // V = V0 + A·t
-    // P = X0 + (V0 + V) · ∆t/2
+    // X = X0 + (V0 + V) · ∆t/2
     const dt = t - this.t;
-    const netF = fs.reduce((net, f) => net.plus(f(this)), Vector3.empty());
-    const A = netF.divide(this.mass);
+    const mass = this.mass;
+    const A = fs.reduce((net, f) => net.plus(f(this)), Vector3.empty()).divide(mass);
     const V = this.V.plus(A.times(dt));
-    const P = this.P.add(this.V.add(V).times(dt / 2));
+    const X = this.X.add(this.V.add(V).times(dt / 2));
 
     const nextValues = constraints.reduce(
       (next, c) => c(this.state, next),
-      { t, V, P }
+      { X, V, A, mass, t }
     );
 
-    return new Particle(this.mass, nextValues);
+    return new Particle(nextValues);
   }
 }

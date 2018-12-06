@@ -57,16 +57,17 @@ export class SandboxComponent implements OnInit, OnDestroy {
     this.forces = this.bounds$.asObservable().pipe(
       map<Bound, Force[]>(bounds => [
         p => p.V.negate().multiply(0.05),
-        p => Vector3.of(bounds.center.x, bounds.center.y, 0).minus(p.P).setMagnitude(500),
+        p => Vector3.of(bounds.center.x, bounds.center.y, 0).minus(p.X).setMagnitude(500),
       ])
     );
   }
 
   ngOnInit() {
     range(0, 100).map(i => {
-      this.system.particles.push(new Particle(1, {
-        P: Vector3.random().multiply(this.height / 2).add(this.height / 2),
+      this.system.particles.push(new Particle({
+        X: Vector3.random().multiply(this.height / 2).add(this.height / 2),
         V: Vector3.random().setMagnitude(20),
+        mass: Math.ceil(20 * Math.random()),
       }));
     });
 
@@ -79,8 +80,9 @@ export class SandboxComponent implements OnInit, OnDestroy {
       this.space.clear();
       this.system.next(t / 1000, forces, constraints);
       this.system.particles.forEach(p => {
-        this.form.strokeOnly(Colors.Blue).line([p.P.asArray(), p.P.add(p.V).asArray()]);
-        this.form.fillOnly(Colors.Blue).point(new Pt(p.P), 5, 'circle');
+        this.form.strokeOnly(Colors.Blue).line([p.X.asArray(), p.X.add(p.V).asArray()]);
+        this.form.strokeOnly(Colors.Green).line([p.X.asArray(), p.X.add(p.A).asArray()]);
+        this.form.fillOnly(Colors.Red).point(new Pt(p.X), 5, 'circle');
       });
     });
   }

@@ -4,8 +4,10 @@ import { Vector3 } from './vector3';
 export type Force = (p: Particle) => Vector3;
 
 export interface ParticleState {
-  P: Vector3;
+  X: Vector3;
   V: Vector3;
+  A: Vector3;
+  mass: number;
   t: number;
 }
 
