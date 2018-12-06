@@ -1,6 +1,8 @@
 import { Constraint } from './types';
 
 export class Constraints {
+  static readonly epsilon = 0.0001;
+
   static readonly verticalWall = (wallX: number, dampen = 0.9): Constraint => {
     return (inits, { X, V, ...rest }) => {
       const xi = inits.X.x;
@@ -18,7 +20,7 @@ export class Constraints {
     return (inits, { X, V, ...rest }) => {
       const yi = inits.X.y;
       const yf = X.y;
-      const collision = wallY <= Math.max(yi, yf) && wallY >= Math.min(yi, yf);
+      const collision = wallY <= Math.max(yi, yf) && wallY > Math.min(yi, yf);
       return {
         ...rest,
         X: !collision ? X : X.setY(yi),

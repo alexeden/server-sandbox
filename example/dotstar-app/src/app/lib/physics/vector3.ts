@@ -25,9 +25,9 @@ export class Vector3 {
   readonly length = 3;
 
   private constructor(
-    readonly x: number,
-    readonly y: number,
-    readonly z: number
+    readonly x = 0,
+    readonly y = 0,
+    readonly z = 0
   ) {}
 
   *[Symbol.iterator]() {

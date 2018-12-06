@@ -2,12 +2,12 @@ import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/co
 import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
 import { takeUntil, skipWhile, map, tap, withLatestFrom, scan } from 'rxjs/operators';
 import { CanvasSpace, Pt, CanvasForm, Bound, World } from 'pts';
-import { Sample, range, clamp, mapToRange, absDiff, PhysicalConstName, DotstarConstants } from '../lib';
+import { Sample, range, clamp, mapToRange, absDiff, PhysicalConstName, DotstarConstants, Colors } from '../lib';
 import { DotstarDeviceConfigService } from '../device-config.service';
 import { DotstarBufferService } from '../dotstar-buffer.service';
 import { AnimationClockService } from '../animation-clock.service';
 import { PhysicsConfigService } from '../physics-config.service';
-import { Particle, System, Vector3, Constraints } from '@app/lib/physics';
+import { Particle, System, Vector3, Constraints, Force } from '@app/lib/physics';
 
 type ActionType = 'move' | 'up' | 'down' | 'drag' | 'over' | 'out';
 
@@ -32,7 +32,7 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
   // private readonly particles$ = new Subject<Particle[]>();
   // private readonly mappedValues: Observable<Sample[]>;
   private readonly mapTos: Observable<MapRanges>;
-  private readonly pointers: Observable<Pt[]>;
+  private readonly pointers: Observable<Vector3[]>;
 
   readonly height = 550;
   readonly system: Observable<System>;
@@ -101,12 +101,18 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
     );
 
     this.pointers = this.actions$.pipe(
-      withLatestFrom(this.bounds$),
-      scan<[Action, Bound], Pt[]>(
-        (pointers, [action]) => {
+      withLatestFrom(this.mapTos),
+      scan<[Action, MapRanges], Vector3[]>(
+        (pointers, [action, mapTos]) => {
           switch (action.type) {
             case 'out': return [];
-            default: return [action.pt];
+            default: return [
+              Vector3.of(
+                mapTos.systemX(action.pt.x),
+                mapTos.systemY(action.pt.y),
+                0
+              ),
+            ];
           }
         },
         []
@@ -154,16 +160,37 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
       // const mapToCanvasY = mapToRange(minBrightness, maxBrightness, bounds.bottomRight.y, bounds.topLeft.y);
       // const pointerSpread = Math.pow((width / system.particleCount) * this.pointerSpread, 2);
       // const forceDecayX = (dx: number) => clamp(0, 1, -1 * Math.pow(dx, 2) / pointerSpread + 1);
-      system.next(t / 1000, [ () => Vector3.of(0, -10, 0) ], [
-        Constraints.horizontalWall(minBrightness),
+      const forces: Force[] = [
+        () => Vector3.of(0, gravity, 0),
+      ];
+
+      if (pointers.length > 0) {
+        const [ pointer ] = pointers;
+        this.form.alignText('left').fill(Colors.Black).text([10, 10], `Pointer\t ${pointers[0].round().asArray()}`, 500);
+        forces.push(
+          p => {
+            const diff = pointer.minus(p.X);
+            return pointer.minus(p.X).setMagnitude(200 / Math.pow(diff.x, 2)); // .divide(0.01 * diff.magnitudeSquared());
+          });
+      }
+
+
+      system.next(t / 1000, forces, [
+        Constraints.horizontalWall(minBrightness, 0.2),
         Constraints.horizontalWall(maxBrightness),
         Constraints.axisLock('x'),
       ]);
 
-      system.particles.forEach((particle, i) => {
-        const position = particle.X.apply(mapTo.canvasX, mapTo.canvasY, z => z);
+      system.particles.forEach((p, i) => {
+        const position = p.X.apply(mapTo.canvasX, mapTo.canvasY, z => z);
+        const velocity = p.V.apply(mapTo.canvasX, mapTo.canvasY, z => z);
+        const accel = p.A.apply(mapTo.canvasX, mapTo.canvasY, z => z);
+        this.form.strokeOnly(Colors.Blue).line([position.asArray(), position.add(velocity).asArray()]);
+        this.form.strokeOnly(Colors.Green).line([position.asArray(), position.add(accel).asArray()]);
+
         this.form.fillOnly(`#3f3f3f`).point(position.asArray(), 5, 'circle');
       });
+
       // system.drawParticles((particle, i) => {
       //   particle.mass = particleMass;
       //   if (pointers.length > 0) {
