@@ -5,7 +5,7 @@ export class Constraints {
     return (inits, { X, V, ...rest }) => {
       const xi = inits.X.x;
       const xf = X.x;
-      const collision = wallX < Math.max(xi, xf) && wallX >= Math.min(xi, xf);
+      const collision = wallX < Math.max(xi, xf) && wallX > Math.min(xi, xf);
       return {
         ...rest,
         X: !collision ? X : X.setX(xi),
@@ -18,7 +18,7 @@ export class Constraints {
     return (inits, { X, V, ...rest }) => {
       const yi = inits.X.y;
       const yf = X.y;
-      const collision = wallY < Math.max(yi, yf) && wallY >= Math.min(yi, yf);
+      const collision = wallY < Math.max(yi, yf) && wallY > Math.min(yi, yf);
       return {
         ...rest,
         X: !collision ? X : X.setY(yi),
