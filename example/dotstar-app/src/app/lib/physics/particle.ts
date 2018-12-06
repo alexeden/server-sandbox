@@ -33,9 +33,11 @@ export class Particle implements ParticleState {
     // X = X0 + (V0 + V) · ∆t/2
     const dt = t - this.t;
     const mass = this.mass;
-    const A = fs.reduce((net, f) => net.plus(f(this)), Vector3.empty()).divide(mass);
-    const V = this.V.plus(A.times(dt));
-    const X = this.X.add(this.V.add(V).times(dt / 2));
+    const V0 = this.V;
+    const X0 = this.X;
+    const A = fs.reduce((net, f) => net.plus(f(this)), Vector3.empty()).divide(mass).settle();
+    const V = V0.plus(A.times(dt)).settle();
+    const X = X0.add(V0.add(V).times(dt / 2)).settle();
 
     const nextValues = constraints.reduce(
       (next, c) => c(this.state, next),

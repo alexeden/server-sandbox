@@ -4,6 +4,7 @@ type VectorLike = Vector3 | Triple | number[];
 export type Axis = 'x' | 'y' | 'z';
 
 export class Vector3 {
+  static readonly epsilon = 0.00001;
 
   static empty() {
     return new Vector3(0, 0, 0);
@@ -53,6 +54,14 @@ export class Vector3 {
       axis === 'x' ? v : this.x,
       axis === 'y' ? v : this.y,
       axis === 'z' ? v : this.z
+    );
+  }
+
+  settle(): Vector3 {
+    return new Vector3(
+      Math.abs(this.x) < Vector3.epsilon ? 0 : this.x,
+      Math.abs(this.y) < Vector3.epsilon ? 0 : this.y,
+      Math.abs(this.z) < Vector3.epsilon ? 0 : this.z
     );
   }
 
