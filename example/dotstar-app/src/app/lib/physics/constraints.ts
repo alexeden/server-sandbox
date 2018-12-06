@@ -26,4 +26,13 @@ export class Constraints {
       };
     };
   }
+
+  static readonly axisLock = (axis: 'x' | 'y' | 'z'): Constraint => {
+    return (inits, { X, ...rest }) => {
+      return {
+        ...rest,
+        X: X.setAxis(axis, inits.X[axis]),
+      };
+    };
+  }
 }

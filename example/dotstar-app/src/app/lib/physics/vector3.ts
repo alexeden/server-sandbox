@@ -1,6 +1,8 @@
 type Triple = [number, number, number];
 type VectorLike = Vector3 | Triple | number[];
 
+export type Axis = 'x' | 'y' | 'z';
+
 export class Vector3 {
 
   static empty() {
@@ -43,13 +45,16 @@ export class Vector3 {
   get [1]() { return this.y; }
   get [2]() { return this.z; }
 
-  set0(x: number) { return this.setX(x); }
-  set1(y: number) { return this.setY(y); }
-  set2(z: number) { return this.setZ(z); }
-
-  setX(x: number) { return new Vector3(x, this.y, this.z); }
-  setY(y: number) { return new Vector3(this.x, y, this.z); }
-  setZ(z: number) { return new Vector3(this.x, this.y, z); }
+  setX(x: number): Vector3 { return new Vector3(x, this.y, this.z); }
+  setY(y: number): Vector3 { return new Vector3(this.x, y, this.z); }
+  setZ(z: number): Vector3 { return new Vector3(this.x, this.y, z); }
+  setAxis(axis: Axis, v: number): Vector3 {
+    return new Vector3(
+      axis === 'x' ? v : this.x,
+      axis === 'y' ? v : this.y,
+      axis === 'z' ? v : this.z
+    );
+  }
 
   asArray(): Triple {
     return [this.x, this.y, this.z];
