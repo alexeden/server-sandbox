@@ -36,16 +36,8 @@ export class SandboxComponent implements OnInit, OnDestroy {
     this.renderer.setStyle(this.canvas, 'width', `${this.width}px`);
     this.renderer.setStyle(this.canvas, 'max-width', `100%`);
     this.renderer.appendChild(this.elRef.nativeElement, this.canvas);
-    const onCanvasReady = () => {
-      this.ready$.next(true);
-      // this.nextFrame();
-    };
-    this.space = new CanvasSpace(this.canvas, onCanvasReady)
-      .setup({
-        bgcolor: '#ffffff',
-        resize: true,
-        retina: true,
-      })
+    this.space = new CanvasSpace(this.canvas, () => this.ready$.next(true))
+      .setup({ bgcolor: '#ffffff', resize: true, retina: true })
       .add({
         resize: () => this.bounds$.next(this.space.innerBound),
         start: () => this.bounds$.next(this.space.innerBound),
@@ -64,63 +56,16 @@ export class SandboxComponent implements OnInit, OnDestroy {
 
     this.forces = this.bounds$.asObservable().pipe(
       map<Bound, Force[]>(bounds => [
-        // p => p.V.negate().multiply(0.1),
-        p => Vector3.of(bounds.center.x, bounds.center.y, 0).minus(p.P).normalize(),
+        p => p.V.negate().multiply(0.05),
+        p => Vector3.of(bounds.center.x, bounds.center.y, 0).minus(p.P).setMagnitude(500),
       ])
     );
   }
 
-  // nextFrame() {
-
-  //   const a = 10;
-  //   const b = 250;
-  //   const cog = Vector3.of((b - a) / 2, (b - a) / 2, (b - a) / 2);
-
-
-  //   const drag: Force = p => {
-  //     return p.V.negate().multiply(0.1);
-  //   };
-
-  //   const gravity: Force = p => {
-  //     const direction = cog.minus(p.P).normalize();
-  //     return direction.multiply(100);
-  //   };
-
-  //   const t = performance.now() / 1000;
-  //   this.particle = this.particle.next(
-  //     t,
-  //     [ drag, gravity ],
-  //     [
-  //       Constraints.verticalWall(a),
-  //       Constraints.verticalWall(b),
-  //       Constraints.horizontalWall(a),
-  //       Constraints.horizontalWall(b),
-  //     ]
-  //   );
-
-  //   this.form.fillOnly('red').point(new Pt(this.particle.P), 4);
-  //   const fontSize = 15;
-  //   this.form.font(fontSize).fillOnly('black').alignText('end', 'hanging');
-  //   [ `Xx ${this.particle.P.round()[0]}`, `Xy ${this.particle.P.round()[1]}` ].forEach((text, i) => {
-  //     this.form.text([this.width, i * fontSize], text);
-  //   });
-
-  //   this.form.strokeOnly(Colors.Green).line([this.particle.P.asArray(), this.particle.P.add(this.particle.V).asArray()]);
-  //   this.form.strokeOnly('black').rect(Group.from([[a, a, 0], [b, b, 0]]));
-
-  // }
-
   ngOnInit() {
-    // this.space.add({
-    //   animate: this.nextFrame.bind(this),
-    // });
-
-    // this.space.play();
-    const bounds = this.bounds$.getValue();
     range(0, 100).map(i => {
       this.system.particles.push(new Particle(1, {
-        P: Vector3.of(100, 100, 0),
-        // P: Vector3.random().add(bounds.width / 2),
+        P: Vector3.random().multiply(this.height / 2).add(this.height / 2),
         V: Vector3.random().setMagnitude(20),
       }));
     });
@@ -134,8 +79,8 @@ export class SandboxComponent implements OnInit, OnDestroy {
       this.space.clear();
       this.system.next(t / 1000, forces, constraints);
       this.system.particles.forEach(p => {
-        this.form.fillOnly('red').point(new Pt(p.P), 4);
-        this.form.strokeOnly(Colors.Green).line([p.P.asArray(), p.P.add(p.V).asArray()]);
+        this.form.strokeOnly(Colors.Blue).line([p.P.asArray(), p.P.add(p.V).asArray()]);
+        this.form.fillOnly(Colors.Blue).point(new Pt(p.P), 5, 'circle');
       });
     });
   }
