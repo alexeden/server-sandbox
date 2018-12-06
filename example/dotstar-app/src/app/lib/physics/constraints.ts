@@ -1,7 +1,7 @@
 import { Constraint } from './types';
 
 export class Constraints {
-  static readonly verticalWall = (wallX: number): Constraint => {
+  static readonly verticalWall = (wallX: number, dampen = 0.9): Constraint => {
     return (inits, { X, V, ...rest }) => {
       const xi = inits.X.x;
       const xf = X.x;
@@ -9,20 +9,20 @@ export class Constraints {
       return {
         ...rest,
         X: !collision ? X : X.setX(xi),
-        V: !collision ? V : V.negateX(),
+        V: !collision ? V : V.multiply([-dampen, 1, 1]),
       };
     };
   }
 
-  static readonly horizontalWall = (wallY: number): Constraint => {
+  static readonly horizontalWall = (wallY: number, dampen = 0.9): Constraint => {
     return (inits, { X, V, ...rest }) => {
       const yi = inits.X.y;
       const yf = X.y;
-      const collision = wallY < Math.max(yi, yf) && wallY > Math.min(yi, yf);
+      const collision = wallY <= Math.max(yi, yf) && wallY >= Math.min(yi, yf);
       return {
         ...rest,
         X: !collision ? X : X.setY(yi),
-        V: !collision ? V : V.negateY(),
+        V: !collision ? V : V.multiply([1, -dampen, 1]),
       };
     };
   }
