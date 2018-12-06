@@ -17,6 +17,8 @@ interface Action {
   evt: Event;
 }
 
+type MapRanges = Record<'canvasX' | 'canvasY' | 'systemX' | 'systemY', (x: number) => number>;
+
 @Component({
   selector: 'dotstar-input-canvas',
   templateUrl: './input-canvas.component.html',
@@ -29,6 +31,7 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
   private readonly bounds$ = new BehaviorSubject<Bound>(new Bound(Pt.make(2), Pt.make(2)));
   // private readonly particles$ = new Subject<Particle[]>();
   // private readonly mappedValues: Observable<Sample[]>;
+  private readonly mapTos: Observable<MapRanges>;
   private readonly pointers: Observable<Pt[]>;
 
   readonly height = 550;
@@ -67,7 +70,6 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
       this.bounds$,
       this.physicsService.streamPhysicalConst(PhysicalConstName.ParticleMass),
       (n, bounds, mass) => {
-        const mapToX = mapToRange(0, n, 0, bounds.width || 1);
         const system = new System();
         system.particles = range(0, n).map(i => {
           return new Particle({
@@ -77,6 +79,25 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
         });
         return system;
       }
+    );
+
+    this.mapTos = combineLatest(
+      this.configService.length,
+      this.bounds$,
+      (n, { topLeft, bottomRight }) => ({
+        sysX: [ 0, n ],
+        sysY: [ DotstarConstants.minBrightness, DotstarConstants.maxBrightness ],
+        canX: [ topLeft.x, bottomRight.x ],
+        canY: [ bottomRight.y, topLeft.y ],
+      })
+    )
+    .pipe(
+      map(({ sysX, sysY, canX, canY }) => ({
+        systemX: mapToRange(canX[0], canX[1], sysX[0], sysX[1]),
+        systemY: mapToRange(canY[0], canY[1], sysY[0], sysY[1]),
+        canvasX: mapToRange(sysX[0], sysX[1], canX[0], canX[1]),
+        canvasY: mapToRange(sysY[0], sysY[1], canY[0], canY[1]),
+      }))
     );
 
     this.pointers = this.actions$.pipe(
@@ -115,6 +136,7 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
         this.system,
         this.bounds$,
         this.pointers,
+        this.mapTos,
         this.physicsService.physicsConfig
         // this.physicsService.streamPhysicalConst(PhysicalConstName.PointerForce),
         // this.physicsService.streamPhysicalConst(PhysicalConstName.ParticleMass),
@@ -124,25 +146,22 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
       ),
       tap(() => this.space.clear())
     )
-    .subscribe(([t, system, bounds, pointers, { pointerForce, particleMass, friction, gravity, damping }]) => {
-      // system.damping = damping;
-      // system.friction = friction;
-      // system.gravity = new Pt(0, gravity);
+    .subscribe(([t, system, bounds, pointers, mapTo, { pointerForce, particleMass, friction, gravity, damping }]) => {
       const { minBrightness, maxBrightness } = DotstarConstants;
       const { height, width } = bounds;
 
-      const mapToCanvasX = mapToRange(0, system.particles.length, bounds.topLeft.x, bounds.bottomRight.x);
-      const mapToCanvasY = mapToRange(minBrightness, maxBrightness, bounds.bottomRight.y, bounds.topLeft.y);
+      // const mapToCanvasX = mapToRange(0, system.particles.length, bounds.topLeft.x, bounds.bottomRight.x);
+      // const mapToCanvasY = mapToRange(minBrightness, maxBrightness, bounds.bottomRight.y, bounds.topLeft.y);
       // const pointerSpread = Math.pow((width / system.particleCount) * this.pointerSpread, 2);
       // const forceDecayX = (dx: number) => clamp(0, 1, -1 * Math.pow(dx, 2) / pointerSpread + 1);
-      system.next(t / 1000, [ () => Vector3.of(0, 1, 0) ], [
+      system.next(t / 1000, [ () => Vector3.of(0, -10, 0) ], [
         Constraints.horizontalWall(minBrightness),
         Constraints.horizontalWall(maxBrightness),
         Constraints.axisLock('x'),
       ]);
 
       system.particles.forEach((particle, i) => {
-        const position = particle.X.apply(mapToCanvasX, mapToCanvasY, z => z);
+        const position = particle.X.apply(mapTo.canvasX, mapTo.canvasY, z => z);
         this.form.fillOnly(`#3f3f3f`).point(position.asArray(), 5, 'circle');
       });
       // system.drawParticles((particle, i) => {
