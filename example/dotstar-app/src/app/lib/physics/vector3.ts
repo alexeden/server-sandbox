@@ -67,6 +67,14 @@ export class Vector3 {
     return this.x * this.x + this.y * this.y + this.z * this.z;
   }
 
+  clamp(xMin: number, xMax: number, yMin = xMin, yMax = xMax, zMin = xMin, zMax = xMax): Vector3 {
+    return  new Vector3(
+      Math.max(xMin, Math.min(xMax, this.x)),
+      Math.max(yMin, Math.min(yMax, this.y)),
+      Math.max(zMin, Math.min(zMax, this.z))
+    );
+  }
+
   apply(fn: (n: number) => number): Vector3 {
     return new Vector3(fn(this.x), fn(this.y), fn(this.z));
   }
@@ -81,6 +89,10 @@ export class Vector3 {
 
   round(): Vector3 {
     return this.apply(Math.round);
+  }
+
+  abs(): Vector3 {
+    return this.apply(Math.abs);
   }
 
   add(arg: number | VectorLike): Vector3 {
@@ -136,12 +148,10 @@ export class Vector3 {
     return dx * dx + dy * dy + dz * dz;
   }
 
-  negate(): Vector3 {
-    return new Vector3(-this.x, -this.y, -this.z);
-  }
-  negateX(): Vector3 { return new Vector3(-this.x, this.y, this.z); }
-  negateY(): Vector3 { return new Vector3(this.x, -this.y, this.z); }
-  negateZ(): Vector3 { return new Vector3(this.x, this.y, -this.z); }
+  negate(): Vector3  { return new Vector3(-this.x, -this.y, -this.z); }
+  negateX(): Vector3 { return new Vector3(-this.x, this.y, this.z);   }
+  negateY(): Vector3 { return new Vector3(this.x, -this.y, this.z);   }
+  negateZ(): Vector3 { return new Vector3(this.x, this.y, -this.z);   }
 
   invert(): Vector3 {
     return new Vector3(1 / this.x, 1 / this.y, 1 / this.z);
