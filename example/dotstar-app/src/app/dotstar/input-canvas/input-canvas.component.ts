@@ -2,12 +2,12 @@ import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/co
 import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
 import { takeUntil, skipWhile, map, tap, withLatestFrom, scan } from 'rxjs/operators';
 import { CanvasSpace, Pt, CanvasForm, Bound, World } from 'pts';
-import { Sample, range, clamp, mapToRange, absDiff, PhysicalConstName } from '../lib';
+import { Sample, range, clamp, mapToRange, absDiff, PhysicalConstName, DotstarConstants } from '../lib';
 import { DotstarDeviceConfigService } from '../device-config.service';
 import { DotstarBufferService } from '../dotstar-buffer.service';
 import { AnimationClockService } from '../animation-clock.service';
 import { PhysicsConfigService } from '../physics-config.service';
-import { Particle, System, Vector3 } from '@app/lib/physics';
+import { Particle, System, Vector3, Constraints } from '@app/lib/physics';
 
 type ActionType = 'move' | 'up' | 'down' | 'drag' | 'over' | 'out';
 
@@ -108,7 +108,7 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.clock.dt.pipe(
+    this.clock.t.pipe(
       takeUntil(this.unsubscribe$),
       skipWhile(() => !this.ready$.getValue()),
       withLatestFrom(
@@ -124,14 +124,27 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
       ),
       tap(() => this.space.clear())
     )
-    .subscribe(([dt, system, bounds, pointers, { pointerForce, particleMass, friction, gravity, damping }]) => {
+    .subscribe(([t, system, bounds, pointers, { pointerForce, particleMass, friction, gravity, damping }]) => {
       // system.damping = damping;
       // system.friction = friction;
       // system.gravity = new Pt(0, gravity);
+      const { minBrightness, maxBrightness } = DotstarConstants;
       const { height, width } = bounds;
+
+      const mapToCanvasX = mapToRange(0, system.particles.length, bounds.topLeft.x, bounds.bottomRight.x);
+      const mapToCanvasY = mapToRange(minBrightness, maxBrightness, bounds.bottomRight.y, bounds.topLeft.y);
       // const pointerSpread = Math.pow((width / system.particleCount) * this.pointerSpread, 2);
       // const forceDecayX = (dx: number) => clamp(0, 1, -1 * Math.pow(dx, 2) / pointerSpread + 1);
+      system.next(t / 1000, [ () => Vector3.of(0, 1, 0) ], [
+        Constraints.horizontalWall(minBrightness),
+        Constraints.horizontalWall(maxBrightness),
+        Constraints.axisLock('x'),
+      ]);
 
+      system.particles.forEach((particle, i) => {
+        const position = particle.X.apply(mapToCanvasX, mapToCanvasY, z => z);
+        this.form.fillOnly(`#3f3f3f`).point(position.asArray(), 5, 'circle');
+      });
       // system.drawParticles((particle, i) => {
       //   particle.mass = particleMass;
       //   if (pointers.length > 0) {

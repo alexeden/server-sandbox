@@ -9,6 +9,8 @@ export class DotstarConstants {
   static readonly hSampler = '[330, 240, 120, 25, 9, 0][Math.floor(6*i/n)]';
   static readonly sSampler = '1';
   static readonly lSampler = '0.5 * (Math.sin(t/500 - i/n) > 0 ? 1 : 0)';
+  static readonly minBrightness = 0;
+  static readonly maxBrightness = 0xFF;
 }
 
 export enum Colors {

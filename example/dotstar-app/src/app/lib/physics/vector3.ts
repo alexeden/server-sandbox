@@ -73,15 +73,18 @@ export class Vector3 {
   }
 
   clamp(xMin: number, xMax: number, yMin = xMin, yMax = xMax, zMin = xMin, zMax = xMax): Vector3 {
-    return  new Vector3(
+    return new Vector3(
       Math.max(xMin, Math.min(xMax, this.x)),
       Math.max(yMin, Math.min(yMax, this.y)),
       Math.max(zMin, Math.min(zMax, this.z))
     );
   }
 
-  apply(fn: (n: number) => number): Vector3 {
-    return new Vector3(fn(this.x), fn(this.y), fn(this.z));
+  // applyX(fn: (n: number) => number): Vector3 { return new Vector3(fn(this.x), this.y, this.z); }
+  // applyY(fn: (n: number) => number): Vector3 { return new Vector3(this.x, fn(this.y), this.z); }
+  // applyZ(fn: (n: number) => number): Vector3 { return new Vector3(this.x, this.y, fn(this.z)); }
+  apply(fnX: (n: number) => number, fnY = fnX, fnZ = fnX): Vector3 {
+    return new Vector3(fnX(this.x), fnY(this.y), fnZ(this.z));
   }
 
   ceil(): Vector3 {
