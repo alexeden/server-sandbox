@@ -28,7 +28,11 @@ export class Vector3 {
     readonly x = 0,
     readonly y = 0,
     readonly z = 0
-  ) {}
+  ) {
+    if (isNaN(x) || isNaN(y) || isNaN(z)) {
+      throw new Error(`A Vector3 value is NaN!`);
+    }
+  }
 
   *[Symbol.iterator]() {
     yield this.x;

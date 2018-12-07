@@ -8,6 +8,11 @@ export class Forces {
    */
   static drag(density: number, area = Math.PI, drag = 0.47): Force {
     const coeff = (density * drag * area) / 2;
-    return p => p.V.squared().multiply(coeff);
+
+    return p => {
+      const dragMag = coeff * p.V.magnitude();
+
+      return p.V.setMagnitude(Math.abs(dragMag)).negate();
+    };
   }
 }

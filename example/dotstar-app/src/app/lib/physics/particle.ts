@@ -13,7 +13,7 @@ export class Particle implements ParticleState {
     this.X = state.X || Vector3.empty();
     this.V = state.V || Vector3.empty();
     this.A = state.A || Vector3.empty();
-    this.mass = state.mass || 1;
+    this.mass = 1; // state.mass || 1;
     this.t = state.t || 1;
   }
 
@@ -35,7 +35,7 @@ export class Particle implements ParticleState {
     const mass = this.mass;
     const V0 = this.V;
     const X0 = this.X;
-    const A = fs.reduce((net, f) => net.plus(f(this)), Vector3.empty()).divide(mass).settle();
+    const A = fs.reduce((net, f) => net.plus(f(this)), Vector3.empty()).settle();
     const V = V0.plus(A.times(dt)).settle();
     const X = X0.add(V0.add(V).times(dt / 2)).settle();
 

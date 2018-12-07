@@ -7,7 +7,7 @@ import { DotstarDeviceConfigService } from '../device-config.service';
 import { DotstarBufferService } from '../dotstar-buffer.service';
 import { AnimationClockService } from '../animation-clock.service';
 import { PhysicsConfigService } from '../physics-config.service';
-import { Particle, System, Vector3, Constraints, Force } from '@app/lib/physics';
+import { Particle, System, Vector3, Constraints, Force, Forces } from '@app/lib/physics';
 
 type ActionType = 'move' | 'up' | 'down' | 'drag' | 'over' | 'out';
 
@@ -152,7 +152,8 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
       ),
       tap(() => this.space.clear())
     )
-    .subscribe(([t, system, bounds, pointers, mapTo, { pointerForce, particleMass, friction, gravity, damping }]) => {
+    .subscribe(([t, system, bounds, pointers, mapTo, { fluidDensity, pointerForce, particleMass, friction, gravity, damping }]) => {
+      (window as any).system = system;
       const { minBrightness, maxBrightness } = DotstarConstants;
       const { height, width } = bounds;
 
@@ -162,6 +163,7 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
       // const forceDecayX = (dx: number) => clamp(0, 1, -1 * Math.pow(dx, 2) / pointerSpread + 1);
       const forces: Force[] = [
         () => Vector3.of(0, gravity, 0),
+        // Forces.drag(fluidDensity),
       ];
 
       if (pointers.length > 0) {
@@ -182,15 +184,19 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
         Constraints.axisLock('x'),
       ]);
 
+      const positions: number[] = [];
       system.particles.forEach((p, i) => {
         const position = p.X.apply(mapTo.canvasX, mapTo.canvasY, z => z);
         const velocity = p.V.apply(mapTo.canvasX, mapTo.canvasY, z => z);
         const accel = p.A.apply(mapTo.canvasX, mapTo.canvasY, z => z);
         this.form.strokeOnly(Colors.Blue).line([position.asArray(), position.add(velocity).asArray()]);
         this.form.strokeOnly(Colors.Green).line([position.asArray(), position.add(accel).asArray()]);
-
+        positions.push(p.X.y);
         this.form.fillOnly(`#3f3f3f`).point(position.asArray(), 5, 'circle');
       });
+
+      this.form.alignText('left', 'hanging').fill('blue')
+        .text([10, 10], `y average ${positions.reduce((sum, y) => sum + y, 0) / positions.length}`, 500);
 
       // system.drawParticles((particle, i) => {
       //   particle.mass = particleMass;
