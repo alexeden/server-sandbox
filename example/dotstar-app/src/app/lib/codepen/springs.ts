@@ -74,60 +74,89 @@ class Particle {
 \*------------------------------*/
 
 class Canvas {
-  constructor(
+  readonly canvas: HTMLCanvasElement;
+  readonly ctx: CanvasRenderingContext2D;
+  readonly wave: Wave;
+  readonly mouse = {
+    x: 0,
+    y: 0,
+    mousedown: false,
+  };
+  tick = 0;
 
-  ) {
-    // setup a canvas
-    this.canvas = document.getElementById('canvas');
-    this.ctx = this.canvas.getContext('2d');
+  constructor() {
+    this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
+    this.ctx = this.canvas.getContext('2d')!;
     this.ctx.scale(DPR, DPR);
 
-    this.mouse = { x: 0, y: 0, mousedown: false };
+    this.canvas.width = window.innerWidth * DPR;
+    this.canvas.height = window.innerHeight * DPR;
+    this.canvas.style.width = window.innerWidth + 'px';
+    this.canvas.style.height = window.innerHeight + 'px';
 
-    this.setCanvasSize();
-    window.addEventListener('resize', this.setCanvasSize.bind(this));
-    window.addEventListener('mousedown', this.handleMousedown.bind(this));
-    window.addEventListener('mouseup', this.handleMouseup.bind(this));
-    window.addEventListener('mousemove', this.handleMouse.bind(this));
-    window.addEventListener('click', this.handleMouse.bind(this));
-
-    this.constructWave();
-    this.triggerWave(this.canvas.width / 2, this.canvas.height);
-
-    this.tick = 0;
-    this.render();
-  }
-
-  constructWave() {
     const y = this.canvas.height / 2;
     const p1 = new Particle(PADDING, y);
     const p2 = new Particle(this.canvas.width - PADDING, y);
     this.wave = new Wave(NUM_POINTS, p1, p2);
+
+    window.addEventListener('mousedown', () => this.mouse.mousedown = true);
+    window.addEventListener('mouseup', () => this.mouse.mousedown = false);
+    window.addEventListener('mousemove', this.handleMouse.bind(this));
+    window.addEventListener('click', this.handleMouse.bind(this));
+
+    this.triggerWave(this.canvas.width / 2, this.canvas.height);
+
+    this.render();
   }
 
-  handleMousedown(event) {
-    this.mouse.mousedown = true;
+  updateWave() {
+    this.wave.particles.forEach((p, n, particles) => {
+      const leftIndex = n === 0 ? particles.length - 1 : n - 1;
+      const rightIndex = n === particles.length - 1 ? 0 : n + 1;
+      const forceFromLeft = SPRING_CONSTANT * (particles[leftIndex].y - p.y);
+      const forceFromRight = SPRING_CONSTANT * (particles[rightIndex].y - p.y);
+      const forceToBaseline = SPRING_CONSTANT_BASELINE * (this.canvas.height / 2 - p.y);
+
+      // Total force to apply to this point
+      const force = forceFromLeft + forceFromRight + forceToBaseline;
+
+      // Calculate acceleration
+      const acceleration = force / p.mass;
+
+      // Apply acceleration (with damping)
+      p.vy = DAMPING * p.vy + acceleration;
+
+      // Apply speed
+      p.y = p.y + p.vy;
+    });
   }
 
-  handleMouseup(event) {
-    this.mouse.mousedown= false;
+  render() {
+    this.drawBackground();
+    this.drawText();
+    this.drawCurve();
+    this.drawSpring();
+    this.drawVerts();
+    this.drawMouse();
+    this.updateWave();
+    if (this.mouse.mousedown) this.triggerWave(this.mouse.x, this.mouse.y);
+    this.tick++;
+    window.requestAnimationFrame(this.render.bind(this));
   }
 
-  handleMouse(event) {
-    const x = event.clientX * DPR;
-    const y = event.clientY * DPR;
-    this.mouse.x = x;
-    this.mouse.y = y;
+  handleMouse({ clientX, clientY }: MouseEvent) {
+    this.mouse.x = clientX * DPR;
+    this.mouse.y = clientY * DPR;
   }
 
-  triggerWave(x, y) {
+  triggerWave(x: number, y: number) {
     let closestPoint = {};
     let closestDistance = -1;
 
     const particles = this.wave.particles;
     let idx = 0;
 
-    for (var n = 0; n < particles.length; n++) {
+    for (let n = 0; n < particles.length; n++) {
       const p = particles[n];
       const distance = Math.abs(x - p.x);
 
@@ -141,8 +170,6 @@ class Canvas {
     const halfHeight = this.canvas.height / 2;
     // update the wave point closest to the mouse to start a wave
     const dy = y - halfHeight; // delta y from baseline
-
-
     const spread = 4; // number of particles to affect from closest point
     const mod = (idx - spread) % particles.length; // modulus
     const start = mod < 0 ? particles.length + mod : mod; // starting idx accounting for negatives
@@ -160,13 +187,8 @@ class Canvas {
     }
   }
 
-  setCanvasSize() {
-    this.canvas.width = window.innerWidth * DPR;
-    this.canvas.height = window.innerHeight * DPR;
-    this.canvas.style.width = window.innerWidth + 'px';
-    this.canvas.style.height = window.innerHeight + 'px';
-
-    this.constructWave();
+  get yAvg() {
+    return this.wave.particles.reduce((sum, { y }) => sum + y, 0) / this.wave.particles.length;
   }
 
   drawBackground() {
@@ -175,10 +197,6 @@ class Canvas {
     gradient.addColorStop(1, '#00ecbc');
     this.ctx.fillStyle = gradient;
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-  }
-
-  get yAvg() {
-    return this.wave.particles.reduce((sum, { y }) => sum + y, 0) / this.wave.particles.length;
   }
 
   drawText() {
@@ -202,13 +220,12 @@ class Canvas {
       const p1 = this.wave.particles[k];
       const p2 = this.wave.particles[k + 1];
 
-      const cpx = (p1.x + p2.x) / 2;
-      const cpy = (p1.y + p2.y) / 2;
-
       if (k === this.wave.particles.length - 2) {
         this.ctx.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y);
       }
       else {
+        const cpx = (p1.x + p2.x) / 2;
+        const cpy = (p1.y + p2.y) / 2;
         this.ctx.quadraticCurveTo(p1.x, p1.y, cpx, cpy);
       }
 
@@ -219,39 +236,31 @@ class Canvas {
 
   drawSpring() {
     this.ctx.lineCap = 'round';
-    this.ctx.lineJoin= 'round';
+    this.ctx.lineJoin = 'round';
     this.ctx.lineWidth = 3 * DPR;
     this.ctx.strokeStyle = '#8c6eef';
 
-    for (let k = 0; k < this.wave.particles.length; k++) {
-      const p1 = this.wave.particles[k];
+    this.wave.particles.forEach((p1, k) => {
       const p2 = {
         x: p1.x,
         y: this.canvas.height - 60 * DPR,
       };
-
       this.ctx.beginPath();
       this.ctx.moveTo(p1.x, p1.y);
-
       const coils = this.canvas.height / 20;
-
       const dy = p2.y - p1.y;
       const dist = dy / coils;
 
       for (let n = 1; n <= coils; n++) {
         const dyn = dist * n;
         let dx = this.canvas.height * 0.004;
-
-        if (n % 2 === 0) {
-            dx *= -1;
-        }
-
+        if (n % 2 === 0) dx *= -1;
         this.ctx.lineTo(p1.x + dx, p1.y + dyn);
       }
 
       this.ctx.stroke();
       this.ctx.closePath();
-    }
+    });
   }
 
   drawVerts() {
@@ -268,60 +277,16 @@ class Canvas {
     });
   }
 
-drawMouse() {
+  drawMouse() {
     this.ctx.lineWidth = 2 * DPR;
     this.ctx.fillStyle = 'rgba(102, 126, 234, 0.5)';
     this.ctx.strokeStyle = this.mouse.mousedown ? '#330867' : '#89f7fe';
-
     this.ctx.beginPath();
     this.ctx.arc(this.mouse.x, this.mouse.y, 16 * DPR, 0, Math.PI * 2, true);
     this.ctx.closePath();
     this.ctx.stroke();
     this.mouse.mousedown && this.ctx.fill();
-}
-
-updateWave() {
-    this.wave.particles.forEach((p, n, particles) => {
-        const leftIndex = n === 0 ? particles.length - 1 : n - 1;
-        const rightIndex = n === particles.length - 1 ? 0 : n + 1;
-  const forceFromLeft = SPRING_CONSTANT * (particles[leftIndex].y - p.y);
-        const forceFromRight = SPRING_CONSTANT * (particles[rightIndex].y - p.y);
-  const forceToBaseline = SPRING_CONSTANT_BASELINE * (this.canvas.height / 2 - p.y);
-
-        // Total force to apply to this point
-        const force = forceFromLeft + forceFromRight + forceToBaseline;
-
-  // Calculate acceleration
-  const acceleration = force / p.mass;
-
-  // Apply acceleration (with damping)
-  p.vy = DAMPING * p.vy + acceleration;
-
-  // Apply speed
-  p.y = p.y + p.vy;
-    });
-}
-
-render() {
-    this.drawBackground();
-    this.drawText();
-    this.drawCurve();
-    this.drawSpring();
-    this.drawVerts();
-    this.drawMouse();
-
-    this.updateWave();
-
-    // Hold on mousedown
-    if (this.mouse.mousedown) {
-        const { x, y } = this.mouse;
-        this.triggerWave(x, y);
-    }
-
-    this.tick++;
-
-    window.requestAnimationFrame(this.render.bind(this));
-}
+  }
 }
 
 new Canvas();
