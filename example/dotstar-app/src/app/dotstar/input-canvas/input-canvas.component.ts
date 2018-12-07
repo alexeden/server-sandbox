@@ -170,7 +170,8 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
         forces.push(
           p => {
             const diff = pointer.minus(p.X);
-            return pointer.minus(p.X).setMagnitude(200 / Math.pow(diff.x, 2)); // .divide(0.01 * diff.magnitudeSquared());
+            return diff.setMagnitude(10 * diff.y / Math.abs(diff.x));
+            // .setMagnitude(200 / Math.pow(diff.x, 2)); // .divide(0.01 * diff.magnitudeSquared());
           });
       }
 
