@@ -1,5 +1,6 @@
 export enum PhysicalConstName {
   Damping = 'damping',
+  FluidDensity = 'fluidDensity',
   Friction = 'friction',
   Gravity = 'gravity',
   ParticleMass = 'particleMass',

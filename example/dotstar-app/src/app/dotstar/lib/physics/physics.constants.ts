@@ -9,6 +9,14 @@ export const PHYSICAL_CONSTS: { [P in PhysicalConstName]: PhysicalConst } = {
     step: 0.01,
     label: 'Damping',
   },
+  [PhysicalConstName.FluidDensity]: {
+    name: PhysicalConstName.FluidDensity,
+    min: 0,
+    max: 100000,
+    default: 1000,
+    step: 1,
+    label: 'Fluid Density',
+  },
   [PhysicalConstName.Friction]: {
     name: PhysicalConstName.Friction,
     min: 0,
