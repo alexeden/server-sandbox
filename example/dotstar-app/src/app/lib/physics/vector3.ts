@@ -4,7 +4,7 @@ type VectorLike = Vector3 | Triple | number[];
 export type Axis = 'x' | 'y' | 'z';
 
 export class Vector3 {
-  static readonly epsilon = 0.00001;
+  static readonly epsilon = 0.001;
 
   static empty() {
     return new Vector3(0, 0, 0);

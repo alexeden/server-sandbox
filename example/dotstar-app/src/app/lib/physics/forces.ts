@@ -10,9 +10,9 @@ export class Forces {
     const coeff = (density * drag * area) / 2;
 
     return p => {
-      const dragMag = coeff * p.V.magnitude();
-
-      return p.V.setMagnitude(Math.abs(dragMag)).negate();
+      // const dragMag = -coeff * p.V.magnitude();
+      return p.V.times(-coeff);
+      // .setMagnitude(dragMag);
     };
   }
 }

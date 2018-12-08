@@ -152,20 +152,18 @@ class Canvas {
   triggerWave(x: number, y: number) {
     let closestPoint = {};
     let closestDistance = -1;
-
-    const particles = this.wave.particles;
     let idx = 0;
 
-    for (let n = 0; n < particles.length; n++) {
-      const p = particles[n];
-      const distance = Math.abs(x - p.x);
+    const particles = this.wave.particles;
 
+    particles.forEach((p, n) => {
+      const distance = Math.abs(x - p.x);
       if (closestDistance === -1 || distance <= closestDistance) {
         closestPoint = p;
         closestDistance = distance;
         idx = n;
       }
-    }
+    });
 
     const halfHeight = this.canvas.height / 2;
     // update the wave point closest to the mouse to start a wave

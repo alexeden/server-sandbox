@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/core';
 import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
-import { takeUntil, skipWhile, map, tap, withLatestFrom, scan } from 'rxjs/operators';
+import { takeUntil, skipWhile, map, tap, withLatestFrom, scan, startWith } from 'rxjs/operators';
 import { CanvasSpace, Pt, CanvasForm, Bound, World } from 'pts';
 import { Sample, range, clamp, mapToRange, absDiff, PhysicalConstName, DotstarConstants, Colors } from '../lib';
 import { DotstarDeviceConfigService } from '../device-config.service';
@@ -17,7 +17,20 @@ interface Action {
   evt: Event;
 }
 
-type MapRanges = Record<'canvasX' | 'canvasY' | 'systemX' | 'systemY', (x: number) => number>;
+interface Domains {
+  sysX: number[];
+  sysY: number[];
+  canX: number[];
+  canY: number[];
+  sysRatio: number;
+  canRatio: number;
+  toSysX: (n: number) => number;
+  toSysY: (n: number) => number;
+  toCanX: (n: number) => number;
+  toCanY: (n: number) => number;
+}
+
+type MapRanges = Record<'toCanX' | 'toCanY' | 'toSysX' | 'toSysY', (x: number) => number>;
 
 @Component({
   selector: 'dotstar-input-canvas',
@@ -31,7 +44,7 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
   private readonly bounds$ = new BehaviorSubject<Bound>(new Bound(Pt.make(2), Pt.make(2)));
   // private readonly particles$ = new Subject<Particle[]>();
   // private readonly mappedValues: Observable<Sample[]>;
-  private readonly mapTos: Observable<MapRanges>;
+  private readonly domains: Observable<Domains>;
   private readonly pointers: Observable<Vector3[]>;
 
   readonly height = 550;
@@ -75,13 +88,14 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
           return new Particle({
             mass,
             X: Vector3.of(i, 0, 0),
+            V: Vector3.empty(),
           });
         });
         return system;
       }
     );
 
-    this.mapTos = combineLatest(
+    this.domains = combineLatest(
       this.configService.length,
       this.bounds$,
       (n, { topLeft, bottomRight }) => ({
@@ -92,31 +106,35 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
       })
     )
     .pipe(
-      map(({ sysX, sysY, canX, canY }) => ({
-        systemX: mapToRange(canX[0], canX[1], sysX[0], sysX[1]),
-        systemY: mapToRange(canY[0], canY[1], sysY[0], sysY[1]),
-        canvasX: mapToRange(sysX[0], sysX[1], canX[0], canX[1]),
-        canvasY: mapToRange(sysY[0], sysY[1], canY[0], canY[1]),
+      map(ranges => ({
+        ...ranges,
+        sysRatio: absDiff(ranges.sysX[0], ranges.sysX[1]) / absDiff(ranges.sysY[0], ranges.sysY[1]),
+        canRatio: absDiff(ranges.canX[0], ranges.canX[1]) / absDiff(ranges.canY[0], ranges.canY[1]),
+        toSysX: mapToRange(ranges.canX[0], ranges.canX[1], ranges.sysX[0], ranges.sysX[1]),
+        toSysY: mapToRange(ranges.canY[0], ranges.canY[1], ranges.sysY[0], ranges.sysY[1]),
+        toCanX: mapToRange(ranges.sysX[0], ranges.sysX[1], ranges.canX[0], ranges.canX[1]),
+        toCanY: mapToRange(ranges.sysY[0], ranges.sysY[1], ranges.canY[0], ranges.canY[1]),
       }))
     );
 
     this.pointers = this.actions$.pipe(
-      withLatestFrom(this.mapTos),
+      withLatestFrom(this.domains),
       scan<[Action, MapRanges], Vector3[]>(
-        (pointers, [action, mapTos]) => {
+        (pointers, [action, domains]) => {
           switch (action.type) {
             case 'out': return [];
             default: return [
               Vector3.of(
-                mapTos.systemX(action.pt.x),
-                mapTos.systemY(action.pt.y),
+                domains.toSysX(action.pt.x),
+                domains.toSysY(action.pt.y),
                 0
               ),
             ];
           }
         },
         []
-      )
+      ),
+      startWith([])
     );
 
     // this.mappedValues = this.particles$.pipe(
@@ -142,57 +160,53 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
         this.system,
         this.bounds$,
         this.pointers,
-        this.mapTos,
+        this.domains,
         this.physicsService.physicsConfig
-        // this.physicsService.streamPhysicalConst(PhysicalConstName.PointerForce),
-        // this.physicsService.streamPhysicalConst(PhysicalConstName.ParticleMass),
-        // this.physicsService.streamPhysicalConst(PhysicalConstName.Friction),
-        // this.physicsService.streamPhysicalConst(PhysicalConstName.Gravity),
-        // this.physicsService.streamPhysicalConst(PhysicalConstName.Damping)
       ),
       tap(() => this.space.clear())
     )
     .subscribe(([t, system, bounds, pointers, mapTo, { fluidDensity, pointerForce, particleMass, friction, gravity, damping }]) => {
       (window as any).system = system;
       const { minBrightness, maxBrightness } = DotstarConstants;
-      const { height, width } = bounds;
-
-      // const mapToCanvasX = mapToRange(0, system.particles.length, bounds.topLeft.x, bounds.bottomRight.x);
-      // const mapToCanvasY = mapToRange(minBrightness, maxBrightness, bounds.bottomRight.y, bounds.topLeft.y);
-      // const pointerSpread = Math.pow((width / system.particleCount) * this.pointerSpread, 2);
-      // const forceDecayX = (dx: number) => clamp(0, 1, -1 * Math.pow(dx, 2) / pointerSpread + 1);
       const forces: Force[] = [
         () => Vector3.of(0, gravity, 0),
-        // Forces.drag(fluidDensity),
+        Forces.drag(fluidDensity),
       ];
 
       if (pointers.length > 0) {
         const [ pointer ] = pointers;
         this.form.alignText('left').fill(Colors.Black).text([10, 10], `Pointer\t ${pointers[0].round().asArray()}`, 500);
-        forces.push(
-          p => {
-            const diff = pointer.minus(p.X);
-            return diff.setMagnitude(10 * diff.y / Math.abs(diff.x));
-            // .setMagnitude(200 / Math.pow(diff.x, 2)); // .divide(0.01 * diff.magnitudeSquared());
-          });
+        forces.push(p => {
+          // const diff =
+          return pointer.minus(p.X).setMagnitude(Math.abs(pointerForce)); // .setX(0);
+          // return diff.setMagnitude(diff.y / Math.abs(diff.x));
+          // .setMagnitude(200 / Math.pow(diff.x, 2)); // .divide(0.01 * diff.magnitudeSquared());
+        });
       }
+
+      // forces.push(p => {
+      //   return p.
+      // });
 
 
       system.next(t / 1000, forces, [
         Constraints.horizontalWall(minBrightness, 0.2),
-        Constraints.horizontalWall(maxBrightness),
-        Constraints.axisLock('x'),
+        Constraints.horizontalWall(maxBrightness, 0.1),
+        // Constraints.axisLock('x'),
       ]);
 
       const positions: number[] = [];
+      let maxV = 0;
       system.particles.forEach((p, i) => {
-        const position = p.X.apply(mapTo.canvasX, mapTo.canvasY, z => z);
-        const velocity = p.V.apply(mapTo.canvasX, mapTo.canvasY, z => z);
-        const accel = p.A.apply(mapTo.canvasX, mapTo.canvasY, z => z);
-        this.form.strokeOnly(Colors.Blue).line([position.asArray(), position.add(velocity).asArray()]);
-        this.form.strokeOnly(Colors.Green).line([position.asArray(), position.add(accel).asArray()]);
+        const position = p.X.apply(mapTo.toCanX, mapTo.toCanY, z => z);
+        const velocity = p.V.apply(mapTo.toCanX, mapTo.toCanY, z => z);
+        maxV = Math.max(maxV, velocity.magnitude());
+        const accel = p.A.apply(mapTo.toCanX, mapTo.toCanY, z => z);
+        this.form.strokeOnly(Colors.Blue).line([position.asArray(), position.add([0, velocity.y, 0]).asArray()]);
+        this.form.strokeOnly(Colors.Red).line([position.asArray(), position.add(velocity).asArray() ]);
+        this.form.strokeOnly(Colors.Green).line([position.asArray(), position.add([0, accel.y, 0]).asArray()]);
         positions.push(p.X.y);
-        this.form.fillOnly(`#3f3f3f`).point(position.asArray(), 5, 'circle');
+        this.form.fillOnly(`#3f3f3f`).point(position.asArray(), 3, 'circle');
       });
 
       this.form.alignText('left', 'hanging').fill('blue')

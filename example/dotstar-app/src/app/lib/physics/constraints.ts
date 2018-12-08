@@ -1,4 +1,5 @@
 import { Constraint } from './types';
+import { Vector3 } from './vector3';
 
 export class Constraints {
   static readonly epsilon = 0.0001;
@@ -30,10 +31,14 @@ export class Constraints {
   }
 
   static readonly axisLock = (axis: 'x' | 'y' | 'z'): Constraint => {
-    return (inits, { X, ...rest }) => {
+    return (inits, { V, ...rest }) => {
       return {
         ...rest,
-        X: X.setAxis(axis, inits.X[axis]),
+        V: V.setAxis(axis, 0), // Vector3.empty().setAxis(axis, V[axis]),
+        // V: Vector3.empty().setAxis(axis, V[axis]),
+        // V.setAxis(),
+        // X,
+        // X: X.setAxis(axis, inits.X[axis]),
       };
     };
   }
