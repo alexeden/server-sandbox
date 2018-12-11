@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject, ConnectableObservable } from 'rxjs';
+import { Observable, Subject, ConnectableObservable, interval } from 'rxjs';
 import { PhysicsConfig, DEFAULT_PHYSICS_CONFIG, PhysicalConstName } from './lib';
 import { LocalStorage } from '@app/shared';
-import { startWith, tap, scan, map, publishReplay, distinctUntilChanged } from 'rxjs/operators';
+import { startWith, tap, scan, map, publishReplay, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
 @Injectable()
 export class PhysicsConfigService {
 
   private readonly configUpdates$ = new Subject<Partial<PhysicsConfig>>();
   readonly physicsConfig: ConnectableObservable<PhysicsConfig>;
+  readonly worldClock: Observable<number>;
 
   @LocalStorage()
   private savedPhysicsConfig: PhysicsConfig;
@@ -23,6 +24,11 @@ export class PhysicsConfigService {
       tap(config => this.savedPhysicsConfig = config),
       publishReplay(1)
     ) as ConnectableObservable<PhysicsConfig>;
+
+    this.worldClock = this.streamPhysicalConst(PhysicalConstName.WorldClock).pipe(
+      switchMap(period => interval(period))
+    );
+
 
     this.physicsConfig.connect();
   }

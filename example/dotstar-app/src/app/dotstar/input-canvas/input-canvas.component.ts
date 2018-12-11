@@ -136,20 +136,6 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
       ),
       startWith([])
     );
-
-    // this.mappedValues = this.particles$.pipe(
-    //   map(particles => {
-    //     const mapToBrightness = mapToRange(0, this.space.height, 0xFF, 0x00);
-    //     // Map each particle to a sample triplet
-    //     return particles.map<Sample>(p => {
-    //       const brightness = mapToBrightness(p.y);
-    //       return p.changed.y > 0
-    //         ? [0, 0, brightness]
-    //         : [brightness, 0, 0];
-    //     });
-    //   })
-    // );
-
   }
 
   ngOnInit() {
@@ -165,9 +151,8 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
       ),
       tap(() => this.space.clear())
     )
-    .subscribe(([t, system, bounds, pointers, mapTo, { fluidDensity, pointerForce, particleMass, friction, gravity, damping }]) => {
+    .subscribe(([t, system, bounds, pointers, domains, { fluidDensity, pointerForce, particleMass, friction, gravity, damping }]) => {
       (window as any).system = system;
-      const { minBrightness, maxBrightness } = DotstarConstants;
       const forces: Force[] = [
         () => Vector3.of(0, gravity, 0),
         Forces.drag(fluidDensity),
@@ -175,70 +160,35 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
 
       if (pointers.length > 0) {
         const [ pointer ] = pointers;
-        this.form.alignText('left').fill(Colors.Black).text([10, 10], `Pointer\t ${pointers[0].round().asArray()}`, 500);
         forces.push(p => {
-          // const diff =
-          return pointer.minus(p.X).setMagnitude(Math.abs(pointerForce)); // .setX(0);
-          // return diff.setMagnitude(diff.y / Math.abs(diff.x));
-          // .setMagnitude(200 / Math.pow(diff.x, 2)); // .divide(0.01 * diff.magnitudeSquared());
+          return pointer
+            .minus(p.X)
+            .times([1, domains.sysRatio, 1])
+            .setMagnitude(Math.abs(pointerForce));
         });
       }
 
-      // forces.push(p => {
-      //   return p.
-      // });
-
-
       system.next(t / 1000, forces, [
-        Constraints.horizontalWall(minBrightness, 0.2),
-        Constraints.horizontalWall(maxBrightness, 0.1),
-        // Constraints.axisLock('x'),
+        Constraints.horizontalWall(domains.sysY[0], 0.6),
+        Constraints.horizontalWall(domains.sysY[1], 0.1),
       ]);
 
       const positions: number[] = [];
       let maxV = 0;
       system.particles.forEach((p, i) => {
-        const position = p.X.apply(mapTo.toCanX, mapTo.toCanY, z => z);
-        const velocity = p.V.apply(mapTo.toCanX, mapTo.toCanY, z => z);
+        const position = p.X.apply(domains.toCanX, domains.toCanY, z => z);
+        const velocity = p.V.apply(domains.toCanX, domains.toCanY, z => z);
         maxV = Math.max(maxV, velocity.magnitude());
-        const accel = p.A.apply(mapTo.toCanX, mapTo.toCanY, z => z);
+        const accel = p.A.apply(domains.toCanX, domains.toCanY, z => z);
         this.form.strokeOnly(Colors.Blue).line([position.asArray(), position.add([0, velocity.y, 0]).asArray()]);
         this.form.strokeOnly(Colors.Red).line([position.asArray(), position.add(velocity).asArray() ]);
         this.form.strokeOnly(Colors.Green).line([position.asArray(), position.add([0, accel.y, 0]).asArray()]);
-        positions.push(p.X.y);
         this.form.fillOnly(`#3f3f3f`).point(position.asArray(), 3, 'circle');
+        positions.push(p.X.y);
       });
 
       this.form.alignText('left', 'hanging').fill('blue')
         .text([10, 10], `y average ${positions.reduce((sum, y) => sum + y, 0) / positions.length}`, 500);
-
-      // system.drawParticles((particle, i) => {
-      //   particle.mass = particleMass;
-      //   if (pointers.length > 0) {
-      //     const [{ x: pointerX, y: pointerY }] = pointers;
-      //     const dx = absDiff(pointerX, particle.x);
-      //     const xDecay = forceDecayX(dx);
-      //     const antigravity = pointerForce * xDecay;
-      //     // yMag will always be a value within range [-1, 1]
-      //     const yMag = xDecay * ((particle.y - pointerY) / height);
-      //     const fy = antigravity <= 0
-      //       ? 0
-      //       : - (yMag * antigravity);
-
-      //     if (i % 2 === 0 && fy) {
-      //       this.form.alignText('left').fill('red')
-      //        .text([particle.x, height - 30 - ((i % 12) * 20) ], `g ${Math.round(antigravity)}`, 500);
-      //       this.form.alignText('left').fill('blue').text([particle.x, height - 15 - ((i % 12) * 20) ], `yMag ${yMag.toFixed(1)}`, 500);
-      //     }
-      //     particle.addForce(0, fy);
-      //     this.form.fillOnly(`#3f3f3f`).point(particle, 5, 'circle');
-      //     this.form.fillOnly(`red`).point([particle.x, fy + height], 3, 'circle');
-      //   }
-      //   else {
-      //     this.form.fillOnly(`#3f3f3f`).point(particle, 5, 'circle');
-      //   }
-      // });
-      // system.update(dt);
     });
 
     // this.bufferService.setSource(this.mappedValues);

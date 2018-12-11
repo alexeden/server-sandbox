@@ -6,6 +6,7 @@ export enum PhysicalConstName {
   ParticleMass = 'particleMass',
   PointerForce = 'pointerForce',
   PointerSpread = 'pointerSpread',
+  WorldClock = 'worldClock',
 }
 
 export type PhysicalConst<T = number> = {

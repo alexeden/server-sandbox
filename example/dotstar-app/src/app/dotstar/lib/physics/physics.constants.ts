@@ -57,6 +57,14 @@ export const PHYSICAL_CONSTS: { [P in PhysicalConstName]: PhysicalConst } = {
     step: 1,
     label: 'Pointer Spread',
   },
+  [PhysicalConstName.WorldClock]: {
+    name: PhysicalConstName.WorldClock,
+    min: 1,
+    max: 1000,
+    default: 10,
+    step: 1,
+    label: 'Update Period (ms)',
+  },
 };
 
 
