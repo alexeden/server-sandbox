@@ -5,10 +5,11 @@ export type Force = (p: Particle) => Vector3;
 
 export interface ParticleState {
   X: Vector3;
-  V: Vector3;
+  X0: Vector3;
+  // V: Vector3;
   A: Vector3;
   mass: number;
-  t: number;
+  // t: number;
 }
 
-export type Constraint = (initial: ParticleState, next: ParticleState) => ParticleState;
+export type Constraint = (state: Particle) => void;

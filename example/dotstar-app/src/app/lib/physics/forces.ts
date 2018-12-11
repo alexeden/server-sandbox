@@ -11,7 +11,7 @@ export class Forces {
 
     return p => {
       // const dragMag = -coeff * p.V.magnitude();
-      return p.V.times(-coeff);
+      return p.X.minus(p.X0).negate().times(coeff);
       // .setMagnitude(dragMag);
     };
   }

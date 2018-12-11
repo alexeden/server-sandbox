@@ -84,11 +84,12 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
       this.physicsService.streamPhysicalConst(PhysicalConstName.ParticleMass),
       (n, bounds, mass) => {
         const system = (window as any).system = new System();
+        console.log('creating new system!');
         system.particles = range(0, n).map(i => {
           return new Particle({
             mass,
-            X: Vector3.of(i, 0, 0),
-            V: Vector3.empty(),
+            X: Vector3.of(i, 100, 0),
+            // V: Vector3.empty(),
           });
         });
         return system;
@@ -146,8 +147,8 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
       )
     )
     .subscribe(([t, system, pointers, domains, physics]) => {
-      const { fluidDensity, pointerForce, particleMass, friction, gravity, damping } = physics;
-      let iters = 20;
+      const { fluidDensity, pointerForce, particleMass, friction, gravity, calculationsPerFrame } = physics;
+      let iters = calculationsPerFrame;
       const dt = 1 / iters;
 
       while (iters--) {
@@ -167,8 +168,8 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
         }
 
         system.next(dt, forces, [
-          Constraints.horizontalWall(domains.sysY[0], 0.6),
-          Constraints.horizontalWall(domains.sysY[1], 0.1),
+          Constraints.horizontalWall(domains.sysY[0]),
+          // Constraints.horizontalWall(domains.sysY[1], 0.1),
         ]);
       }
 
@@ -190,20 +191,31 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
     .subscribe(([t, system, bounds, pointers, domains]) => {
       (window as any).system = system;
 
-      const positions: number[] = [];
+      const positions: Vector3[] = [];
       system.particles.forEach((p, i) => {
-        const position = p.X.apply(domains.toCanX, domains.toCanY, z => z);
-        const velocity = p.V.apply(domains.toCanX, domains.toCanY, z => z);
+        const position = p.X.apply(domains.toCanX, domains.toCanY, z => z).round();
+        const previous = p.X0.apply(domains.toCanX, domains.toCanY, z => z).round();
+        // const velocity = p.V.apply(domains.toCanX, domains.toCanY, z => z);
         const accel = p.A.apply(domains.toCanX, domains.toCanY, z => z);
-        this.form.strokeOnly(Colors.Blue).line([position.asArray(), position.add([0, velocity.y, 0]).asArray()]);
-        this.form.strokeOnly(Colors.Red).line([position.asArray(), position.add(velocity).asArray() ]);
-        this.form.strokeOnly(Colors.Green).line([position.asArray(), position.add([0, accel.y, 0]).asArray()]);
+        // this.form.strokeOnly(Colors.Blue).line([position.asArray(), position.add([0, velocity.y, 0]).asArray()]);
+        // this.form.strokeOnly(Colors.Red).line([position.asArray(), position.add(velocity).asArray() ]);
+        // if (i % 10 === 0) {
+        //   this.form.alignText('center', 'hanging')
+        //     .fill(Colors.Red)
+        //     .text([p.X.apply(domains.toCanX, domains.toCanY, z => z).x, 25], `${Math.round(p.X.y)}`)
+        //     .text([p.X.apply(domains.toCanX, domains.toCanY, z => z).x, 40], `${Math.round(p.X.y - p.X0.y)}`)
+        //     .text([p.X.apply(domains.toCanX, domains.toCanY, z => z).x, 65], `${Math.round(p.A.y)}`);
+
+        // }
+        this.form.strokeOnly(Colors.Blue).line([position.asArray(), previous.asArray()]);
+        // this.form.strokeOnly(Colors.Blue).line([position.asArray(), position.add(p.A.asArray()).asArray()]);
         this.form.fillOnly(`#3f3f3f`).point(position.asArray(), 3, 'circle');
-        positions.push(p.X.y);
+        positions.push(p.X.subtract(p.X0));
       });
 
-      this.form.alignText('left', 'hanging').fill('blue')
-        .text([10, 10], `y average ${positions.reduce((sum, y) => sum + y, 0) / positions.length}`, 500);
+      // this.form.alignText('left', 'hanging').fill(Colors.Blue)
+      //   .text([10, 5], `Y average ${Math.round(positions.reduce((sum, v) => sum + v.y, 0) / positions.length)}`, 500)
+      //   .text([160, 5], `X average ${positions.reduce((sum, v) => sum + v.x, 0) / positions.length}`, 500);
     });
 
   }

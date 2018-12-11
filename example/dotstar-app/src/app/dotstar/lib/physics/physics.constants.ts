@@ -1,6 +1,14 @@
 import { PhysicalConstName, PhysicalConst, PhysicsConfig } from './physics.types';
 
 export const PHYSICAL_CONSTS: { [P in PhysicalConstName]: PhysicalConst } = {
+  [PhysicalConstName.CalculationsPerFrame]: {
+    name: PhysicalConstName.CalculationsPerFrame,
+    min: 1,
+    max: 500,
+    default: 20,
+    step: 1,
+    label: 'Calculations per Frame',
+  },
   [PhysicalConstName.Damping]: {
     name: PhysicalConstName.Damping,
     min: -1,

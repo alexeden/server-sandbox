@@ -5,6 +5,8 @@ export class System {
   particles: Particle[] = [];
 
   next(t: number, fs: Force[] = [], constraints: Constraint[] = []) {
-    this.particles = this.particles.map(p => p.next(t, fs, constraints));
+    this.particles.forEach(p => {
+      p.next(t, fs, constraints);
+    });
   }
 }
