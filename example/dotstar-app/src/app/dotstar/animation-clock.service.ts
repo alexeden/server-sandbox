@@ -8,7 +8,6 @@ export class AnimationClockService {
 
   readonly running: Observable<boolean>;
   readonly t: Observable<number>;
-  // readonly t: ConnectableObservable<number>;
   readonly dt: Observable<number>;
   readonly fps: Observable<number>;
 
@@ -25,21 +24,16 @@ export class AnimationClockService {
           ))(Scheduler.now())
       )
     );
-    //   publishReplay(1)
-    // ) as ConnectableObservable<number>;
 
     this.dt = this.t.pipe(
       pairwise(),
       map(([t1, t2]) => t2 - t1)
-      // share()
     );
 
     this.fps = this.dt.pipe(
       scan((fps, dt) => Math.floor((fps + (1000 / dt)) / 2), 0),
       share()
     );
-
-    // this.t.connect();
   }
 
   get isRunning() {

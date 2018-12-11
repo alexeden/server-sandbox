@@ -20,6 +20,7 @@ import { ColorspaceFunctionsComponent } from './colorspace-functions';
 import { LeapPaintModule } from './leap-paint';
 import { LiveBufferBarComponent } from './live-buffer-bar';
 import { SandboxComponent } from './sandbox/sandbox.component';
+import { DomainMapService } from './domain-maps.service';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { SandboxComponent } from './sandbox/sandbox.component';
   ],
   providers: [
     AnimationClockService,
+    DomainMapService,
     DotstarBufferService,
     DotstarDeviceConfigService,
     PhysicsConfigService,
