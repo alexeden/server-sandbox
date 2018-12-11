@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject, ConnectableObservable, interval } from 'rxjs';
+import { Observable, Subject, ConnectableObservable, interval, Scheduler } from 'rxjs';
 import { PhysicsConfig, DEFAULT_PHYSICS_CONFIG, PhysicalConstName } from './lib';
 import { LocalStorage } from '@app/shared';
 import { startWith, tap, scan, map, publishReplay, distinctUntilChanged, switchMap } from 'rxjs/operators';
@@ -26,7 +26,12 @@ export class PhysicsConfigService {
     ) as ConnectableObservable<PhysicsConfig>;
 
     this.worldClock = this.streamPhysicalConst(PhysicalConstName.WorldClock).pipe(
-      switchMap(period => interval(period))
+      startWith(this.savedPhysicsConfig.worldClock),
+      switchMap(period =>
+        (startTime => interval(period).pipe(
+          map(() => Scheduler.now() - startTime)
+        ))(Scheduler.now())
+      )
     );
 
 

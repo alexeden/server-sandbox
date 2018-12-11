@@ -31,7 +31,7 @@ export class Particle implements ParticleState {
     // A = ∑F / mass
     // V = V0 + A·t
     // X = X0 + (V0 + V) · ∆t/2
-    const dt = t - this.t;
+    const dt = t;
     const mass = this.mass;
     const V0 = this.V;
     const X0 = this.X;

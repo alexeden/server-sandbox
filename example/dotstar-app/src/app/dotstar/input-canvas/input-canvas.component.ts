@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/core';
 import { Subject, combineLatest, BehaviorSubject, Observable } from 'rxjs';
-import { takeUntil, skipWhile, map, tap, withLatestFrom, scan, startWith } from 'rxjs/operators';
+import { takeUntil, skipWhile, map, tap, withLatestFrom, scan, startWith, take, share } from 'rxjs/operators';
 import { CanvasSpace, Pt, CanvasForm, Bound, World } from 'pts';
 import { Sample, range, clamp, mapToRange, absDiff, PhysicalConstName, DotstarConstants, Colors } from '../lib';
 import { DotstarDeviceConfigService } from '../device-config.service';
@@ -83,7 +83,7 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
       this.bounds$,
       this.physicsService.streamPhysicalConst(PhysicalConstName.ParticleMass),
       (n, bounds, mass) => {
-        const system = new System();
+        const system = (window as any).system = new System();
         system.particles = range(0, n).map(i => {
           return new Particle({
             mass,
@@ -93,7 +93,8 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
         });
         return system;
       }
-    );
+    )
+    .pipe(share());
 
     this.domains = combineLatest(
       this.configService.length,
@@ -124,11 +125,7 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
           switch (action.type) {
             case 'out': return [];
             default: return [
-              Vector3.of(
-                domains.toSysX(action.pt.x),
-                domains.toSysY(action.pt.y),
-                0
-              ),
+              Vector3.of(domains.toSysX(action.pt.x), domains.toSysY(action.pt.y), 0),
             ];
           }
         },
@@ -139,6 +136,45 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.physicsService.worldClock.pipe(
+      takeUntil(this.unsubscribe$),
+      withLatestFrom(
+        this.system,
+        this.pointers,
+        this.domains,
+        this.physicsService.physicsConfig
+      )
+    )
+    .subscribe(([t, system, pointers, domains, physics]) => {
+      const { fluidDensity, pointerForce, particleMass, friction, gravity, damping } = physics;
+      let iters = 20;
+      const dt = 1 / iters;
+
+      while (iters--) {
+        const forces: Force[] = [
+          () => Vector3.of(0, gravity, 0),
+          Forces.drag(fluidDensity),
+        ];
+
+        if (pointers.length > 0) {
+          const [ pointer ] = pointers;
+          forces.push(p => {
+            return pointer
+              .minus(p.X)
+              .times([1, domains.sysRatio, 1])
+              .setMagnitude(Math.abs(pointerForce));
+          });
+        }
+
+        system.next(dt, forces, [
+          Constraints.horizontalWall(domains.sysY[0], 0.6),
+          Constraints.horizontalWall(domains.sysY[1], 0.1),
+        ]);
+      }
+
+    });
+
+
     this.clock.t.pipe(
       takeUntil(this.unsubscribe$),
       skipWhile(() => !this.ready$.getValue()),
@@ -151,34 +187,13 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
       ),
       tap(() => this.space.clear())
     )
-    .subscribe(([t, system, bounds, pointers, domains, { fluidDensity, pointerForce, particleMass, friction, gravity, damping }]) => {
+    .subscribe(([t, system, bounds, pointers, domains]) => {
       (window as any).system = system;
-      const forces: Force[] = [
-        () => Vector3.of(0, gravity, 0),
-        Forces.drag(fluidDensity),
-      ];
-
-      if (pointers.length > 0) {
-        const [ pointer ] = pointers;
-        forces.push(p => {
-          return pointer
-            .minus(p.X)
-            .times([1, domains.sysRatio, 1])
-            .setMagnitude(Math.abs(pointerForce));
-        });
-      }
-
-      system.next(t / 1000, forces, [
-        Constraints.horizontalWall(domains.sysY[0], 0.6),
-        Constraints.horizontalWall(domains.sysY[1], 0.1),
-      ]);
 
       const positions: number[] = [];
-      let maxV = 0;
       system.particles.forEach((p, i) => {
         const position = p.X.apply(domains.toCanX, domains.toCanY, z => z);
         const velocity = p.V.apply(domains.toCanX, domains.toCanY, z => z);
-        maxV = Math.max(maxV, velocity.magnitude());
         const accel = p.A.apply(domains.toCanX, domains.toCanY, z => z);
         this.form.strokeOnly(Colors.Blue).line([position.asArray(), position.add([0, velocity.y, 0]).asArray()]);
         this.form.strokeOnly(Colors.Red).line([position.asArray(), position.add(velocity).asArray() ]);
@@ -191,7 +206,6 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
         .text([10, 10], `y average ${positions.reduce((sum, y) => sum + y, 0) / positions.length}`, 500);
     });
 
-    // this.bufferService.setSource(this.mappedValues);
   }
 
   ngOnDestroy() {
