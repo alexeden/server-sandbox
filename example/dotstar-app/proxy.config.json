@@ -1,6 +1,6 @@
 {
   "/api/socket": {
-    "target": "wss://0.0.0.0:4000",
+    "target": "wss://192.168.1.160:4000",
     "secure": false,
     "ws": true,
     "logLevel": "debug",
@@ -9,7 +9,7 @@
     }
   },
   "/api": {
-    "target": "https://localhost:4000",
+    "target": "https://192.168.1.160:4000",
     "secure": false,
     "logLevel": "debug"
   }
