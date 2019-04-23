@@ -6,3 +6,7 @@ nodemon.*.json
 sync.js
 sshpi
 sync.config.json
+.DS_Store
+src/
+tslint.json
+tsconfig.json
