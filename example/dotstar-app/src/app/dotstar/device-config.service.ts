@@ -54,6 +54,10 @@ export class DotstarDeviceConfigService {
         }
         this.devicePaths$.next(devicePaths);
         return devicePaths;
+      })
+      .catch(error => {
+        console.warn(`Failed to get list of devices. This might be because you're not running the server.`);
+        return ['/dev/null'];
       });
   }
 }
