@@ -1,27 +1,8 @@
-# DotstarApp
-
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.0.4.
-
-## Development server
-
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+```
+{
+    "savedColorspace": "hsl",
+    "savedPhysicsConfig": "{\"calculationsPerFrame\":1,\"damping\":0,\"fluidDensity\":0,\"friction\":0.1,\"gravity\":10000,\"particleMass\":100,\"pointerForce\":73,\"pointerSpread\":1,\"worldClock\":330}",
+    "savedSamplers": "{\"h\":\"[330, 240, 120, 25, 9, 0][Math.floor(6*i/n)]\",\"s\":\"1\",\"l\":\"0.5  * (Math.sin(t/500 - i/n) > -0.5 ? 1 : 0)\",\"r\":\"255 * Math.sin(i/10) * Math.sin(t/500) + 255/2\",\"g\":\"(255 / 3) * Math.sin((Math.PI * 2 / n) * i + 2 * t / 1000) \",\"b\":\"255 * Math.sin((i - n / 2 * Math.PI)/10) * Math.sin(t/500) + 255/2\"}",
+    "selectedConfigMenuType": "physics"
+}
+```
