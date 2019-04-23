@@ -1,6 +1,6 @@
 # Dotstar Node
 
-Control a [Dotstar](https://learn.adafruit.com/adafruit-dotstar-leds/overview) LED ([APA102 Datasheet](https://cdn-shop.adafruit.com/datasheets/APA102.pdf)) strip in Node. 
+Control a [Dotstar](https://learn.adafruit.com/adafruit-dotstar-leds/overview) LED ([APA102 Datasheet](https://cdn-shop.adafruit.com/datasheets/APA102.pdf)) strip in Node.
 
 Includes a sample server and frontend Angular app for easily programming custom effects.
 
@@ -8,12 +8,15 @@ Includes a sample server and frontend Angular app for easily programming custom 
 
 Define RGB color channel functions:
 
-![RGB Function Inputs](https://github.com/alexeden/dotstar-node/blob/master/doc/rgb-function-inputs-screenshot.png)
+![RGB Function Inputs](https://github.com/alexeden/dotstar-node/blob/master/doc/rgb-function-inputs-screenshot-1.png)
+
+![RGB Function Inputs](https://github.com/alexeden/dotstar-node/blob/master/doc/rgb-function-inputs-screenshot-2.png)
 
 
 Define HSL color channel functions:
 
-![HSL Function Inputs](https://github.com/alexeden/dotstar-node/blob/master/doc/hsl-function-inputs.png)
+![HSL Function Inputs](https://github.com/alexeden/dotstar-node/blob/master/doc/hsl-function-inputs-1.png)
+![HSL Function Inputs](https://github.com/alexeden/dotstar-node/blob/master/doc/hsl-function-inputs-2.png)
 
 Color channels are displayed and sent to the LED device in real-time:
 
