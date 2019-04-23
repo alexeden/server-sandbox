@@ -120,11 +120,7 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
           mapToCanvasSpaceX(hand.palmPosition[0]),
           mapToCanvasSpaceY(hand.palmPosition[1])
         );
-        /**
-         * Grab strength values range:
-         * 0 - Palm is flat
-         * ~0.5 - Hand is grasped (value can be higher, like 0.75ish)
-         */
+
         const spread = Math.min(1, Math.max(0.05, hand.pinchStrength)) / 5;
         const parabola = (x: number, y: number) => -1 * spread * Math.pow(x, 2) + this.space.height;
         const hue = LeapPaintCanvasComponent.hueFromRoll(hand.roll);
@@ -144,22 +140,6 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
         const radius = Math.max(0.1, 1 - hand.pinchStrength) * 50;
         this.form.fillOnly(`hsl(${hue}, 100%, 50%)`).point(stablePalmPt, radius, 'circle');
         this.form.fillOnly('#777').text(stablePalmPt, `${spread}`);
-        // tslint:disable-next-line:max-line-length
-        // hands.forEach(({ stabilizedPalmPosition: stable, palmPosition: palm, pitch, roll, pinchStrength: pinch, palmWidth, sphereRadius, }) => {
-        //   const stablePt = new Pt(mapToCanvasSpaceX(stable[0]), mapToCanvasSpaceY(stable[1]));
-        //   const hue = clamp(0, 360)(Math.floor(mapToRange(60, -30, 0, 359, roll * 180 / Math.PI)));
-        //   const radius = Math.max(0.1, 1 - pinch) * 50;
-
-        //   this.form.fillOnly(`hsl(${hue}, 100%, 50%)`).point(stablePt, radius, 'circle');
-        // tslint:disable-next-line:max-line-length
-        //   // this.form.fill('#777').text(stablePt.$add(25, 0), `[${Math.round(stablePalm[0])}, ${Math.round(stablePalm[1])}, ${Math.round(palm[2])}]`);
-        //   // this.form.fill('#777').text(stablePt.$add(25, -15), `Pitch ${Math.round(pitch * 180 / Math.PI)}`);
-        //   // this.form.fill('#777').text(stablePt.$add(25, -30), `Roll  ${Math.round(roll * 180 / Math.PI)}`);
-        //   // this.form.fill('#777').text(stablePt.$add(25, -45), `Palm Radius  ${Math.round(sphereRadius)}`);
-        //   // this.form.fill('#777').text(stablePt.$add(25, -60), `Pinch  ${Math.round(pinch * 100)}%`);
-        //   // this.form.fill('#777').text(stablePt.$add(25, -75), `Palm Width  ${Math.round(palmWidth)}`);
-        // });
-
       }
       else {
         world.drawParticles((p, i) => {
