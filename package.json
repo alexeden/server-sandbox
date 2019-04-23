@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Interacting with Dotstar LEDs via Node.js",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=8.0.0"
+  },
   "scripts": {
     "build": "rimraf dist && tsc -p src",
     "build:all": "npm run build && (cd example/server && npm run build) && (cd example/dotstar-app && npm run build)",
@@ -16,11 +20,23 @@
     "url": "git+https://github.com/alexeden/dotstar-node.git"
   },
   "author": "Alex Eden",
-  "license": "ISC",
+  "license": "MITNFA",
   "bugs": {
     "url": "https://github.com/alexeden/dotstar-node/issues"
   },
   "homepage": "https://github.com/alexeden/dotstar-node#readme",
+  "keywords": [
+    "iot",
+    "raspberry",
+    "led",
+    "leds",
+    "strip",
+    "pi",
+    "rpi",
+    "dotstar",
+    "n-api",
+    "napi"
+  ],
   "devDependencies": {
     "@types/node": "^10.12.2",
     "@types/ramda": "^0.26.0",
@@ -32,6 +48,6 @@
   },
   "dependencies": {
     "gradient-string": "^1.2.0",
-    "spi-node": "^1.0.0"
+    "spi-node": "^2.0.2"
   }
 }
