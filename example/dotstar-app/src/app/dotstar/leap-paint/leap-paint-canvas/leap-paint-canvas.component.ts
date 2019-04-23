@@ -120,17 +120,21 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
           mapToCanvasSpaceX(hand.palmPosition[0]),
           mapToCanvasSpaceY(hand.palmPosition[1])
         );
-        const parabola = (x: number, y: number) => -1 * 0.01 * Math.pow(x, 2) + (this.space.height);
-        const hue = LeapPaintCanvasComponent.hueFromPitch(hand.pitch);
+        /**
+         * Grab strength values range:
+         * 0 - Palm is flat
+         * ~0.5 - Hand is grasped (value can be higher, like 0.75ish)
+         */
+        const spread = Math.min(1, Math.max(0.05, hand.pinchStrength)) / 5;
+        const parabola = (x: number, y: number) => -1 * spread * Math.pow(x, 2) + this.space.height;
+        const hue = LeapPaintCanvasComponent.hueFromRoll(hand.roll);
         world.drawParticles((p, i) => {
           p.mass = particleMass;
-          if (hand.pinchStrength < 0.9) {
-            const decay = parabola(p.x - stablePalmPt.x, stablePalmPt.y);
-            const fy = (bounds.height - p.y + stablePalmPt.y) - decay;
-            if (decay >= 0 && fy < 0) {
-              p.addForce(0, pointerForce * fy);
-              p.z = hue;
-            }
+          const decay = parabola(p.x - stablePalmPt.x, stablePalmPt.y);
+          const fy = (bounds.height - p.y + stablePalmPt.y) - decay;
+          if (decay >= 0 && fy < 0) {
+            p.addForce(0, pointerForce * fy);
+            p.z = hue;
           }
 
           this.form.fillOnly(`hsl(${p.z}, 100%, 50%)`).point(p, 5, 'circle');
@@ -139,7 +143,7 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
 
         const radius = Math.max(0.1, 1 - hand.pinchStrength) * 50;
         this.form.fillOnly(`hsl(${hue}, 100%, 50%)`).point(stablePalmPt, radius, 'circle');
-        this.form.fillOnly('#777').text(stablePalmPt, `${hue}`);
+        this.form.fillOnly('#777').text(stablePalmPt, `${spread}`);
         // tslint:disable-next-line:max-line-length
         // hands.forEach(({ stabilizedPalmPosition: stable, palmPosition: palm, pitch, roll, pinchStrength: pinch, palmWidth, sphereRadius, }) => {
         //   const stablePt = new Pt(mapToCanvasSpaceX(stable[0]), mapToCanvasSpaceY(stable[1]));

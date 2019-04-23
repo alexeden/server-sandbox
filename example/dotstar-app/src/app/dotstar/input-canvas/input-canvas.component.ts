@@ -89,7 +89,6 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
           return new Particle({
             mass,
             X: Vector3.of(i, 100, 0),
-            // V: Vector3.empty(),
           });
         });
         return system;
