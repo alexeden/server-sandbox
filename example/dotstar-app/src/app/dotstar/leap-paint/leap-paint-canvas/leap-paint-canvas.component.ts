@@ -127,7 +127,7 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
           if (hand.pinchStrength < 0.9) {
             const decay = parabola(p.x - stablePalmPt.x, stablePalmPt.y);
             const fy = (bounds.height - p.y + stablePalmPt.y) - decay;
-            if (decay >= 0) {
+            if (decay >= 0 && fy < 0) {
               p.addForce(0, pointerForce * fy);
               p.z = hue;
             }
