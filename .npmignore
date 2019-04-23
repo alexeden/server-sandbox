@@ -1,6 +1,6 @@
-/build
-/examples
-/doc
-.vscode
+build/
+example/
+doc/
+.vscode/
 nodemon.*.json
 sync.js
