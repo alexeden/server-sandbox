@@ -21,6 +21,9 @@
       ],
       "@shared/*": [
         "src/shared/*"
+      ],
+      "core-js/es7/reflect": [
+        "node_modules/core-js/proposals/reflect-metadata"
       ]
     },
     "target": "es5",

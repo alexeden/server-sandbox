@@ -50,7 +50,7 @@ export class DotstarSocketService {
     );
 
     this.message = this.url.pipe(
-      switchMap<string, DotstarMessage>(url => {
+      switchMap(url => {
         const socket = webSocket<DotstarMessage>(url);
         this.socket = socket;
 
