@@ -193,10 +193,10 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
 
       const positions: Vector3[] = [];
       system.particles.forEach((p, i) => {
-        const position = p.X.apply(domains.toCanX, domains.toCanY, z => z).round();
-        const previous = p.X0.apply(domains.toCanX, domains.toCanY, z => z).round();
+        const position = p.X.apply(() => domains.toCanX(i), domains.toCanY, z => z).round();
+        // const previous = p.X0.apply(domains.toCanX, domains.toCanY, z => z).round();
         // const velocity = p.V.apply(domains.toCanX, domains.toCanY, z => z);
-        const accel = p.A.apply(domains.toCanX, domains.toCanY, z => z);
+        // const accel = p.A.apply(domains.toCanX, domains.toCanY, z => z);
         // this.form.strokeOnly(Colors.Blue).line([position.asArray(), position.add([0, velocity.y, 0]).asArray()]);
         // this.form.strokeOnly(Colors.Red).line([position.asArray(), position.add(velocity).asArray() ]);
         // if (i % 10 === 0) {
@@ -207,10 +207,10 @@ export class InputCanvasComponent implements OnInit, OnDestroy {
         //     .text([p.X.apply(domains.toCanX, domains.toCanY, z => z).x, 65], `${Math.round(p.A.y)}`);
 
         // }
-        this.form.strokeOnly(Colors.Blue).line([position.asArray(), previous.asArray()]);
+        // this.form.strokeOnly(Colors.Blue).line([position.asArray(), previous.asArray()]);
         // this.form.strokeOnly(Colors.Blue).line([position.asArray(), position.add(p.A.asArray()).asArray()]);
         this.form.fillOnly(`#3f3f3f`).point(position.asArray(), 3, 'circle');
-        positions.push(p.X.subtract(p.X0));
+        // positions.push(p.X.subtract(p.X0));
       });
 
       // this.form.alignText('left', 'hanging').fill(Colors.Blue)
