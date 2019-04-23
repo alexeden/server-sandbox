@@ -1,0 +1,6 @@
+/build
+/examples
+/doc
+.vscode
+nodemon.*.json
+sync.js
