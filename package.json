@@ -1,6 +1,6 @@
 {
   "name": "dotstar-node",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Interacting with Dotstar LEDs via Node.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,6 +8,7 @@
     "node": ">=8.0.0"
   },
   "scripts": {
+    "prepublishOnly": "npm run build",
     "build": "rimraf dist && tsc -p src",
     "build:all": "npm run build && (cd example/server && npm run build) && (cd example/dotstar-app && npm run build)",
     "sync-build": "nodemon --config nodemon.build-sync.config.json",
