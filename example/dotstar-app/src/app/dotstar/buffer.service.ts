@@ -6,7 +6,7 @@ import { Sample, ChannelSampler, clamp, range } from './lib';
 import { AnimationClockService } from './animation-clock.service';
 
 @Injectable()
-export class DotstarBufferService {
+export class BufferService {
   private readonly source$ = new BehaviorSubject<Observable<Sample[]>>(empty());
   readonly values: Observable<Sample[]>;
 

@@ -4,16 +4,16 @@ import { Subject, Observable } from 'rxjs';
 import { takeUntil, tap, filter, take } from 'rxjs/operators';
 import { APA102C } from 'dotstar-node/dist/apa102c';
 import { DotstarConstants } from '../lib';
-import { DotstarSocketService } from '../dotstar-socket.service';
+import { SocketService } from '../socket.service';
 import { DotstarDeviceConfigService } from '../device-config.service';
 import { MatBottomSheetRef } from '@angular/material';
 
 @Component({
   selector: 'dotstar-config-form',
-  templateUrl: './config-form.component.html',
-  styleUrls: ['./config-form.component.scss'],
+  templateUrl: './device-config-form.component.html',
+  styleUrls: ['./device-config-form.component.scss'],
 })
-export class ConfigFormComponent implements OnInit, OnDestroy {
+export class DeviceConfigFormComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   readonly connected: Observable<boolean>;
   readonly configForm: FormGroup;
@@ -22,9 +22,7 @@ export class ConfigFormComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private configService: DotstarDeviceConfigService,
-    private socketService: DotstarSocketService,
-    @Optional()
-    public bottomSheetRef: MatBottomSheetRef<ConfigFormComponent>
+    private socketService: SocketService,
   ) {
     this.connected = this.socketService.connected$.asObservable();
 

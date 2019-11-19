@@ -7,7 +7,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { MatSlideToggleChange } from '@angular/material';
 import { samplerFnHead, DotstarConstants, RGB, HSL, Sampler, Triplet, SamplerUtils, Colorspace, ChannelSampler } from '../lib';
 import { LocalStorage } from '@app/shared';
-import { DotstarBufferService } from '../dotstar-buffer.service';
+import { BufferService } from '../buffer.service';
 import { functionBodyValidator } from './function-body.validator';
 
 @Component({
@@ -33,7 +33,7 @@ export class SamplerFormComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private bufferService: DotstarBufferService
+    private bufferService: BufferService
   ) {
     this.mode$ = new BehaviorSubject<Colorspace>(this.savedColorspace || Colorspace.HSL);
 

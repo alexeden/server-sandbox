@@ -5,7 +5,7 @@ import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { DotstarConstants, Sample } from './lib';
 import { DotstarConfig } from 'dotstar-node/dist/types';
 import { DotstarDeviceConfigService } from './device-config.service';
-import { DotstarBufferService } from './dotstar-buffer.service';
+import { BufferService } from './buffer.service';
 
 
 enum DotstarMessageType {
@@ -26,7 +26,7 @@ type DotstarMessage
   | { type: DotstarMessageType.Values, data: DotstarValues };
 
 @Injectable()
-export class DotstarSocketService {
+export class SocketService {
   private readonly url = new Subject<string>();
   private readonly stopSocket = new Subject<any>();
   private readonly retrySocket = new Subject<any>();
@@ -43,7 +43,7 @@ export class DotstarSocketService {
 
   constructor(
     private configService: DotstarDeviceConfigService,
-    private bufferService: DotstarBufferService
+    private bufferService: BufferService
   ) {
     this.txps = this.txps$.asObservable().pipe(
       map(txps => Math.min(DotstarConstants.txpsMax, Math.max(DotstarConstants.txpsMin, txps)))

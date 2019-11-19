@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/core';
 import { AnimationClockService } from '../animation-clock.service';
-import { DotstarBufferService } from '../dotstar-buffer.service';
+import { BufferService } from '../buffer.service';
 import { Subject, BehaviorSubject, Observable } from 'rxjs';
 import { CanvasSpace, CanvasForm, Group, Pt } from 'pts';
 import { tap, share, sample, map, takeUntil, skipWhile } from 'rxjs/operators';
@@ -24,7 +24,7 @@ export class LiveBufferBarComponent implements OnInit, OnDestroy {
   constructor(
     readonly elRef: ElementRef,
     readonly renderer: Renderer2,
-    readonly bufferService: DotstarBufferService,
+    readonly bufferService: BufferService,
     readonly clock: AnimationClockService
   ) {
     this.canvas = this.renderer.createElement('canvas');

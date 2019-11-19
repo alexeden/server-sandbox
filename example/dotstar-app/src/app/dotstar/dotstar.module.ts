@@ -3,12 +3,12 @@ import { NgModule } from '@angular/core';
 import { SharedModule } from '@app/shared';
 import { AnimationClockService } from './animation-clock.service';
 import { DotstarDeviceConfigService } from './device-config.service';
-import { DotstarSocketService } from './dotstar-socket.service';
+import { SocketService } from './socket.service';
 import { DotstarMainComponent } from './dotstar-main.component';
 import { SocketNotifierComponent } from './dotstar-notifiers.component';
 import { VisualizerComponent } from './visualizer';
-import { ConfigFormComponent, OpenConfigFormDirective } from './config-form';
-import { DotstarBufferService } from './dotstar-buffer.service';
+import { DeviceConfigFormComponent } from './device-config-form';
+import { BufferService } from './buffer.service';
 import { SamplerFormComponent } from './sampler-form';
 import { ControlBarComponent } from './control-bar';
 import { DotstarRoutingModule } from './dotstar-routing.module';
@@ -20,10 +20,9 @@ import { LiveBufferBarComponent } from './live-buffer-bar';
   declarations: [
     DotstarMainComponent,
     ColorspaceFunctionsComponent,
-    ConfigFormComponent,
+    DeviceConfigFormComponent,
     ControlBarComponent,
     LiveBufferBarComponent,
-    OpenConfigFormDirective,
     SamplerFormComponent,
     SocketNotifierComponent,
     VisualizerComponent,
@@ -36,14 +35,11 @@ import { LiveBufferBarComponent } from './live-buffer-bar';
   exports: [
     DotstarMainComponent,
   ],
-  entryComponents: [
-    ConfigFormComponent,
-  ],
   providers: [
     AnimationClockService,
-    DotstarBufferService,
+    BufferService,
     DotstarDeviceConfigService,
-    DotstarSocketService,
+    SocketService,
   ],
 })
 export class DotstarModule { }

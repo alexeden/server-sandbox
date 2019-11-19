@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy, HostBinding } from '@angular/core';
-import { DotstarBufferService } from '../dotstar-buffer.service';
+import { BufferService } from '../buffer.service';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { DotstarDeviceConfigService } from '../device-config.service';
-import { DotstarSocketService } from '../dotstar-socket.service';
+import { SocketService } from '../socket.service';
 import { AnimationClockService } from '../animation-clock.service';
 import { Subject, Observable } from 'rxjs';
 import { DotstarConstants } from '../lib';
@@ -24,9 +24,9 @@ export class ControlBarComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    readonly bufferService: DotstarBufferService,
+    readonly bufferService: BufferService,
     readonly configService: DotstarDeviceConfigService,
-    readonly socketService: DotstarSocketService,
+    readonly socketService: SocketService,
     readonly clock: AnimationClockService
   ) {
     this.txpsControl = this.fb.control(60, [

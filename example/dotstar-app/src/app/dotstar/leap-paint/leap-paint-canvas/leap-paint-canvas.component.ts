@@ -6,7 +6,7 @@ import { skipWhile, takeUntil, sample, map, withLatestFrom, tap, take } from 'rx
 import { Colors, mapToRange, clamp, range, Sample, normalize, clampLoop } from '@app/dotstar/lib';
 import { LeapPaintService } from '../leap-paint.service';
 import { DotstarDeviceConfigService } from '@app/dotstar/device-config.service';
-import { DotstarBufferService } from '@app/dotstar/dotstar-buffer.service';
+import { BufferService } from '@app/dotstar/buffer.service';
 import { Hand, InteractionBox } from '@app/leap';
 import { LeapPhysicsConfigService } from '../leap-physics-config.service';
 
@@ -32,7 +32,7 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
     readonly elRef: ElementRef,
     readonly renderer: Renderer2,
     readonly configService: DotstarDeviceConfigService,
-    readonly bufferService: DotstarBufferService,
+    readonly bufferService: BufferService,
     readonly paintService: LeapPaintService,
     readonly physicsService: LeapPhysicsConfigService,
     readonly clock: AnimationClockService

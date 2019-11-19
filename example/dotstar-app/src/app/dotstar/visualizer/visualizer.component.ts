@@ -4,7 +4,7 @@ import { takeUntil, map, tap, skipWhile } from 'rxjs/operators';
 import { CanvasSpace, CanvasForm, Group } from 'pts';
 import { transpose } from 'ramda';
 import { Colors, mapToRange } from '../lib';
-import { DotstarBufferService } from '../dotstar-buffer.service';
+import { BufferService } from '../buffer.service';
 
 @Component({
   selector: 'dotstar-visualizer',
@@ -25,7 +25,7 @@ export class VisualizerComponent implements OnInit, OnDestroy {
   constructor(
     readonly elRef: ElementRef,
     readonly renderer: Renderer2,
-    readonly bufferService: DotstarBufferService
+    readonly bufferService: BufferService
   ) {
     this.canvas = this.renderer.createElement('canvas');
     this.renderer.setStyle(this.canvas, 'height', `${this.height}px`);
