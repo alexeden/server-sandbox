@@ -16,7 +16,6 @@ import { VisualizerComponent } from './visualizer';
 import { DeviceConfigFormComponent } from './device-config-form';
 import { BufferService } from './buffer.service';
 import { ChannelFunctionFormsComponent } from './channel-function-forms';
-import { ControlBarComponent } from './control-bar';
 import { LeapPaintModule } from './leap-paint';
 import { LiveBufferBarComponent } from './live-buffer-bar';
 
@@ -54,7 +53,6 @@ const appRoutes: Routes = [
   declarations: [
     ColorspaceFunctionsComponent,
     DeviceConfigFormComponent,
-    ControlBarComponent,
     LiveBufferBarComponent,
     ChannelFunctionFormsComponent,
     SocketNotifierComponent,
