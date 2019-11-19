@@ -2,57 +2,48 @@
 
 <mat-sidenav-container class="grow">
   <mat-sidenav #sidenav mode="side" position="end" [opened]="true" [fixedInViewport]="true" class="elevation-5">
-    <!-- <div class="row p-10">
+    <div class="row">
       <span class="grow"></span>
-      <button mat-icon-button [matMenuTriggerFor]="configMenu">
-        <mat-icon>more_vert</mat-icon>
-      </button>
-    </div> -->
-    <div class="p-10">
       <button
+        mat-icon-button
         class="open-menu-button"
         (click)="sidenav.close()">
         <mat-icon>close</mat-icon>
       </button>
+    </div>
+    <div class="p-10">
       <dotstar-config-form></dotstar-config-form>
     </div>
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <nav mat-tab-nav-bar color="accent" backgroundColor="primary">
-      <a
-        *ngFor="let route of dotstarRoutes"
-        mat-tab-link
-        [routerLink]="[route.path]"
-        routerLinkActive
-        #rla="routerLinkActive"
-        [active]="rla.isActive">
-        {{ route.data?.label }}
-      </a>
+    <div class="row nav">
+      <nav mat-tab-nav-bar color="accent" backgroundColor="primary">
+        <a
+          *ngFor="let route of dotstarRoutes"
+          mat-tab-link
+          [routerLink]="[route.path]"
+          routerLinkActive
+          #rla="routerLinkActive"
+          [active]="rla.isActive">
+          {{ route.data?.label }}
+        </a>
+      </nav>
+      <span class="grow"></span>
       <button
+        *ngIf="!sidenav.opened"
+        mat-icon-button
+        color="accent"
         class="open-menu-button"
         (click)="sidenav.open()">
         <mat-icon>menu</mat-icon>
       </button>
-    </nav>
-    <span class="grow"></span>
+    </div>
 
     <router-outlet></router-outlet>
   </mat-sidenav-content>
 
 </mat-sidenav-container>
-
-
-<!-- Configuration panel-select menu -->
-<!-- <mat-menu #configMenu="matMenu">
-  <ng-container *ngFor="let menu of configMenus">
-    <button mat-menu-item (click)="selectMenuType(menu.type)">
-      <mat-icon>{{ menu.icon }}</mat-icon>
-      <span>{{ menu.label }}</span>
-    </button>
-  </ng-container>
-</mat-menu> -->
-
 
 <dotstar-control-bar></dotstar-control-bar>
 <dotstar-live-buffer-bar></dotstar-live-buffer-bar>
