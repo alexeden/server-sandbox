@@ -6,12 +6,14 @@ import { range } from './utils';
 
 export class Dotstar {
   static create(config: Partial<DotstarConfig> = {}): Dotstar {
-    const spi = new SPI(config.devicePath || '/dev/spidev0.0');
+    const devicePath = config.devicePath || '/dev/spidev0.0';
+    const spi = SPI.fromDevicePath(devicePath);
     spi.speed = Math.max(APA102C.CLK_MIN, config.clockSpeed || APA102C.CLK_MIN);
     spi.mode = Mode.M0;
 
     return new Dotstar(
       spi,
+      devicePath,
       Math.max(0, config.length || 144),
       config.startFrames || 1,
       config.endFrames || 4
@@ -26,6 +28,7 @@ export class Dotstar {
 
   private constructor(
     private readonly spi: SPI,
+    readonly devicePath: string,
     readonly length: number,
     readonly startFrames: number,
     readonly endFrames: number
@@ -46,10 +49,6 @@ export class Dotstar {
   private write(led: Buffer, color: number) {
     color = color > 0xffffff ? 0 : color < 0 ? 0xffffff : color;
     led.writeUIntLE(color, 0, 3);
-  }
-
-  get devicePath(): string {
-    return this.spi.devicePath;
   }
 
   get speed() {
