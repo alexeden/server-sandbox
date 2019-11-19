@@ -28,3 +28,8 @@
     <span matSuffix>Hz</span>
   </mat-form-field>
 </div>
+<div class="mat-h3 m-0">Transmissions per second</div>
+<div class="row gap-5 align-center">
+  <div class="mat-caption">{{ socketService.txps | async }}</div>
+  <mat-slider class="p-0 m-0" [formControl]="txpsControl" [min]="txpsMin" [max]="txpsMax"></mat-slider>
+</div>

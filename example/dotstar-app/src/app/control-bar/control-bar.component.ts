@@ -13,14 +13,9 @@ import { map, takeUntil, startWith, filter } from 'rxjs/operators';
   templateUrl: './control-bar.component.html',
   styleUrls: ['./control-bar.component.scss'],
 })
-export class ControlBarComponent implements OnInit, OnDestroy {
+export class ControlBarComponent implements OnDestroy {
   @HostBinding('attr.class') classes = 'row gap-40';
   private readonly unsubscribe$ = new Subject<any>();
-
-  readonly txpsControl: FormControl;
-  readonly txpsMin = DotstarConstants.txpsMin;
-  readonly txpsMax = DotstarConstants.txpsMax;
-  readonly devicePath: Observable<string>;
 
   constructor(
     private fb: FormBuilder,
@@ -29,27 +24,7 @@ export class ControlBarComponent implements OnInit, OnDestroy {
     readonly socketService: SocketService,
     readonly clock: AnimationClockService
   ) {
-    this.txpsControl = this.fb.control(60, [
-      Validators.min(this.txpsMin),
-      Validators.max(this.txpsMax),
-    ]);
-
-    this.devicePath = this.configService.deviceConfig.pipe(
-      map(config => config.devicePath)
-    );
   }
-
-  ngOnInit() {
-    this.txpsControl.valueChanges.pipe(
-      takeUntil(this.unsubscribe$),
-      startWith(this.txpsControl.value),
-      filter(() => this.txpsControl.valid)
-    )
-    .subscribe(txps => this.socketService.setTxps(txps));
-
-    this.configService.getAvailableDevicePaths();
-  }
-
 
   ngOnDestroy() {
     this.unsubscribe$.next('unsubscribe!');
