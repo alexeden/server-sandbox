@@ -68,7 +68,7 @@ export class SceneUtils {
 
   // Lights
   static createLights() {
-    const ambientLight = new AmbientLight(0xffffff, 0.6);
+    const ambientLight = new AmbientLight(0xffffff, 1);
 
     const pointLightLocations = [
       [100, SceneConst.FieldHeight - 50, 0],
@@ -79,7 +79,7 @@ export class SceneUtils {
     ];
 
     const pointLights = pointLightLocations.map(([x, y, z]) => {
-      const light = new PointLight(colors.white, 0.9, 0);
+      const light = new PointLight(colors.white, 0.2, 0);
       light.decay = 0.1;
       light.position.set(x, y, z);
       light.castShadow = true;
@@ -96,6 +96,7 @@ export class SceneUtils {
       new PlaneBufferGeometry(2 * SceneConst.FieldWidth, 2 * SceneConst.FieldLength, 1, 1),
       new MeshPhongMaterial({ color: colors.white, emissive: colors.black })
     );
+    floor.translateX(100).rotateX(-Math.PI / 2);
     floor.receiveShadow = true;
 
     return [floor];

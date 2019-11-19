@@ -5,6 +5,7 @@ import { Scene, WebGLRenderer, PerspectiveCamera, Clock } from 'three';
 import { interval } from 'rxjs';
 import { animationFrame } from 'rxjs/internal/scheduler/animationFrame';
 import CameraControls from 'camera-controls';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'dotstar-tetra-canvas',
@@ -31,6 +32,16 @@ export class TetraCanvasComponent implements OnInit {
 
   ngOnInit() {
     this.canvasService.start();
+
+    // this.canvasService.canvasRect.pipe(
+    //   tap(rect => {
+    //     this.renderer2.setAttribute(this.canvas, 'height', `${2 * rect.height}`);
+    //     this.renderer2.setStyle(this.canvas, 'height', `${rect.height}px`);
+    //     this.renderer2.setAttribute(this.canvas, 'width', `${2 * rect.width}`);
+    //     this.renderer2.setStyle(this.canvas, 'width', `${rect.width}px`);
+    //   })
+    // )
+    // .subscribe();
 
     /** Render */
     /* TODO: ADD AN UNSUBSCRIBE EMITTER HERE */
