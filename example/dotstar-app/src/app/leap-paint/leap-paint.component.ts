@@ -1,22 +1,18 @@
-import { Component, OnInit } from '@angular/core';
-// import { LeapPaintService } from './leap-paint.service';
-import { LeapController } from '@app/leap';
-import { LeapPaintService } from './leap-paint.service';
+import { Component } from '@angular/core';
 
 @Component({
-  templateUrl: './leap-paint.component.html',
-  styleUrls: [ './leap-paint.component.scss' ],
+  template: `
+    <div class="column gap-10 p-20">
+      <mat-card>
+        <dotstar-leap-device-controls></dotstar-leap-device-controls>
+      </mat-card>
+      <mat-card>
+        <dotstar-leap-paint-canvas></dotstar-leap-paint-canvas>
+      </mat-card>
+      <mat-card>
+        <dotstar-leap-physics-config-form></dotstar-leap-physics-config-form>
+      </mat-card>
+    </div>
+  `,
 })
-export class LeapPaintComponent implements OnInit {
-
-  constructor(
-    readonly paintService: LeapPaintService,
-    readonly controller: LeapController
-  ) {
-    (window as any).LeapPaintComponent = this;
-  }
-
-  ngOnInit() {
-  }
-
-}
+export class LeapPaintComponent {}

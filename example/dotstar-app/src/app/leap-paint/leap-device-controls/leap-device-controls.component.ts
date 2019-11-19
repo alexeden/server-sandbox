@@ -1,9 +1,9 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { LeapController } from '@app/leap';
-import { Subject, Observable } from 'rxjs';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { MatSlideToggleChange } from '@angular/material';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { LeapController } from '../lib';
 import { LeapPaintService } from '../leap-paint.service';
 
 @Component({

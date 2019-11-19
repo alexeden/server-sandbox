@@ -15,7 +15,7 @@ import { SocketNotifierComponent } from './dotstar-notifiers.component';
 import { VisualizerComponent } from './visualizer';
 import { DeviceConfigFormComponent } from './device-config-form';
 import { BufferService } from './buffer.service';
-import { SamplerFormComponent } from './sampler-form';
+import { ChannelFunctionFormsComponent } from './channel-function-forms';
 import { ControlBarComponent } from './control-bar';
 import { ColorspaceFunctionsComponent } from './colorspace-functions';
 import { LeapPaintModule, LeapPaintComponent } from './leap-paint';
@@ -50,7 +50,7 @@ const appRoutes: Routes = [
     DeviceConfigFormComponent,
     ControlBarComponent,
     LiveBufferBarComponent,
-    SamplerFormComponent,
+    ChannelFunctionFormsComponent,
     SocketNotifierComponent,
     VisualizerComponent,
     AppComponent,

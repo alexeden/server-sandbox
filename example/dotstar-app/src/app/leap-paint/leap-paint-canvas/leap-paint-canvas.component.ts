@@ -7,7 +7,7 @@ import { Colors, mapToRange, clamp, range, Sample, normalize, clampLoop } from '
 import { LeapPaintService } from '../leap-paint.service';
 import { DotstarDeviceConfigService } from '@app/device-config.service';
 import { BufferService } from '@app/buffer.service';
-import { Hand, InteractionBox } from '@app/leap';
+import { Hand, InteractionBox } from '../lib';
 import { LeapPhysicsConfigService } from '../leap-physics-config.service';
 
 @Component({

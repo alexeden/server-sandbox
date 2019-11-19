@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { LeapController, Frame } from '@app/leap';
-import { ConnectableObservable, Observable } from 'rxjs';
-import { publishReplay, shareReplay, map, startWith, tap } from 'rxjs/operators';
-import { Hand } from '@app/leap/lib/hand';
+import { LeapController, Frame } from './lib';
+import { Observable } from 'rxjs';
+import { shareReplay, map, startWith, tap } from 'rxjs/operators';
+import { Hand } from '@app/leap-paint/lib/leap/hand';
 
 @Injectable()
 export class LeapPaintService {

@@ -1,9 +1,9 @@
 import { Subject, Observable, BehaviorSubject, fromEvent } from 'rxjs';
 import { distinctUntilChanged, map, startWith, takeUntil, share, scan, filter } from 'rxjs/operators';
-import { Frame } from './lib/frame';
-import { Hand } from './lib/hand';
-import { DeviceEventState, ServiceMessage, ControllerOptions, FrameMessage } from './lib/types';
-import { Assertions } from './lib/assertions';
+import { Frame } from './leap/frame';
+import { Hand } from './leap/hand';
+import { DeviceEventState, ServiceMessage, ControllerOptions, FrameMessage } from './leap/types';
+import { Assertions } from './leap/assertions';
 
 
 /**

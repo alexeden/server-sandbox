@@ -11,11 +11,11 @@ import { BufferService } from '../buffer.service';
 import { functionBodyValidator } from './function-body.validator';
 
 @Component({
-  selector: 'dotstar-sampler-form',
-  templateUrl: './sampler-form.component.html',
-  styleUrls: ['./sampler-form.component.scss'],
+  selector: 'dotstar-channel-function-forms',
+  templateUrl: './channel-function-forms.component.html',
+  styleUrls: ['./channel-function-forms.component.scss'],
 })
-export class SamplerFormComponent implements OnInit, OnDestroy {
+export class ChannelFunctionFormsComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   private readonly fnValidator = functionBodyValidator(samplerFnHead, [0, 0, 1]);
   private readonly channelSampler: Observable<ChannelSampler>;
