@@ -5,6 +5,7 @@ import { PerspectiveCamera, WebGLRenderer, Clock, Scene } from 'three';
 import { SceneUtils } from './lib/scene.utils';
 import CameraControls from 'camera-controls';
 import { TetraCanvasComponent } from './tetra-canvas/tetra-canvas.component';
+import { CanvasService } from './canvas.service';
 
 
 
@@ -53,6 +54,7 @@ import { TetraCanvasComponent } from './tetra-canvas/tetra-canvas.component';
       provide: Clock,
       useFactory: () => new Clock(),
     },
+    CanvasService,
   ],
 })
 export class TetrahedronModule { }
