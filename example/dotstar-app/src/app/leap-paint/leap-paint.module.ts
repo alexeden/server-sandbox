@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from '@app/shared';
 import { LeapController } from './lib';
-import { LeapPaintComponent } from './leap-paint.component';
 import { LeapPaintCanvasComponent } from './leap-paint-canvas';
 import { LeapPaintService } from './leap-paint.service';
 import { LeapDeviceControlsComponent } from './leap-device-controls';
@@ -14,7 +13,11 @@ import { LeapPhysicsConfigFormComponent } from './leap-physics-config-form';
     SharedModule,
   ],
   declarations: [
-    LeapPaintComponent,
+    LeapPaintCanvasComponent,
+    LeapDeviceControlsComponent,
+    LeapPhysicsConfigFormComponent,
+  ],
+  exports: [
     LeapPaintCanvasComponent,
     LeapDeviceControlsComponent,
     LeapPhysicsConfigFormComponent,
@@ -30,4 +33,3 @@ import { LeapPhysicsConfigFormComponent } from './leap-physics-config-form';
   ],
 })
 export class LeapPaintModule {}
-export { LeapPaintComponent } from './leap-paint.component';

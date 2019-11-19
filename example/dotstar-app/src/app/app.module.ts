@@ -17,10 +17,16 @@ import { DeviceConfigFormComponent } from './device-config-form';
 import { BufferService } from './buffer.service';
 import { ChannelFunctionFormsComponent } from './channel-function-forms';
 import { ControlBarComponent } from './control-bar';
-import { ColorspaceFunctionsComponent } from './colorspace-functions';
-import { LeapPaintModule, LeapPaintComponent } from './leap-paint';
+import { LeapPaintModule } from './leap-paint';
 import { LiveBufferBarComponent } from './live-buffer-bar';
 
+/**
+ * Views
+ */
+import {
+  ColorspaceFunctionsComponent,
+  LeapPaintComponent,
+} from './views';
 
 const appRoutes: Routes = [
   {
@@ -53,6 +59,8 @@ const appRoutes: Routes = [
     ChannelFunctionFormsComponent,
     SocketNotifierComponent,
     VisualizerComponent,
+    ColorspaceFunctionsComponent,
+    LeapPaintComponent,
     AppComponent,
   ],
   providers: [
