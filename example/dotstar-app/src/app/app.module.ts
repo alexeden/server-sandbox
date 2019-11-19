@@ -1,3 +1,5 @@
+// tslint:disable-next-line: no-import-side-effect
+import 'hammerjs';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
