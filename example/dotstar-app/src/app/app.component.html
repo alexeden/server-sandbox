@@ -31,6 +31,42 @@
       </nav>
       <span class="grow"></span>
       <button
+        mat-button
+        class="no-shadow"
+        color="accent"
+        *ngIf="clock.running | async"
+        (click)="clock.pause()">
+        <mat-icon>pause</mat-icon>
+        <span class="m-l-5">Clock is running</span>
+      </button>
+      <button
+        mat-button
+        class="no-shadow c-white"
+        *ngIf="!(clock.running | async)"
+        (click)="clock.resume()">
+        <mat-icon>play_arrow</mat-icon>
+        <span class="m-l-5">Clock paused</span>
+      </button>
+
+      <button
+        *ngIf="socketService.connected$ | async"
+        mat-button
+        class="no-shadow"
+        color="accent"
+        (click)="socketService.disconnect()">
+        <mat-icon [spin]="10">sync</mat-icon>
+        <span class="m-l-5">Transmitting updates</span>
+      </button>
+      <button
+        *ngIf="!(socketService.connected$ | async)"
+        mat-button
+        class="no-shadow c-white"
+        (click)="socketService.connect()">
+        <mat-icon>sync</mat-icon>
+        <span class="m-l-5">Not connected</span>
+      </button>
+
+      <button
         *ngIf="!sidenav.opened"
         mat-icon-button
         color="accent"
