@@ -1,32 +1,42 @@
 <dotstar-socket-notifier></dotstar-socket-notifier>
 
-<nav mat-tab-nav-bar color="accent" backgroundColor="primary">
-  <a mat-tab-link
-    *ngFor="let route of dotstarRoutes"
-    [routerLink]="[route.path]"
-    routerLinkActive
-    #rla="routerLinkActive"
-    [active]="rla.isActive">
-    {{ route.data?.label }}
-  </a>
-</nav>
-
 <mat-sidenav-container class="grow">
-  <mat-sidenav mode="side" position="end" opened fixedInViewport class="elevation-5">
-    <div class="row p-10">
+  <mat-sidenav #sidenav mode="side" position="end" [opened]="true" [fixedInViewport]="true" class="elevation-5">
+    <!-- <div class="row p-10">
       <span class="grow"></span>
       <button mat-icon-button [matMenuTriggerFor]="configMenu">
         <mat-icon>more_vert</mat-icon>
       </button>
-    </div>
+    </div> -->
     <div class="p-10">
-      <ng-container [ngSwitch]="selectedConfigMenuType">
-        <dotstar-config-form *ngSwitchCase="MenuTypes.Lights"></dotstar-config-form>
-      </ng-container>
+      <button
+        class="open-menu-button"
+        (click)="sidenav.close()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <dotstar-config-form></dotstar-config-form>
     </div>
   </mat-sidenav>
 
   <mat-sidenav-content>
+    <nav mat-tab-nav-bar color="accent" backgroundColor="primary">
+      <a
+        *ngFor="let route of dotstarRoutes"
+        mat-tab-link
+        [routerLink]="[route.path]"
+        routerLinkActive
+        #rla="routerLinkActive"
+        [active]="rla.isActive">
+        {{ route.data?.label }}
+      </a>
+      <button
+        class="open-menu-button"
+        (click)="sidenav.open()">
+        <mat-icon>menu</mat-icon>
+      </button>
+    </nav>
+    <span class="grow"></span>
+
     <router-outlet></router-outlet>
   </mat-sidenav-content>
 
@@ -34,14 +44,14 @@
 
 
 <!-- Configuration panel-select menu -->
-<mat-menu #configMenu="matMenu">
+<!-- <mat-menu #configMenu="matMenu">
   <ng-container *ngFor="let menu of configMenus">
     <button mat-menu-item (click)="selectMenuType(menu.type)">
       <mat-icon>{{ menu.icon }}</mat-icon>
       <span>{{ menu.label }}</span>
     </button>
   </ng-container>
-</mat-menu>
+</mat-menu> -->
 
 
 <dotstar-control-bar></dotstar-control-bar>

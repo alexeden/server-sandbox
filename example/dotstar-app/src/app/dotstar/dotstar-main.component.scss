@@ -8,13 +8,9 @@
   display: flex;
   flex-direction: column;
 
-  .mat-drawer-side.mat-drawer-end {
-    border: none !important;
-  }
   nav {
     background-color: $primary;
     @include mat-elevation(22);
-    height: 64px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
