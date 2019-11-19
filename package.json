@@ -1,6 +1,6 @@
 {
   "name": "dotstar-node",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Interacting with Dotstar LEDs via Node.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
