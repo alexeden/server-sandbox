@@ -19,7 +19,7 @@ export const colors = {
   darkBlue: new Color('#00818f'),
   lightBlue: new Color('#00e4ff'),
   darkBrown: new Color('#3E2723'),
-  darkGray: new Color('#323232'),
+  darkGray: new Color('#263238'),
   gray: new Color('#aaaaaa'),
   orange: new Color('#ffab00'),
   green: new Color('#76ff03'),

@@ -1,13 +1,11 @@
 import { NgModule, RendererFactory2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '@app/shared';
-import { PerspectiveCamera, WebGLRenderer, Clock, Scene } from 'three';
+import { PerspectiveCamera, WebGLRenderer, Clock, Scene, Color } from 'three';
 import { SceneUtils } from './lib/scene.utils';
 import CameraControls from 'camera-controls';
 import { TetraCanvasComponent } from './tetra-canvas/tetra-canvas.component';
 import { CanvasService } from './canvas.service';
-
-
 
 @NgModule({
   declarations: [
@@ -48,7 +46,12 @@ import { CanvasService } from './canvas.service';
     },
     {
       provide: Scene,
-      useFactory: () => new Scene(),
+      useFactory: () => {
+        const scene = new Scene();
+        scene.background = new Color(0x263238);
+
+        return scene;
+      },
     },
     {
       provide: Clock,
