@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject, ConnectableObservable, interval, Scheduler } from 'rxjs';
-import { PhysicsConfig, DEFAULT_PHYSICS_CONFIG, PhysicalConstName } from './lib';
-import { LocalStorage } from '@app/shared';
 import { startWith, tap, scan, map, publishReplay, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { LocalStorage } from '@app/shared';
+import { PhysicsConfig, DEFAULT_PHYSICS_CONFIG, PhysicalConstName } from './lib';
 
 @Injectable()
-export class PhysicsConfigService {
+export class LeapPhysicsConfigService {
 
   private readonly configUpdates$ = new Subject<Partial<PhysicsConfig>>();
   readonly physicsConfig: ConnectableObservable<PhysicsConfig>;

@@ -22,7 +22,6 @@
     <div class="p-10">
       <ng-container [ngSwitch]="selectedConfigMenuType">
         <dotstar-config-form *ngSwitchCase="MenuTypes.Lights"></dotstar-config-form>
-        <dotstar-physics-form *ngSwitchCase="MenuTypes.Physics"></dotstar-physics-form>
       </ng-container>
     </div>
   </mat-sidenav>

@@ -5,6 +5,8 @@ import { LeapPaintComponent } from './leap-paint.component';
 import { LeapPaintCanvasComponent } from './leap-paint-canvas';
 import { LeapPaintService } from './leap-paint.service';
 import { LeapDeviceControlsComponent } from './leap-device-controls';
+import { LeapPhysicsConfigService } from './leap-physics-config.service';
+import { LeapPhysicsConfigFormComponent } from './leap-physics-config-form';
 
 
 @NgModule({
@@ -15,6 +17,7 @@ import { LeapDeviceControlsComponent } from './leap-device-controls';
     LeapPaintComponent,
     LeapPaintCanvasComponent,
     LeapDeviceControlsComponent,
+    LeapPhysicsConfigFormComponent,
   ],
   providers: [
     {
@@ -22,6 +25,7 @@ import { LeapDeviceControlsComponent } from './leap-device-controls';
       useClass: LeapController,
       deps: [],
     },
+    LeapPhysicsConfigService,
     LeapPaintService,
   ],
 })

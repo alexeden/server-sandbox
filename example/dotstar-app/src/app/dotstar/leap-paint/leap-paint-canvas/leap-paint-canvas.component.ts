@@ -3,12 +3,12 @@ import { Subject, BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { AnimationClockService } from '@app/dotstar/animation-clock.service';
 import { Bound, CanvasForm, CanvasSpace, Pt, World, Num, Particle, Color } from 'pts';
 import { skipWhile, takeUntil, sample, map, withLatestFrom, tap, take } from 'rxjs/operators';
-import { Colors, mapToRange, clamp, range, Sample, normalize, clampLoop, PhysicalConstName } from '@app/dotstar/lib';
+import { Colors, mapToRange, clamp, range, Sample, normalize, clampLoop } from '@app/dotstar/lib';
 import { LeapPaintService } from '../leap-paint.service';
 import { DotstarDeviceConfigService } from '@app/dotstar/device-config.service';
 import { DotstarBufferService } from '@app/dotstar/dotstar-buffer.service';
 import { Hand, InteractionBox } from '@app/leap';
-import { PhysicsConfigService } from '@app/dotstar/physics-config.service';
+import { LeapPhysicsConfigService } from '../leap-physics-config.service';
 
 @Component({
   selector: 'dotstar-leap-paint-canvas',
@@ -34,7 +34,7 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
     readonly configService: DotstarDeviceConfigService,
     readonly bufferService: DotstarBufferService,
     readonly paintService: LeapPaintService,
-    readonly physicsService: PhysicsConfigService,
+    readonly physicsService: LeapPhysicsConfigService,
     readonly clock: AnimationClockService
   ) {
 

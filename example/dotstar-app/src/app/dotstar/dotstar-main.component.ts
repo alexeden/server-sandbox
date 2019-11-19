@@ -28,11 +28,6 @@ export class DotstarMainComponent implements OnInit, OnDestroy {
       label: 'Lights Config',
     },
     {
-      type: ConfigMenuType.Physics,
-      icon: 'tune',
-      label: 'Physics',
-    },
-    {
       type: ConfigMenuType.Connection,
       icon: 'device_hub',
       label: 'Connection',

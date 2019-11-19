@@ -2,15 +2,15 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject, Observable } from 'rxjs';
 import { startWith, filter, tap, takeUntil, take, switchMapTo } from 'rxjs/operators';
-import { PhysicsConfigService } from '../physics-config.service';
+import { LeapPhysicsConfigService } from '../leap-physics-config.service';
 import { PHYSICAL_CONSTS, PhysicsConfig } from '../lib';
 
 @Component({
-  selector: 'dotstar-physics-form',
-  templateUrl: './physics-form.component.html',
-  styleUrls: ['./physics-form.component.scss'],
+  selector: 'dotstar-leap-physics-config-form',
+  templateUrl: './leap-physics-config-form.component.html',
+  styleUrls: ['./leap-physics-config-form.component.scss'],
 })
-export class PhysicsFormComponent implements OnInit, OnDestroy {
+export class LeapPhysicsConfigFormComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
 
   readonly physicsConfig: Observable<PhysicsConfig>;
@@ -19,7 +19,7 @@ export class PhysicsFormComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly fb: FormBuilder,
-    private readonly physicsConfigService: PhysicsConfigService
+    private readonly physicsConfigService: LeapPhysicsConfigService
   ) {
     // Dynamically generate the physical constant form controls
     this.physicsForm = this.fb.group({});
