@@ -18,6 +18,7 @@ import { BufferService } from './buffer.service';
 import { ChannelFunctionFormsComponent } from './channel-function-forms';
 import { LeapPaintModule } from './leap-paint';
 import { LiveBufferBarComponent } from './live-buffer-bar';
+import { TetrahedronModule } from './tetrahedron/tetrahedron.module';
 
 /**
  * Views
@@ -75,6 +76,7 @@ const appRoutes: Routes = [
     BrowserAnimationsModule,
     SharedModule,
     LeapPaintModule,
+    TetrahedronModule,
     RouterModule.forRoot(appRoutes),
   ],
 })
