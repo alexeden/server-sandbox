@@ -4,11 +4,17 @@ import { SharedModule } from '@app/shared';
 import { PerspectiveCamera, WebGLRenderer, Clock, Scene } from 'three';
 import { SceneUtils } from './lib/scene.utils';
 import CameraControls from 'camera-controls';
+import { TetraCanvasComponent } from './tetra-canvas/tetra-canvas.component';
 
 
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    TetraCanvasComponent,
+  ],
+  exports: [
+    TetraCanvasComponent,
+  ],
   imports: [
     CommonModule,
     SharedModule,

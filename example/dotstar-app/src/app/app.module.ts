@@ -26,6 +26,7 @@ import { TetrahedronModule } from './tetrahedron/tetrahedron.module';
 import {
   ColorspaceFunctionsComponent,
   LeapPaintComponent,
+  TetrahedronComponent,
 } from './views';
 
 const appRoutes: Routes = [
@@ -41,6 +42,13 @@ const appRoutes: Routes = [
     component: LeapPaintComponent,
     data: {
       label: 'Leap Paint',
+    },
+  },
+  {
+    path: 'tetrahedron',
+    component: TetrahedronComponent,
+    data: {
+      label: 'Tetrahedron',
     },
   },
   {
@@ -60,6 +68,7 @@ const appRoutes: Routes = [
     VisualizerComponent,
     ColorspaceFunctionsComponent,
     LeapPaintComponent,
+    TetrahedronComponent,
     AppComponent,
   ],
   providers: [
