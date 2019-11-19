@@ -1,4 +1,5 @@
 build/
+doc/
 example/
 .vscode/
 nodemon.*.json
