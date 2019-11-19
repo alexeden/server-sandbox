@@ -49,6 +49,6 @@
   },
   "dependencies": {
     "gradient-string": "^1.2.0",
-    "spi-node": "^2.0.2"
+    "spi-node": "^2.0.3"
   }
 }
