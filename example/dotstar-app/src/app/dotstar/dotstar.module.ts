@@ -15,7 +15,6 @@ import { DotstarRoutingModule } from './dotstar-routing.module';
 import { ColorspaceFunctionsComponent } from './colorspace-functions';
 import { LeapPaintModule } from './leap-paint';
 import { LiveBufferBarComponent } from './live-buffer-bar';
-import { DomainMapService } from './domain-maps.service';
 
 @NgModule({
   declarations: [
@@ -42,7 +41,6 @@ import { DomainMapService } from './domain-maps.service';
   ],
   providers: [
     AnimationClockService,
-    DomainMapService,
     DotstarBufferService,
     DotstarDeviceConfigService,
     DotstarSocketService,
