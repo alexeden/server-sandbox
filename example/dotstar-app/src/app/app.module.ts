@@ -6,15 +6,60 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
 import { BrowserModule } from '@angular/platform-browser';
-import { DotstarModule } from './dotstar/dotstar.module';
+
+import { SharedModule } from '@app/shared';
+import { AnimationClockService } from './animation-clock.service';
+import { DotstarDeviceConfigService } from './device-config.service';
+import { SocketService } from './socket.service';
+import { SocketNotifierComponent } from './dotstar-notifiers.component';
+import { VisualizerComponent } from './visualizer';
+import { DeviceConfigFormComponent } from './device-config-form';
+import { BufferService } from './buffer.service';
+import { SamplerFormComponent } from './sampler-form';
+import { ControlBarComponent } from './control-bar';
+import { ColorspaceFunctionsComponent } from './colorspace-functions';
+import { LeapPaintModule, LeapPaintComponent } from './leap-paint';
+import { LiveBufferBarComponent } from './live-buffer-bar';
+
 
 const appRoutes: Routes = [
-  { path: '',   redirectTo: '/dotstar', pathMatch: 'full' },
+  {
+    path: 'functions',
+    component: ColorspaceFunctionsComponent,
+    data: {
+      label: 'Colorspace Functions',
+    },
+  },
+  {
+    path: 'leap-paint',
+    component: LeapPaintComponent,
+    data: {
+      label: 'Leap Paint',
+    },
+  },
+  {
+    path: '',
+    redirectTo: 'functions',
+    pathMatch: 'full',
+  },
 ];
 
 @NgModule({
   declarations: [
+    ColorspaceFunctionsComponent,
+    DeviceConfigFormComponent,
+    ControlBarComponent,
+    LiveBufferBarComponent,
+    SamplerFormComponent,
+    SocketNotifierComponent,
+    VisualizerComponent,
     AppComponent,
+  ],
+  providers: [
+    AnimationClockService,
+    BufferService,
+    DotstarDeviceConfigService,
+    SocketService,
   ],
   bootstrap: [
     AppComponent,
@@ -22,8 +67,9 @@ const appRoutes: Routes = [
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    SharedModule,
+    LeapPaintModule,
     RouterModule.forRoot(appRoutes),
-    DotstarModule,
   ],
 })
 export class AppModule { }

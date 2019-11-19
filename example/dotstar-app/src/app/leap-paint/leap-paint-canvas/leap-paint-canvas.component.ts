@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy, Renderer2, ElementRef } from '@angular/core';
 import { Subject, BehaviorSubject, Observable, combineLatest } from 'rxjs';
-import { AnimationClockService } from '@app/dotstar/animation-clock.service';
+import { AnimationClockService } from '@app/animation-clock.service';
 import { Bound, CanvasForm, CanvasSpace, Pt, World, Num, Particle, Color } from 'pts';
 import { skipWhile, takeUntil, sample, map, withLatestFrom, tap, take } from 'rxjs/operators';
-import { Colors, mapToRange, clamp, range, Sample, normalize, clampLoop } from '@app/dotstar/lib';
+import { Colors, mapToRange, clamp, range, Sample, normalize, clampLoop } from '@app/lib';
 import { LeapPaintService } from '../leap-paint.service';
-import { DotstarDeviceConfigService } from '@app/dotstar/device-config.service';
-import { BufferService } from '@app/dotstar/buffer.service';
+import { DotstarDeviceConfigService } from '@app/device-config.service';
+import { BufferService } from '@app/buffer.service';
 import { Hand, InteractionBox } from '@app/leap';
 import { LeapPhysicsConfigService } from '../leap-physics-config.service';
 

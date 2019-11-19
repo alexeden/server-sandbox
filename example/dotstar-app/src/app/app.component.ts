@@ -1,10 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
+import { ROUTES, Route } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styles: [],
+  styleUrls: [ './app.component.scss' ],
 })
 export class AppComponent {
-  title = 'dotstar-app';
+  readonly dotstarRoutes: Route[];
+
+  constructor(
+    @Inject(ROUTES) public injectedRoutes: Route[][]
+  ) {
+    this.dotstarRoutes = this.injectedRoutes[0];
+  }
 }
