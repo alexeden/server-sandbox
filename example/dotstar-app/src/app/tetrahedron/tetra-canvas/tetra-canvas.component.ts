@@ -30,20 +30,14 @@ export class TetraCanvasComponent implements OnInit {
     (window as any).tetraCanvasComponent = this;
     this.renderer2.appendChild(this.elRef.nativeElement, this.canvas);
     this.scene.add(...SceneUtils.createLights(), ...SceneUtils.createScenePlatform());
-    // this.scene.add(new AxesHelper(2000));
   }
 
   ngOnInit() {
-    // this.renderer.setPixelRatio(window && window.devicePixelRatio || 2);
 
     this.canvasService.canvasRect.pipe(
       tap(rect => {
         const hostRect = this.elRef.nativeElement!.getBoundingClientRect();
         this.renderer.setSize(hostRect.width, hostRect.height);
-        // this.renderer2.setAttribute(this.canvas, 'height', `${2 * rect.height}`);
-        // this.renderer2.setStyle(this.canvas, 'height', `${rect.height}px`);
-        // this.renderer2.setAttribute(this.canvas, 'width', `${2 * rect.width}`);
-        // this.renderer2.setStyle(this.canvas, 'width', `${rect.width}px`);
       })
     )
     .subscribe();
@@ -61,8 +55,6 @@ export class TetraCanvasComponent implements OnInit {
 
         });
         const pixelGeo = new SphereGeometry(3, 5, 5);
-        console.log(tetra.pixels);
-
         const pixelMat = new MeshBasicMaterial({ color: colors.green });
         Object.values(tetra.pixels).forEach((p, i) => {
           const sphere = new Mesh(pixelGeo.clone(), pixelMat);
@@ -72,20 +64,9 @@ export class TetraCanvasComponent implements OnInit {
         });
 
         this.scene.add(group);
-        this.canvasService.start();
       })
-      // tap(tetra => {
-      //   Object.entries(tetra.edges).forEach(([eid, line]) => {
-      //     console.log(`Edge ${eid} has length `, line.distance());
-      //   });
-      // })
     )
     .subscribe();
-
-    // this.canvasService.canvasRect.subscribe(() => {
-    //   this.renderer.setPixelRatio(window && window.devicePixelRatio || 2);
-    //   console.log('pixel ratio set!', window && 2 * window.devicePixelRatio || 2);
-    // });
 
     /** Render */
     /* TODO: ADD AN UNSUBSCRIBE EMITTER HERE */
@@ -93,6 +74,8 @@ export class TetraCanvasComponent implements OnInit {
       if (this.cameraControls.enabled) this.cameraControls.update(this.clock.getDelta());
       this.renderer.render(this.scene, this.camera);
     });
+
+    this.canvasService.start();
   }
 
 }
