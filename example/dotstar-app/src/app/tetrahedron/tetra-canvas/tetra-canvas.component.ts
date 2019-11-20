@@ -30,7 +30,7 @@ export class TetraCanvasComponent implements OnInit {
 
     this.renderer2.appendChild(this.elRef.nativeElement, this.canvas);
     this.scene.add(...SceneUtils.createLights(), ...SceneUtils.createScenePlatform());
-    this.scene.add(new AxesHelper(2000));
+    // this.scene.add(new AxesHelper(2000));
   }
 
   ngOnInit() {
@@ -51,7 +51,7 @@ export class TetraCanvasComponent implements OnInit {
       take(1),
       tap(tetra => {
         Object.values(tetra.vertices).forEach(vert => {
-          const sphere = new Mesh(new SphereGeometry(15, 32, 32), new MeshBasicMaterial({ color: colors.lightBlue }));
+          const sphere = new Mesh(new SphereGeometry(25, 32, 32), new MeshBasicMaterial({ color: colors.lightBlue }));
           sphere.position.copy(vert);
 
           this.scene.add(sphere);

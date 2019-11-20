@@ -47,11 +47,6 @@ export interface Tetrahedron extends TetrahedronConfig {
    */
   circumRadius: number;
   /**
-   * Vectors representing the position of each edge's midpoint,
-   * the direction also represents the normal of the pixels along that edge
-   */
-  // mids: Vector3[];
-  /**
    * Vectors representing the position of the vertices
    */
   vertices: Record<VertexId, Vector3>;
@@ -60,7 +55,7 @@ export interface Tetrahedron extends TetrahedronConfig {
    */
   edges: Record<EdgeId, Line3>;
   /**
-   *
+   * Vectors representing the position of each pixel along each edge
    */
   pixels: Record<EdgeId, Vector3[]>;
 }
