@@ -49,32 +49,32 @@ export class TetraCanvasComponent implements OnInit {
     )
     .subscribe();
 
-    this.geoService.tetra.pipe(
-      take(1),
-      tap(tetra => {
-        Object.values(tetra.vertices).forEach(vert => {
-          const sphere = new Mesh(new SphereGeometry(25, 32, 32), new MeshBasicMaterial({ color: colors.lightBlue }));
-          sphere.position.copy(vert);
+    // this.geoService.tetra.pipe(
+    //   take(1),
+    //   tap(tetra => {
+    //     Object.values(tetra.vertices).forEach(vert => {
+    //       const sphere = new Mesh(new SphereGeometry(25, 32, 32), new MeshBasicMaterial({ color: colors.lightBlue }));
+    //       sphere.position.copy(vert);
 
-          this.scene.add(sphere);
+    //       this.scene.add(sphere);
 
-        });
-        Object.values(tetra.pixels).flat()
-        // .filter((_, i) => i % 10 === 0)
-        .forEach((p, i) => {
-          const sphere = new Mesh(new SphereGeometry(3 , 32, 32), new MeshBasicMaterial({ color: colors.green }));
-          sphere.position.copy(p);
+    //     });
+    //     Object.values(tetra.pixels).flat()
+    //     // .filter((_, i) => i % 10 === 0)
+    //     .forEach((p, i) => {
+    //       const sphere = new Mesh(new SphereGeometry(3 , 32, 32), new MeshBasicMaterial({ color: colors.green }));
+    //       sphere.position.copy(p);
 
-          this.scene.add(sphere);
-        });
-      }),
-      tap(tetra => {
-        Object.entries(tetra.edges).forEach(([eid, line]) => {
-          console.log(`Edge ${eid} has length `, line.distance());
-        });
-      })
-    )
-    .subscribe();
+    //       this.scene.add(sphere);
+    //     });
+    //   }),
+    //   tap(tetra => {
+    //     Object.entries(tetra.edges).forEach(([eid, line]) => {
+    //       console.log(`Edge ${eid} has length `, line.distance());
+    //     });
+    //   })
+    // )
+    // .subscribe();
 
     // this.canvasService.canvasRect.subscribe(() => {
     //   this.renderer.setPixelRatio(window && window.devicePixelRatio || 2);

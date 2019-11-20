@@ -3,7 +3,7 @@ import { Vector3, Line3 } from 'three';
 export type VertexId = 'A' | 'B' | 'C' | 'D';
 export type EdgeId = 'AB' | 'AC' | 'AD' | 'BC' | 'BD' | 'CD';
 
-export interface TetrahedronConfig {
+export interface TetrahedronConfigOptions {
   /**
    * The number of pixels along a single edge
    */
@@ -19,6 +19,30 @@ export interface TetrahedronConfig {
   paddedEdgeLength: number;
 }
 
+
+export interface TetrahedronConfig extends TetrahedronConfigOptions {
+  /**
+   * The unpadded length of an edge,
+   * the distance between pixel 0 and pixel N
+   */
+  edgeLength: number;
+  /**
+   * The total number of pixels across the tetrahedron structure
+   */
+  pixelsTotal: number;
+  /**
+   * The distance between pixels along an edge
+   */
+  pixelSpacing: number;
+  /**
+   * The radius of the tetrahedron's midsphere
+   */
+  midRadius: number;
+  /**
+   * The radius of the tetrahedron's circumsphere
+   */
+  circumRadius: number;
+}
 
 export interface Tetrahedron extends TetrahedronConfig {
   /**

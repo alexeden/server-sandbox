@@ -1,4 +1,4 @@
-import { TetrahedronConfig, Tetrahedron } from './types';
+import { TetrahedronConfig, Tetrahedron, TetrahedronConfigOptions } from './types';
 import { Vector3, Line3 } from 'three';
 import { Line } from 'pts';
 
@@ -8,6 +8,25 @@ const dihedralAngle = Math.acos(1 / 3);
 const tetrahedralAngle = Math.acos(-1 / 3);
 
 export class TetrahedronUtils {
+  static configFromOptions(config: TetrahedronConfigOptions): TetrahedronConfig {
+    const { paddedEdgeLength, edgePadding, pixelsPerEdge } = config;
+    const edgeLength = paddedEdgeLength - 2 * edgePadding;
+    const pixelsTotal = 6 * pixelsPerEdge;
+    const pixelSpacing = edgeLength / pixelsPerEdge;
+    const circumRadius = paddedEdgeLength / 4 * sqrt6;
+    const midRadius = paddedEdgeLength / 4 * sqrt2;
+
+    return {
+      ...config,
+      edgeLength,
+      pixelsPerEdge,
+      pixelsTotal,
+      pixelSpacing,
+      circumRadius,
+      midRadius,
+    };
+  }
+
   static computeFromConfig(config: TetrahedronConfig): Tetrahedron {
     const { paddedEdgeLength, edgePadding, pixelsPerEdge } = config;
     const edgeLength = paddedEdgeLength - 2 * edgePadding;
@@ -56,10 +75,8 @@ export class TetrahedronUtils {
     spacing: number,
     padding = 0
   ): Vector3[] {
-    console.log(`interpolate between ${n} points, padding is ${padding}`);
     const dir = b.clone().sub(a).normalize();
     const p0 = a.clone().add(dir.clone().setLength(padding));
-    // const ps = [p0];
 
     return [...Array(n).keys()].map(
       (_, i) => p0.clone().add(dir.clone().setLength(i * spacing))
