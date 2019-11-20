@@ -29,9 +29,8 @@ export const colors = {
 };
 
 export enum SceneConst {
-  FieldLength = 400,
+  FieldLength = 2000,
   FieldHeight = 400,
-  FieldWidth = 400,
   CameraX = -160,
   CameraY = 800,
   CameraZ = 2000,
@@ -61,14 +60,14 @@ export class SceneUtils {
     controls.maxPolarAngle = Math.PI * 0.49;
     controls.minDistance = 1;
     controls.maxDistance = SceneConst.CameraMaxDistance;
-    controls.setTarget(100, SceneConst.FieldHeight / 3, 0);
+    controls.setTarget(0, 0, 0);
 
     return controls;
   }
 
   // Lights
   static createLights() {
-    const ambientLight = new AmbientLight(0xffffff, 0.2);
+    const ambientLight = new AmbientLight(0xffffff, 0.6);
 
     const pointLightLocations = [
       [100, SceneConst.FieldHeight - 50, 0],
@@ -92,14 +91,14 @@ export class SceneUtils {
 
   // Platform (Floor + Grids)
   static createScenePlatform() {
-    const floor = new Mesh(
-      new PlaneBufferGeometry(2 * SceneConst.FieldWidth, 2 * SceneConst.FieldLength, 1, 1),
-      new MeshPhongMaterial({ color: colors.white, emissive: colors.black })
-    );
-    floor.translateX(100).rotateX(-Math.PI / 2);
-    floor.receiveShadow = true;
+    const gridXZ = new GridHelper(SceneConst.FieldLength, SceneConst.FieldLength / 100, colors.white, colors.white);
+    gridXZ.translateY(-SceneConst.FieldHeight);
+    if (!Array.isArray(gridXZ.material)) {
+      gridXZ.material.transparent = true;
+      gridXZ.material.opacity = 0.15;
+    }
 
-    return [floor];
+    return [gridXZ];
   }
 
   // Renderer
