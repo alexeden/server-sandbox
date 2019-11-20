@@ -35,6 +35,7 @@ export class TetraCanvasComponent implements OnInit {
 
   ngOnInit() {
     this.canvasService.start();
+    // this.renderer.setPixelRatio(window && window.devicePixelRatio || 2);
 
     // this.canvasService.canvasRect.pipe(
     //   tap(rect => {
@@ -63,6 +64,11 @@ export class TetraCanvasComponent implements OnInit {
       })
     )
     .subscribe();
+
+    this.canvasService.canvasRect.subscribe(() => {
+      this.renderer.setPixelRatio(window && window.devicePixelRatio || 2);
+      console.log('pixel ratio set!', window && 2 * window.devicePixelRatio || 2);
+    });
 
     /** Render */
     /* TODO: ADD AN UNSUBSCRIBE EMITTER HERE */

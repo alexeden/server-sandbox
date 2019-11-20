@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { PerspectiveCamera } from 'three';
+import { PerspectiveCamera, WebGLRenderer } from 'three';
 import { Observable, Subject, BehaviorSubject, fromEvent } from 'rxjs';
 import { scan, tap, startWith, shareReplay, map } from 'rxjs/operators';
 
@@ -21,7 +21,6 @@ export class CanvasService {
   private readonly modelsReady$ = new BehaviorSubject(false);
 
   constructor(
-    private readonly camera: PerspectiveCamera,
     private readonly canvas: HTMLCanvasElement
   ) {
     this.ready = this.modelsReady$.asObservable();
