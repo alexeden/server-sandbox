@@ -5,7 +5,7 @@ import { Scene, WebGLRenderer, PerspectiveCamera, Clock, Mesh, SphereGeometry, M
 import { interval } from 'rxjs';
 import { animationFrame } from 'rxjs/internal/scheduler/animationFrame';
 import CameraControls from 'camera-controls';
-import { tap } from 'rxjs/operators';
+import { tap, take } from 'rxjs/operators';
 import { GeometryService } from '../geometry.service';
 
 @Component({
@@ -48,6 +48,7 @@ export class TetraCanvasComponent implements OnInit {
     // .subscribe();
 
     this.geoService.tetra.pipe(
+      take(1),
       tap(tetra => {
         Object.values(tetra.vertices).forEach(vert => {
           const sphere = new Mesh(new SphereGeometry(15, 32, 32), new MeshBasicMaterial({ color: colors.lightBlue }));
@@ -55,6 +56,14 @@ export class TetraCanvasComponent implements OnInit {
 
           this.scene.add(sphere);
 
+        });
+        Object.values(tetra.pixels).flat()
+        .filter((_, i) => i % 10 === 0)
+        .forEach((p, i) => {
+          const sphere = new Mesh(new SphereGeometry(3 + 3 * (i % 10) , 32, 32), new MeshBasicMaterial({ color: colors.green }));
+          sphere.position.copy(p);
+
+          this.scene.add(sphere);
         });
       }),
       tap(tetra => {
