@@ -64,17 +64,17 @@ export interface Pixel {
   // next: Pixel | undefined;
 }
 
-export interface Tetrahedron extends TetrahedronConfig {
-  /**
-   *
-   */
-  vertices: Vertex[];
-  /**
-   *
-   */
-  edges: Edge[];
-  /**
-   *
-   */
-  pixels: Pixel[];
-}
+// export interface Tetrahedron extends TetrahedronConfig {
+//   /**
+//    *
+//    */
+//   vertices: Vertex[];
+//   /**
+//    *
+//    */
+//   edges: Edge[];
+//   /**
+//    *
+//    */
+//   pixels: Pixel[];
+// }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { TetrahedronConfig, Tetrahedron, TetrahedronConfigOptions } from './lib';
+import { TetrahedronConfig, TetrahedronConfigOptions } from './lib';
 import { shareReplay, map } from 'rxjs/operators';
 import { TetrahedronUtils } from './lib/utils';
 

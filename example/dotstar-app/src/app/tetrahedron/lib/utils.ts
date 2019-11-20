@@ -1,6 +1,5 @@
-import { TetrahedronConfig, Tetrahedron, TetrahedronConfigOptions, Vertex, Edge, Pixel } from './types';
+import { TetrahedronConfig, TetrahedronConfigOptions, Vertex, Edge, Pixel } from './types';
 import { Vector3, Line3 } from 'three';
-import { Line } from 'pts';
 
 const sqrt2 = Math.sqrt(2);
 const sqrt6 = Math.sqrt(6);
@@ -37,7 +36,7 @@ export class TetrahedronUtils {
   }
 
 
-  static edgeFromVertices(v0: Vertex, v1: Vertex, i: number, config: TetrahedronConfig): Edge {
+  static edgeFromVertices(v0: Vertex, v1: Vertex, i: number): Edge {
     return {
       v0,
       v1,
