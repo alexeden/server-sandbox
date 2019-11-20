@@ -31,6 +31,10 @@ export interface Tetrahedron extends TetrahedronConfig {
    */
   pixelsPerEdge: number;
   /**
+   * The total number of pixels across the tetrahedron structure
+   */
+  pixelsTotal: number;
+  /**
    * The distance between pixels along an edge
    */
   pixelSpacing: number;

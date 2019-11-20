@@ -12,6 +12,7 @@ export class TetrahedronUtils {
     const { paddedEdgeLength, edgePadding, density } = config;
     const edgeLength = paddedEdgeLength - 2 * edgePadding;
     const pixelsPerEdge = density * edgeLength;
+    const pixelsTotal = 6 * pixelsPerEdge;
     const pixelSpacing = edgeLength / pixelsPerEdge;
     const circumRadius = paddedEdgeLength / 4 * sqrt6;
     const midRadius = paddedEdgeLength / 4 * sqrt2;
@@ -25,6 +26,7 @@ export class TetrahedronUtils {
       ...config,
       edgeLength,
       pixelsPerEdge,
+      pixelsTotal,
       pixelSpacing,
       circumRadius,
       midRadius,
@@ -38,5 +40,17 @@ export class TetrahedronUtils {
         CD: new Line3(C, D),
       },
     };
+  }
+
+  static interpolateBetweenPoints(
+    a: Vector3,
+    b: Vector3,
+    n: number,
+    spacing: number,
+    padding = 0
+  ): Vector3 {
+
+
+    return [];
   }
 }
