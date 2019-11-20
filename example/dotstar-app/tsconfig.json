@@ -15,7 +15,6 @@
     "noImplicitThis": true,
     "sourceMap": true,
     "strictNullChecks": true,
-    "strict": true,
     "paths": {
       "@app/*": [
         "src/app/*"

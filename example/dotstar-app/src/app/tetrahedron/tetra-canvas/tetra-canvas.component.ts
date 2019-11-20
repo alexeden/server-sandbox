@@ -1,7 +1,7 @@
 import { Component, OnInit, ElementRef, Renderer2 } from '@angular/core';
 import { CanvasService } from '../canvas.service';
 import { SceneUtils, colors } from '../lib';
-import { Scene, WebGLRenderer, PerspectiveCamera, Clock, Mesh, SphereGeometry, MeshBasicMaterial, AxesHelper } from 'three';
+import { Scene, WebGLRenderer, PerspectiveCamera, Clock, Mesh, SphereGeometry, MeshBasicMaterial, AxesHelper, Group } from 'three';
 import { interval } from 'rxjs';
 import { animationFrame } from 'rxjs/internal/scheduler/animationFrame';
 import CameraControls from 'camera-controls';
@@ -34,7 +34,6 @@ export class TetraCanvasComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.canvasService.start();
     // this.renderer.setPixelRatio(window && window.devicePixelRatio || 2);
 
     this.canvasService.canvasRect.pipe(
@@ -49,32 +48,39 @@ export class TetraCanvasComponent implements OnInit {
     )
     .subscribe();
 
-    // this.geoService.tetra.pipe(
-    //   take(1),
-    //   tap(tetra => {
-    //     Object.values(tetra.vertices).forEach(vert => {
-    //       const sphere = new Mesh(new SphereGeometry(25, 32, 32), new MeshBasicMaterial({ color: colors.lightBlue }));
-    //       sphere.position.copy(vert);
+    this.geoService.tetra.pipe(
+      take(1),
+      tap(tetra => {
+        const group = new Group();
 
-    //       this.scene.add(sphere);
+        Object.values(tetra.vertices).forEach(vert => {
+          const sphere = new Mesh(new SphereGeometry(25, 32, 32), new MeshBasicMaterial({ color: colors.lightBlue }));
+          sphere.position.copy(vert.pos);
 
-    //     });
-    //     Object.values(tetra.pixels).flat()
-    //     // .filter((_, i) => i % 10 === 0)
-    //     .forEach((p, i) => {
-    //       const sphere = new Mesh(new SphereGeometry(3 , 32, 32), new MeshBasicMaterial({ color: colors.green }));
-    //       sphere.position.copy(p);
+          group.add(sphere);
 
-    //       this.scene.add(sphere);
-    //     });
-    //   }),
-    //   tap(tetra => {
-    //     Object.entries(tetra.edges).forEach(([eid, line]) => {
-    //       console.log(`Edge ${eid} has length `, line.distance());
-    //     });
-    //   })
-    // )
-    // .subscribe();
+        });
+        const pixelGeo = new SphereGeometry(3, 5, 5);
+        console.log(tetra.pixels);
+
+        const pixelMat = new MeshBasicMaterial({ color: colors.green });
+        Object.values(tetra.pixels).forEach((p, i) => {
+          const sphere = new Mesh(pixelGeo.clone(), pixelMat);
+          sphere.position.copy(p.pos);
+
+          group.add(sphere);
+        });
+
+        this.scene.add(group);
+        this.canvasService.start();
+      })
+      // tap(tetra => {
+      //   Object.entries(tetra.edges).forEach(([eid, line]) => {
+      //     console.log(`Edge ${eid} has length `, line.distance());
+      //   });
+      // })
+    )
+    .subscribe();
 
     // this.canvasService.canvasRect.subscribe(() => {
     //   this.renderer.setPixelRatio(window && window.devicePixelRatio || 2);
