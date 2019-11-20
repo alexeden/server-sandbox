@@ -1,19 +1,19 @@
 import { TetrahedronConfig, TetrahedronConfigOptions, Vertex, Edge, Pixel } from './types';
 import { Vector3, Line3 } from 'three';
 
-const sqrt2 = Math.sqrt(2);
-const sqrt6 = Math.sqrt(6);
-const dihedralAngle = Math.acos(1 / 3);
-const tetrahedralAngle = Math.acos(-1 / 3);
 
 export class TetrahedronUtils {
+  static readonly sqrt2 = Math.sqrt(2);
+  static readonly sqrt6 = Math.sqrt(6);
+  static readonly tetrahedralAngle = Math.acos(-1 / 3);
+
   static configFromOptions(configOptions: TetrahedronConfigOptions): TetrahedronConfig {
     const { paddedEdgeLength, edgePadding, pixelsPerEdge } = configOptions;
     const edgeLength = paddedEdgeLength - 2 * edgePadding;
     const pixelsTotal = 6 * pixelsPerEdge;
     const pixelSpacing = edgeLength / pixelsPerEdge;
-    const circumRadius = paddedEdgeLength / 4 * sqrt6;
-    const midRadius = paddedEdgeLength / 4 * sqrt2;
+    const circumRadius = paddedEdgeLength / 4 * TetrahedronUtils.sqrt6;
+    const midRadius = paddedEdgeLength / 4 * TetrahedronUtils.sqrt2;
 
     return {
       ...configOptions,
@@ -28,7 +28,7 @@ export class TetrahedronUtils {
 
   static verticesFromConfig(config: TetrahedronConfig): Vertex[] {
     const A = new Vector3(0, config.circumRadius, 0);
-    const B = A.clone().applyAxisAngle(new Vector3(1, 0, 0), tetrahedralAngle);
+    const B = A.clone().applyAxisAngle(new Vector3(1, 0, 0), TetrahedronUtils.tetrahedralAngle);
     const C = B.clone().applyAxisAngle(new Vector3(0, 1, 0), 2 * Math.PI / 3);
     const D = C.clone().applyAxisAngle(new Vector3(0, 1, 0), 2 * Math.PI / 3);
 
