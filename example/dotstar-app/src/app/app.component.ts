@@ -16,6 +16,6 @@ export class AppComponent {
     readonly socketService: SocketService,
     readonly clock: AnimationClockService
   ) {
-    this.dotstarRoutes = this.injectedRoutes[0];
+    this.dotstarRoutes = this.injectedRoutes[0].filter(route => route.path && route.path.length > 0);
   }
 }
