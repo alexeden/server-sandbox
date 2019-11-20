@@ -6,6 +6,7 @@ import { SceneUtils } from './lib/scene.utils';
 import CameraControls from 'camera-controls';
 import { TetraCanvasComponent } from './tetra-canvas/tetra-canvas.component';
 import { CanvasService } from './canvas.service';
+import { GeometryService } from './geometry.service';
 
 @NgModule({
   declarations: [
@@ -49,7 +50,6 @@ import { CanvasService } from './canvas.service';
       useFactory: () => {
         const scene = new Scene();
         scene.background = new Color(0x263238);
-
         return scene;
       },
     },
@@ -58,6 +58,7 @@ import { CanvasService } from './canvas.service';
       useFactory: () => new Clock(),
     },
     CanvasService,
+    GeometryService,
   ],
 })
 export class TetrahedronModule { }
