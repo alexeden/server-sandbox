@@ -10,7 +10,7 @@ export class TetrahedronUtils {
   static computeFromConfig(config: TetrahedronConfig): Tetrahedron {
     const { paddedEdgeLength, edgePadding, density } = config;
     const edgeLength = paddedEdgeLength - 2 * edgePadding;
-    const pixelsPerEdge = density / edgeLength;
+    const pixelsPerEdge = density * edgeLength;
     const pixelSpacing = edgeLength / pixelsPerEdge;
     const circumRadius = paddedEdgeLength / 4 * sqrt6;
     const midRadius = paddedEdgeLength / 4 * sqrt2;

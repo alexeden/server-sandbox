@@ -6,6 +6,7 @@ import { interval } from 'rxjs';
 import { animationFrame } from 'rxjs/internal/scheduler/animationFrame';
 import CameraControls from 'camera-controls';
 import { tap } from 'rxjs/operators';
+import { GeometryService } from '../geometry.service';
 
 @Component({
   selector: 'dotstar-tetra-canvas',
@@ -23,7 +24,8 @@ export class TetraCanvasComponent implements OnInit {
     private readonly renderer: WebGLRenderer,
     private readonly canvasService: CanvasService,
     private readonly clock: Clock,
-    private readonly scene: Scene
+    private readonly scene: Scene,
+    readonly geoService: GeometryService
   ) {
 
     this.renderer2.appendChild(this.elRef.nativeElement, this.canvas);
