@@ -1,7 +1,7 @@
 import { Component, OnInit, ElementRef, Renderer2 } from '@angular/core';
 import { CanvasService } from '../canvas.service';
-import { SceneUtils } from '../lib/scene.utils';
-import { Scene, WebGLRenderer, PerspectiveCamera, Clock } from 'three';
+import { SceneUtils, colors } from '../lib';
+import { Scene, WebGLRenderer, PerspectiveCamera, Clock, Mesh, SphereGeometry, MeshBasicMaterial, AxesHelper } from 'three';
 import { interval } from 'rxjs';
 import { animationFrame } from 'rxjs/internal/scheduler/animationFrame';
 import CameraControls from 'camera-controls';
@@ -30,6 +30,7 @@ export class TetraCanvasComponent implements OnInit {
 
     this.renderer2.appendChild(this.elRef.nativeElement, this.canvas);
     this.scene.add(...SceneUtils.createLights(), ...SceneUtils.createScenePlatform());
+    this.scene.add(new AxesHelper(2000));
   }
 
   ngOnInit() {
@@ -44,6 +45,24 @@ export class TetraCanvasComponent implements OnInit {
     //   })
     // )
     // .subscribe();
+
+    this.geoService.tetra.pipe(
+      tap(tetra => {
+        Object.values(tetra.vertices).forEach(vert => {
+          const sphere = new Mesh(new SphereGeometry(15, 32, 32), new MeshBasicMaterial({ color: colors.lightBlue }));
+          sphere.position.copy(vert);
+
+          this.scene.add(sphere);
+
+        });
+      }),
+      tap(tetra => {
+        Object.entries(tetra.edges).forEach(([eid, line]) => {
+          console.log(`Edge ${eid} has length `, line.distance());
+        });
+      })
+    )
+    .subscribe();
 
     /** Render */
     /* TODO: ADD AN UNSUBSCRIBE EMITTER HERE */

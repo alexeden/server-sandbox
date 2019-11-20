@@ -1,4 +1,4 @@
-import { Vector3 } from 'three';
+import { Vector3, Line3 } from 'three';
 
 export type VertexId = 'A' | 'B' | 'C' | 'D';
 export type EdgeId = 'AB' | 'AC' | 'AD' | 'BC' | 'BD' | 'CD';
@@ -51,4 +51,8 @@ export interface Tetrahedron extends TetrahedronConfig {
    * Vectors representing the position of the vertices
    */
   vertices: Record<VertexId, Vector3>;
+  /**
+   * Lines representing the tetrahedron's edges
+   */
+  edges: Record<EdgeId, Line3>;
 }

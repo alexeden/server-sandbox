@@ -32,10 +32,10 @@ export enum SceneConst {
   FieldLength = 400,
   FieldHeight = 400,
   FieldWidth = 400,
-  CameraX = -80,
-  CameraY = 300,
-  CameraZ = 500,
-  CameraMaxDistance = 600,
+  CameraX = -160,
+  CameraY = 800,
+  CameraZ = 2000,
+  CameraMaxDistance = 2000,
 }
 
 export interface SceneTreeNode {

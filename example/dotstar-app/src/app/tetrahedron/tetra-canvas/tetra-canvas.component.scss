@@ -1,6 +1,11 @@
 :host {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  min-height: 100%;
+  width: 100%;
+
   & ::ng-deep canvas {
-    // border: red solid 1px;
     height: 100%;
     width: 100%;
     display: block;
