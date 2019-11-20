@@ -11,7 +11,7 @@ export class TetrahedronUtils {
   static computeFromConfig(config: TetrahedronConfig): Tetrahedron {
     const { paddedEdgeLength, edgePadding, density } = config;
     const edgeLength = paddedEdgeLength - 2 * edgePadding;
-    const pixelsPerEdge = density * edgeLength;
+    const pixelsPerEdge = Math.round(density * edgeLength);
     const pixelsTotal = 6 * pixelsPerEdge;
     const pixelSpacing = edgeLength / pixelsPerEdge;
     const circumRadius = paddedEdgeLength / 4 * sqrt6;
@@ -39,6 +39,14 @@ export class TetrahedronUtils {
         BD: new Line3(B, D),
         CD: new Line3(C, D),
       },
+      pixels: {
+        AB: TetrahedronUtils.interpolateBetweenPoints(A, B, pixelsPerEdge, pixelSpacing, edgePadding),
+        AC: TetrahedronUtils.interpolateBetweenPoints(A, C, pixelsPerEdge, pixelSpacing, edgePadding),
+        AD: TetrahedronUtils.interpolateBetweenPoints(A, D, pixelsPerEdge, pixelSpacing, edgePadding),
+        BC: TetrahedronUtils.interpolateBetweenPoints(B, C, pixelsPerEdge, pixelSpacing, edgePadding),
+        BD: TetrahedronUtils.interpolateBetweenPoints(B, D, pixelsPerEdge, pixelSpacing, edgePadding),
+        CD: TetrahedronUtils.interpolateBetweenPoints(C, D, pixelsPerEdge, pixelSpacing, edgePadding),
+      },
     };
   }
 
@@ -48,9 +56,14 @@ export class TetrahedronUtils {
     n: number,
     spacing: number,
     padding = 0
-  ): Vector3 {
+  ): Vector3[] {
+    console.log(`interpolate between ${n} points, padding is ${padding}`);
+    const dir = b.clone().sub(a).normalize();
+    const p0 = a.clone().add(dir.clone().setLength(padding));
+    // const ps = [p0];
 
-
-    return [];
+    return [...Array(n).keys()].map(
+      (_, i) => p0.clone().add(dir.clone().setLength(i * spacing))
+    );
   }
 }

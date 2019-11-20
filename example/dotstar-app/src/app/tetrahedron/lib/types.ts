@@ -59,4 +59,8 @@ export interface Tetrahedron extends TetrahedronConfig {
    * Lines representing the tetrahedron's edges
    */
   edges: Record<EdgeId, Line3>;
+  /**
+   *
+   */
+  pixels: Record<EdgeId, Vector3[]>;
 }
