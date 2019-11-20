@@ -8,16 +8,21 @@ export interface TetrahedronConfig {
   /**
    * The amount of space (unit distance) along an edge between a vertex and the nearest pixel
    */
-  edgePixelPadding: number;
+  edgePadding: number;
   /**
    * The total length of an edge, in unit distance
-   * Includes the pixel padding, `edgePixelPadding`
+   * Includes the pixel padding, `edgePadding`
    */
-  edgeLength: number;
+  paddedEdgeLength: number;
 }
 
 
 export interface Tetrahedron extends TetrahedronConfig {
+  /**
+   * The unpadded length of an edge,
+   * the distance between pixel 0 and pixel N
+   */
+  edgeLength: number;
   /**
    * The number of pixels along a single edge
    */
@@ -27,20 +32,20 @@ export interface Tetrahedron extends TetrahedronConfig {
    */
   pixelSpacing: number;
   /**
-   * The distance between an edge midpoint and the origin
+   * The radius of the tetrahedron's midsphere
    */
-  midpointRadius: number;
+  midRadius: number;
   /**
-   * The distance between a vertex and the origin
+   * The radius of the tetrahedron's circumsphere
    */
-  vertexRadius: number;
+  circumRadius: number;
   /**
    * Vectors representing the position of each edge's midpoint,
    * the direction also represents the normal of the pixels along that edge
    */
-  midpoint: Vector3;
+  mids: Vector3[];
   /**
    * Vectors representing the position of the vertices
    */
-  vertices: Vector3;
+  vertices: Vector3[];
 }
