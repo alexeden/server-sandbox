@@ -27,7 +27,7 @@ export class TetraCanvasComponent implements OnInit {
     private readonly scene: Scene,
     readonly geoService: GeometryService
   ) {
-
+    (window as any).tetraCanvasComponent = this;
     this.renderer2.appendChild(this.elRef.nativeElement, this.canvas);
     this.scene.add(...SceneUtils.createLights(), ...SceneUtils.createScenePlatform());
     // this.scene.add(new AxesHelper(2000));
@@ -37,15 +37,17 @@ export class TetraCanvasComponent implements OnInit {
     this.canvasService.start();
     // this.renderer.setPixelRatio(window && window.devicePixelRatio || 2);
 
-    // this.canvasService.canvasRect.pipe(
-    //   tap(rect => {
-    //     this.renderer2.setAttribute(this.canvas, 'height', `${2 * rect.height}`);
-    //     this.renderer2.setStyle(this.canvas, 'height', `${rect.height}px`);
-    //     this.renderer2.setAttribute(this.canvas, 'width', `${2 * rect.width}`);
-    //     this.renderer2.setStyle(this.canvas, 'width', `${rect.width}px`);
-    //   })
-    // )
-    // .subscribe();
+    this.canvasService.canvasRect.pipe(
+      tap(rect => {
+        const hostRect = this.elRef.nativeElement!.getBoundingClientRect();
+        this.renderer.setSize(hostRect.width, hostRect.height);
+        // this.renderer2.setAttribute(this.canvas, 'height', `${2 * rect.height}`);
+        // this.renderer2.setStyle(this.canvas, 'height', `${rect.height}px`);
+        // this.renderer2.setAttribute(this.canvas, 'width', `${2 * rect.width}`);
+        // this.renderer2.setStyle(this.canvas, 'width', `${rect.width}px`);
+      })
+    )
+    .subscribe();
 
     this.geoService.tetra.pipe(
       take(1),
@@ -58,9 +60,9 @@ export class TetraCanvasComponent implements OnInit {
 
         });
         Object.values(tetra.pixels).flat()
-        .filter((_, i) => i % 10 === 0)
+        // .filter((_, i) => i % 10 === 0)
         .forEach((p, i) => {
-          const sphere = new Mesh(new SphereGeometry(3 + 3 * (i % 10) , 32, 32), new MeshBasicMaterial({ color: colors.green }));
+          const sphere = new Mesh(new SphereGeometry(3 , 32, 32), new MeshBasicMaterial({ color: colors.green }));
           sphere.position.copy(p);
 
           this.scene.add(sphere);
@@ -74,10 +76,10 @@ export class TetraCanvasComponent implements OnInit {
     )
     .subscribe();
 
-    this.canvasService.canvasRect.subscribe(() => {
-      this.renderer.setPixelRatio(window && window.devicePixelRatio || 2);
-      console.log('pixel ratio set!', window && 2 * window.devicePixelRatio || 2);
-    });
+    // this.canvasService.canvasRect.subscribe(() => {
+    //   this.renderer.setPixelRatio(window && window.devicePixelRatio || 2);
+    //   console.log('pixel ratio set!', window && 2 * window.devicePixelRatio || 2);
+    // });
 
     /** Render */
     /* TODO: ADD AN UNSUBSCRIBE EMITTER HERE */

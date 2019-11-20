@@ -5,9 +5,9 @@ export type EdgeId = 'AB' | 'AC' | 'AD' | 'BC' | 'BD' | 'CD';
 
 export interface TetrahedronConfig {
   /**
-   * The number of pixels per unit distance
+   * The number of pixels along a single edge
    */
-  density: number;
+  pixelsPerEdge: number;
   /**
    * The amount of space (unit distance) along an edge between a vertex and the nearest pixel
    */
@@ -26,10 +26,6 @@ export interface Tetrahedron extends TetrahedronConfig {
    * the distance between pixel 0 and pixel N
    */
   edgeLength: number;
-  /**
-   * The number of pixels along a single edge
-   */
-  pixelsPerEdge: number;
   /**
    * The total number of pixels across the tetrahedron structure
    */

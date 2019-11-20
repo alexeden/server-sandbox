@@ -9,9 +9,8 @@ const tetrahedralAngle = Math.acos(-1 / 3);
 
 export class TetrahedronUtils {
   static computeFromConfig(config: TetrahedronConfig): Tetrahedron {
-    const { paddedEdgeLength, edgePadding, density } = config;
+    const { paddedEdgeLength, edgePadding, pixelsPerEdge } = config;
     const edgeLength = paddedEdgeLength - 2 * edgePadding;
-    const pixelsPerEdge = Math.round(density * edgeLength);
     const pixelsTotal = 6 * pixelsPerEdge;
     const pixelSpacing = edgeLength / pixelsPerEdge;
     const circumRadius = paddedEdgeLength / 4 * sqrt6;

@@ -7,7 +7,7 @@ import { TetrahedronUtils } from './lib/utils';
 @Injectable()
 export class GeometryService {
   private readonly tetraConfig$ = new BehaviorSubject<TetrahedronConfig>({
-    density: 96 / 1000,
+    pixelsPerEdge: 96,
     edgePadding: 5,
     paddedEdgeLength: 1010,
   });
