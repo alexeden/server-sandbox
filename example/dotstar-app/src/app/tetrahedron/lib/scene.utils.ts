@@ -35,7 +35,7 @@ export enum SceneConst {
   CameraX = -160,
   CameraY = 800,
   CameraZ = 2000,
-  CameraMaxDistance = 2000,
+  CameraMaxDistance = 10000,
 }
 
 export interface SceneTreeNode {
@@ -68,7 +68,7 @@ export class SceneUtils {
 
   // Lights
   static createLights() {
-    const ambientLight = new AmbientLight(0xffffff, 1);
+    const ambientLight = new AmbientLight(0xffffff, 0.2);
 
     const pointLightLocations = [
       [100, SceneConst.FieldHeight - 50, 0],
