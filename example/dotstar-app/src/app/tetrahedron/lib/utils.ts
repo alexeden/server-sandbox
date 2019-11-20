@@ -1,4 +1,4 @@
-import { TetrahedronConfig, Tetrahedron, TetrahedronConfigOptions } from './types';
+import { TetrahedronConfig, Tetrahedron, TetrahedronConfigOptions, Vertex, Edge, Pixel } from './types';
 import { Vector3, Line3 } from 'three';
 import { Line } from 'pts';
 
@@ -8,8 +8,8 @@ const dihedralAngle = Math.acos(1 / 3);
 const tetrahedralAngle = Math.acos(-1 / 3);
 
 export class TetrahedronUtils {
-  static configFromOptions(config: TetrahedronConfigOptions): TetrahedronConfig {
-    const { paddedEdgeLength, edgePadding, pixelsPerEdge } = config;
+  static configFromOptions(configOptions: TetrahedronConfigOptions): TetrahedronConfig {
+    const { paddedEdgeLength, edgePadding, pixelsPerEdge } = configOptions;
     const edgeLength = paddedEdgeLength - 2 * edgePadding;
     const pixelsTotal = 6 * pixelsPerEdge;
     const pixelSpacing = edgeLength / pixelsPerEdge;
@@ -17,7 +17,7 @@ export class TetrahedronUtils {
     const midRadius = paddedEdgeLength / 4 * sqrt2;
 
     return {
-      ...config,
+      ...configOptions,
       edgeLength,
       pixelsPerEdge,
       pixelsTotal,
@@ -27,45 +27,38 @@ export class TetrahedronUtils {
     };
   }
 
-  static computeFromConfig(config: TetrahedronConfig): Tetrahedron {
-    const { paddedEdgeLength, edgePadding, pixelsPerEdge } = config;
-    const edgeLength = paddedEdgeLength - 2 * edgePadding;
-    const pixelsTotal = 6 * pixelsPerEdge;
-    const pixelSpacing = edgeLength / pixelsPerEdge;
-    const circumRadius = paddedEdgeLength / 4 * sqrt6;
-    const midRadius = paddedEdgeLength / 4 * sqrt2;
-
-    const A = new Vector3(0, circumRadius, 0);
+  static verticesFromConfig(config: TetrahedronConfig): Vertex[] {
+    const A = new Vector3(0, config.circumRadius, 0);
     const B = A.clone().applyAxisAngle(new Vector3(1, 0, 0), tetrahedralAngle);
     const C = B.clone().applyAxisAngle(new Vector3(0, 1, 0), 2 * Math.PI / 3);
     const D = C.clone().applyAxisAngle(new Vector3(0, 1, 0), 2 * Math.PI / 3);
 
+    return [A, B, C, D].map(pos => ({ pos }));
+  }
+
+
+  static edgeFromVertices(v0: Vertex, v1: Vertex, i: number, config: TetrahedronConfig): Edge {
     return {
-      ...config,
-      edgeLength,
-      pixelsPerEdge,
-      pixelsTotal,
-      pixelSpacing,
-      circumRadius,
-      midRadius,
-      vertices: { A, B, C, D },
-      edges: {
-        AB: new Line3(A, B),
-        AC: new Line3(A, C),
-        AD: new Line3(A, D),
-        BC: new Line3(B, C),
-        BD: new Line3(B, D),
-        CD: new Line3(C, D),
-      },
-      pixels: {
-        AB: TetrahedronUtils.interpolateBetweenPoints(A, B, pixelsPerEdge, pixelSpacing, edgePadding),
-        AC: TetrahedronUtils.interpolateBetweenPoints(A, C, pixelsPerEdge, pixelSpacing, edgePadding),
-        AD: TetrahedronUtils.interpolateBetweenPoints(A, D, pixelsPerEdge, pixelSpacing, edgePadding),
-        BC: TetrahedronUtils.interpolateBetweenPoints(B, C, pixelsPerEdge, pixelSpacing, edgePadding),
-        BD: TetrahedronUtils.interpolateBetweenPoints(B, D, pixelsPerEdge, pixelSpacing, edgePadding),
-        CD: TetrahedronUtils.interpolateBetweenPoints(C, D, pixelsPerEdge, pixelSpacing, edgePadding),
-      },
+      v0,
+      v1,
+      i,
+      norm: new Line3(v0.pos, v1.pos).getCenter(new Vector3(0, 0, 0)),
     };
+  }
+
+  static pixelsFromEdge(edge: Edge, config: TetrahedronConfig): Pixel[] {
+    return TetrahedronUtils.interpolateBetweenPoints(
+      edge.v0.pos,
+      edge.v1.pos,
+      config.pixelsPerEdge,
+      config.pixelSpacing,
+      config.edgePadding
+    )
+    .map((pos, i) => ({
+      edge,
+      pos,
+      i: config.pixelsPerEdge * edge.i + i,
+    }));
   }
 
   static interpolateBetweenPoints(
@@ -82,4 +75,45 @@ export class TetrahedronUtils {
       (_, i) => p0.clone().add(dir.clone().setLength(i * spacing))
     );
   }
+
+  // static computeFromConfig(config: TetrahedronConfig): Tetrahedron {
+  //   const { paddedEdgeLength, edgePadding, pixelsPerEdge } = config;
+  //   const edgeLength = paddedEdgeLength - 2 * edgePadding;
+  //   const pixelsTotal = 6 * pixelsPerEdge;
+  //   const pixelSpacing = edgeLength / pixelsPerEdge;
+  //   const circumRadius = paddedEdgeLength / 4 * sqrt6;
+  //   const midRadius = paddedEdgeLength / 4 * sqrt2;
+
+  //   const A = new Vector3(0, circumRadius, 0);
+  //   const B = A.clone().applyAxisAngle(new Vector3(1, 0, 0), tetrahedralAngle);
+  //   const C = B.clone().applyAxisAngle(new Vector3(0, 1, 0), 2 * Math.PI / 3);
+  //   const D = C.clone().applyAxisAngle(new Vector3(0, 1, 0), 2 * Math.PI / 3);
+
+  //   return {
+  //     ...config,
+  //     edgeLength,
+  //     pixelsPerEdge,
+  //     pixelsTotal,
+  //     pixelSpacing,
+  //     circumRadius,
+  //     midRadius,
+  //     vertices: { A, B, C, D },
+  //     edges: {
+  //       AB: new Line3(A, B),
+  //       AC: new Line3(A, C),
+  //       AD: new Line3(A, D),
+  //       BC: new Line3(B, C),
+  //       BD: new Line3(B, D),
+  //       CD: new Line3(C, D),
+  //     },
+  //     pixels: {
+  //       AB: TetrahedronUtils.interpolateBetweenPoints(A, B, pixelsPerEdge, pixelSpacing, edgePadding),
+  //       AC: TetrahedronUtils.interpolateBetweenPoints(A, C, pixelsPerEdge, pixelSpacing, edgePadding),
+  //       AD: TetrahedronUtils.interpolateBetweenPoints(A, D, pixelsPerEdge, pixelSpacing, edgePadding),
+  //       BC: TetrahedronUtils.interpolateBetweenPoints(B, C, pixelsPerEdge, pixelSpacing, edgePadding),
+  //       BD: TetrahedronUtils.interpolateBetweenPoints(B, D, pixelsPerEdge, pixelSpacing, edgePadding),
+  //       CD: TetrahedronUtils.interpolateBetweenPoints(C, D, pixelsPerEdge, pixelSpacing, edgePadding),
+  //     },
+  //   };
+  // }
 }

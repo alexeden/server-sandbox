@@ -44,38 +44,37 @@ export interface TetrahedronConfig extends TetrahedronConfigOptions {
   circumRadius: number;
 }
 
+export interface Vertex {
+  // label: VertexId;
+  pos: Vector3;
+}
+
+export interface Edge {
+  v0: Vertex;
+  v1: Vertex;
+  i: number;
+  norm: Vector3;
+  // label: EdgeId;
+}
+
+export interface Pixel {
+  pos: Vector3;
+  edge: Edge;
+  i: number;
+  // next: Pixel | undefined;
+}
+
 export interface Tetrahedron extends TetrahedronConfig {
   /**
-   * The unpadded length of an edge,
-   * the distance between pixel 0 and pixel N
+   *
    */
-  edgeLength: number;
+  vertices: Vertex[];
   /**
-   * The total number of pixels across the tetrahedron structure
+   *
    */
-  pixelsTotal: number;
+  edges: Edge[];
   /**
-   * The distance between pixels along an edge
+   *
    */
-  pixelSpacing: number;
-  /**
-   * The radius of the tetrahedron's midsphere
-   */
-  midRadius: number;
-  /**
-   * The radius of the tetrahedron's circumsphere
-   */
-  circumRadius: number;
-  /**
-   * Vectors representing the position of the vertices
-   */
-  vertices: Record<VertexId, Vector3>;
-  /**
-   * Lines representing the tetrahedron's edges
-   */
-  edges: Record<EdgeId, Line3>;
-  /**
-   * Vectors representing the position of each pixel along each edge
-   */
-  pixels: Record<EdgeId, Vector3[]>;
+  pixels: Pixel[];
 }
