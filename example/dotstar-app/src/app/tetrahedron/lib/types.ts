@@ -1,14 +1,14 @@
 import { Vector3, Line3 } from 'three';
 
 export enum VertexId {
-  A = 'a',
-  B = 'b',
-  C = 'c',
-  D = 'd',
+  A,
+  B,
+  C,
+  D,
 }
 
 type EdgeRouteSegment = [VertexId, VertexId];
-type EdgeRoute = [EdgeRouteSegment, EdgeRouteSegment, EdgeRouteSegment, EdgeRouteSegment, EdgeRouteSegment, EdgeRouteSegment];
+export type EdgeRoute = [EdgeRouteSegment, EdgeRouteSegment, EdgeRouteSegment, EdgeRouteSegment, EdgeRouteSegment, EdgeRouteSegment];
 
 export interface TetrahedronConfigOptions {
   /**

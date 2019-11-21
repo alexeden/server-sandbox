@@ -1,4 +1,4 @@
-import { TetrahedronConfig, TetrahedronConfigOptions, Vertex, Edge, Pixel } from './types';
+import { TetrahedronConfig, TetrahedronConfigOptions, Vertex, Edge, Pixel, EdgeRoute, VertexId as V } from './types';
 import { Vector3, Line3 } from 'three';
 
 
@@ -73,6 +73,22 @@ export class TetrahedronUtils {
     return [...Array(n).keys()].map(
       (_, i) => p0.clone().add(dir.clone().setLength(i * spacing))
     );
+  }
+
+  static validateEdgeRoute(route: EdgeRoute) {
+    const { A, B, C, D } = V;
+    const allSegments = [[A, B], [A, C], [A, D], [B, C], [B, D], [C, D]].map(verts => verts.join(''));
+    const providedSegments = route.map(verts => [...verts].sort().join(''));
+
+    if ([...new Set(providedSegments)].length !== allSegments.length) {
+      throw new Error(`Edge route contains a duplicate segment!`);
+    }
+
+    if (!providedSegments.every(seg => allSegments.includes(seg))) {
+      throw new Error(`Edge route contains an invalid segment!`);
+    }
+
+    return true;
   }
 
   // static computeFromConfig(config: TetrahedronConfig): Tetrahedron {

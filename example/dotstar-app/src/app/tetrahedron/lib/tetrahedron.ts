@@ -4,6 +4,9 @@ import { TetrahedronUtils } from './utils';
 
 export class Tetrahedron {
   static fromConfigOptions(configOptions: TetrahedronConfigOptions): Tetrahedron {
+    // Validate the edge route first
+    TetrahedronUtils.validateEdgeRoute(configOptions.edgeRoute);
+
     return new Tetrahedron(TetrahedronUtils.configFromOptions(configOptions));
   }
 
