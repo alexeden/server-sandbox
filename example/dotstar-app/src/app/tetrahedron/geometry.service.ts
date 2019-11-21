@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { shareReplay, map } from 'rxjs/operators';
 import { TetrahedronConfigOptions, Tetrahedron, VertexId as V } from './lib';
+import { TetrahedronModel } from './models';
 
 @Injectable()
 export class GeometryService {
@@ -20,10 +21,16 @@ export class GeometryService {
   });
 
   readonly tetra: Observable<Tetrahedron>;
+  readonly tetraModel: Observable<TetrahedronModel>;
 
   constructor() {
     this.tetra = this.tetraConfigOptions$.pipe(
       map(configOptions => Tetrahedron.fromConfigOptions(configOptions)),
+      shareReplay(1)
+    );
+
+    this.tetraModel = this.tetra.pipe(
+      map(tetra => new TetrahedronModel(tetra)),
       shareReplay(1)
     );
   }
