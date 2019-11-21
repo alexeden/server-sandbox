@@ -1,5 +1,5 @@
 import { Object3D, MeshPhongMaterial, Color, Mesh, SphereBufferGeometry } from 'three';
-import { Pixel } from '../lib';
+import { Pixel, colors, TetrahedronConfig } from '../lib';
 
 export class PixelModel extends Object3D {
   readonly mat: MeshPhongMaterial;
@@ -7,14 +7,15 @@ export class PixelModel extends Object3D {
   readonly mesh: Mesh;
 
   constructor(
+    readonly config: TetrahedronConfig,
     readonly pixel: Pixel
   ) {
     super();
 
-    this.geo = new SphereBufferGeometry(3, 12, 12);
+    this.geo = new SphereBufferGeometry(5, 12, 12);
 
     this.mat = new MeshPhongMaterial({
-      color: new Color('#00e4ff'),
+      color: new Color().setHSL(this.pixel.i / this.config.pixelsTotal, 1, 0.5),
     });
 
     this.mesh = new Mesh(this.geo, this.mat);

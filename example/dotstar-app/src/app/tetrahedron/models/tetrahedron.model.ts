@@ -3,8 +3,6 @@ import { Tetrahedron, colors } from '../lib';
 import { PixelModel } from './pixel.model';
 
 export class TetrahedronModel extends Group {
-
-
   constructor(
     readonly tetra: Tetrahedron
   ) {
@@ -12,22 +10,22 @@ export class TetrahedronModel extends Group {
 
     (window as any).tetModel = this;
 
-    this.tetra.edges.forEach(edge => {
-      const lineMat = new LineBasicMaterial({
-        color: colors.green,
-      });
+    // this.tetra.edges.forEach(edge => {
+    //   const lineMat = new LineBasicMaterial({
+    //     color: colors.green,
+    //   });
 
-      const geometry = new Geometry();
-      geometry.vertices.push(
-        new Vector3(0, 0, 0),
-        edge.norm
-      );
+    //   const geometry = new Geometry();
+    //   geometry.vertices.push(
+    //     new Vector3(0, 0, 0),
+    //     edge.norm
+    //   );
 
-      this.add(new Line(geometry, lineMat));
-    });
+    //   this.add(new Line(geometry, lineMat));
+    // });
 
     this.tetra.pixels.forEach(pixel => {
-      const model = new PixelModel(pixel);
+      const model = new PixelModel(this.tetra.config, pixel);
 
       this.add(model);
     });
