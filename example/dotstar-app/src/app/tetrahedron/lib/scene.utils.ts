@@ -31,9 +31,9 @@ export const colors = {
 export enum SceneConst {
   FieldLength = 2000,
   FieldHeight = 400,
-  CameraX = -160,
-  CameraY = 800,
-  CameraZ = 2000,
+  CameraX = -1000,
+  CameraY = 500,
+  CameraZ = 1000,
   CameraMaxDistance = 10000,
 }
 

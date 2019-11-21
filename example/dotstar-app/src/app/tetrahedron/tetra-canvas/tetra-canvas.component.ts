@@ -38,6 +38,8 @@ export class TetraCanvasComponent implements OnInit {
       tap(rect => {
         const hostRect = this.elRef.nativeElement!.getBoundingClientRect();
         this.renderer.setSize(hostRect.width, hostRect.height);
+        this.camera.aspect = hostRect.width / hostRect.height;
+        this.camera.updateProjectionMatrix();
       })
     )
     .subscribe();
