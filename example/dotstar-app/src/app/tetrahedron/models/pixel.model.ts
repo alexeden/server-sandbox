@@ -8,5 +8,6 @@ export class PixelModel extends Object3D {
   ) {
     super();
     this.id = this.pixel.i;
+
   }
 }

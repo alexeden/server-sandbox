@@ -10,6 +10,8 @@ export class TetrahedronModel extends Group {
   ) {
     super();
 
+    (window as any).tetModel = this;
+
     this.tetra.pixels.forEach(pixel => {
       const model = new PixelModel(pixel);
 

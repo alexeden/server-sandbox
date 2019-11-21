@@ -32,9 +32,9 @@ export enum SceneConst {
   FieldLength = 2000,
   FieldHeight = 400,
   CameraX = -1000,
-  CameraY = 500,
+  CameraY = 0,
   CameraZ = 1000,
-  CameraMaxDistance = 10000,
+  CameraMaxDistance = 3000,
 }
 
 export interface SceneTreeNode {
@@ -46,7 +46,7 @@ export interface SceneTreeNode {
 export class SceneUtils {
   // Camera
   static createCamera() {
-    const camera = new PerspectiveCamera(60, 1, 10, 2 * SceneConst.CameraMaxDistance);
+    const camera = new PerspectiveCamera(55, 1, 10, 3 * SceneConst.CameraMaxDistance);
     camera.position.set(SceneConst.CameraX, SceneConst.CameraY, SceneConst.CameraZ);
 
     return camera;
