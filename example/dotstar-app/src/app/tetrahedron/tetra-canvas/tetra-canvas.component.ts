@@ -1,11 +1,11 @@
 import { Component, OnInit, ElementRef, Renderer2 } from '@angular/core';
-import { CanvasService } from '../canvas.service';
-import { SceneUtils, colors } from '../lib';
-import { Scene, WebGLRenderer, PerspectiveCamera, Clock, Mesh, SphereGeometry, MeshBasicMaterial, AxesHelper, Group } from 'three';
+import { Scene, WebGLRenderer, PerspectiveCamera, Clock } from 'three';
 import { interval } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { animationFrame } from 'rxjs/internal/scheduler/animationFrame';
 import CameraControls from 'camera-controls';
-import { tap, take } from 'rxjs/operators';
+import { CanvasService } from '../canvas.service';
+import { SceneUtils } from '../lib';
 import { GeometryService } from '../geometry.service';
 
 @Component({
@@ -35,7 +35,7 @@ export class TetraCanvasComponent implements OnInit {
   ngOnInit() {
 
     this.canvasService.canvasRect.pipe(
-      tap(rect => {
+      tap(() => {
         const hostRect = this.elRef.nativeElement!.getBoundingClientRect();
         this.renderer.setSize(hostRect.width, hostRect.height);
         this.camera.aspect = hostRect.width / hostRect.height;
@@ -44,31 +44,10 @@ export class TetraCanvasComponent implements OnInit {
     )
     .subscribe();
 
-    this.geoService.tetra.pipe(
-      take(1),
-      tap(tetra => {
-        const group = new Group();
+    this.geoService.tetraModel.pipe(
 
-        Object.values(tetra.vertices).forEach(vert => {
-          const sphere = new Mesh(new SphereGeometry(25, 32, 32), new MeshBasicMaterial({ color: colors.lightBlue }));
-          sphere.position.copy(vert.pos);
-
-          group.add(sphere);
-
-        });
-        const pixelGeo = new SphereGeometry(3, 5, 5);
-        const pixelMat = new MeshBasicMaterial({ color: colors.green });
-        Object.values(tetra.pixels).forEach((p, i) => {
-          const sphere = new Mesh(pixelGeo.clone(), pixelMat);
-          sphere.position.copy(p.pos);
-
-          group.add(sphere);
-        });
-
-        this.scene.add(group);
-      })
     )
-    .subscribe();
+    .subscribe(model => this.scene.add(model));
 
     /** Render */
     /* TODO: ADD AN UNSUBSCRIBE EMITTER HERE */

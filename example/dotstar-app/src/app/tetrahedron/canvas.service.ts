@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { PerspectiveCamera, WebGLRenderer } from 'three';
 import { Observable, Subject, BehaviorSubject, fromEvent } from 'rxjs';
 import { scan, tap, startWith, shareReplay, map } from 'rxjs/operators';
 
