@@ -1,9 +1,21 @@
 import { Vector3, Line3 } from 'three';
 
-export type VertexId = 'A' | 'B' | 'C' | 'D';
-export type EdgeId = 'AB' | 'AC' | 'AD' | 'BC' | 'BD' | 'CD';
+export enum VertexId {
+  A = 'a',
+  B = 'b',
+  C = 'c',
+  D = 'd',
+}
+
+type EdgeRouteSegment = [VertexId, VertexId];
+type EdgeRoute = [EdgeRouteSegment, EdgeRouteSegment, EdgeRouteSegment, EdgeRouteSegment, EdgeRouteSegment, EdgeRouteSegment];
 
 export interface TetrahedronConfigOptions {
+  /**
+   * The path, from vertex to vertex, defining the edges of the tetrahedron;
+   * the pixel buffer will be mapped onto the edge route
+   */
+  edgeRoute: EdgeRoute;
   /**
    * The number of pixels along a single edge
    */
