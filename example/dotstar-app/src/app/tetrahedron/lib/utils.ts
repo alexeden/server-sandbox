@@ -26,8 +26,8 @@ export class TetrahedronUtils {
     };
   }
 
-  static verticesFromConfig(config: TetrahedronConfig): Vertex[] {
-    const A = new Vector3(0, config.circumRadius, 0);
+  static verticesFromCircumRadius(circumRadius: number): Vertex[] {
+    const A = new Vector3(0, circumRadius, 0);
     const B = A.clone().applyAxisAngle(new Vector3(1, 0, 0), TetrahedronUtils.tetrahedralAngle);
     const C = B.clone().applyAxisAngle(new Vector3(0, 1, 0), 2 * Math.PI / 3);
     const D = C.clone().applyAxisAngle(new Vector3(0, 1, 0), 2 * Math.PI / 3);

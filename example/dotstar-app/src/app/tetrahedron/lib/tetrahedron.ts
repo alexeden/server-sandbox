@@ -14,22 +14,16 @@ export class Tetrahedron {
   readonly edges: Edge[];
   readonly pixels: Pixel[];
 
-
   private constructor(
     readonly config: TetrahedronConfig
   ) {
     (window as any).tet = this;
-    this.vertices = TetrahedronUtils.verticesFromConfig(this.config);
-    const [ A, B, C, D ] = this.vertices;
 
-    this.edges = [
-      TetrahedronUtils.edgeFromVertices(A, B, 0),
-      TetrahedronUtils.edgeFromVertices(A, C, 1),
-      TetrahedronUtils.edgeFromVertices(A, D, 2),
-      TetrahedronUtils.edgeFromVertices(B, C, 3),
-      TetrahedronUtils.edgeFromVertices(B, D, 4),
-      TetrahedronUtils.edgeFromVertices(C, D, 5),
-    ];
+    this.vertices = TetrahedronUtils.verticesFromCircumRadius(this.config.circumRadius);
+
+    this.edges = this.config.edgeRoute.map(([vId0, vId1], i) =>
+      TetrahedronUtils.edgeFromVertices(this.vertices[vId0], this.vertices[vId1], i)
+    );
 
     this.pixels = this.edges.flatMap(edge => TetrahedronUtils.pixelsFromEdge(edge, this.config));
   }
