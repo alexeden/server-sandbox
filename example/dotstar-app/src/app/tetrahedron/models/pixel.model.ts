@@ -22,4 +22,8 @@ export class PixelModel extends Object3D {
     this.add(this.mesh);
     this.position.copy(this.pixel.pos);
   }
+
+  setColor(color: Color) {
+    this.mat.color = color;
+  }
 }

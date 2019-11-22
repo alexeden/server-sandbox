@@ -1,8 +1,10 @@
-import { Group, LineBasicMaterial, Geometry, Vector3, Line } from 'three';
-import { Tetrahedron, colors } from '../lib';
+import { Group, LineBasicMaterial, Geometry, Vector3, Line, Color } from 'three';
+import { Tetrahedron } from '../lib';
 import { PixelModel } from './pixel.model';
 
 export class TetrahedronModel extends Group {
+  readonly pixelModels: PixelModel[];
+
   constructor(
     readonly tetra: Tetrahedron
   ) {
@@ -24,10 +26,15 @@ export class TetrahedronModel extends Group {
     //   this.add(new Line(geometry, lineMat));
     // });
 
-    this.tetra.pixels.forEach(pixel => {
+    this.pixelModels = this.tetra.pixels.map(pixel => {
       const model = new PixelModel(this.tetra.config, pixel);
-
       this.add(model);
+
+      return model;
     });
+  }
+
+  applyColors(colors: Color[]) {
+    colors.forEach((color, i) => this.pixelModels[i].setColor(color));
   }
 }
