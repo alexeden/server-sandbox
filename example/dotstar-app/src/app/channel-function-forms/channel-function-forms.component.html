@@ -1,4 +1,4 @@
-<mat-radio-group class="row gap-20 m-b-20 grow" [value]="mode$ | async" (change)="setMode($event.value)">
+<mat-radio-group class="row gap-20 m-b-20 grow" [value]="selectedColorspace$ | async" (change)="setMode($event.value)">
   <mat-radio-button value="rgb" class="grow mat-h2">RGB</mat-radio-button>
   <mat-radio-button value="hsl" class="grow mat-h2">HSL</mat-radio-button>
 </mat-radio-group>

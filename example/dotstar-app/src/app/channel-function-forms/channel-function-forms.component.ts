@@ -19,14 +19,11 @@ export class ChannelFunctionFormsComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   private readonly fnValidator = functionBodyValidator(samplerFnHead, [0, 0, 1]);
   private readonly channelSampler: Observable<ChannelSampler>;
-  readonly mode$: BehaviorSubject<Colorspace>;
-  readonly samplerFnHead = samplerFnHead;
-
-  readonly channelToggleForm: FormGroup;
+  readonly selectedColorspace$: BehaviorSubject<Colorspace>;
   readonly samplerForm: FormGroup;
 
   @LocalStorage()
-  private savedColorspace: Colorspace;
+  private savedSelectedColorspace: Colorspace;
 
   @LocalStorage()
   private savedSamplers: Record<RGB | HSL, Sampler>;
@@ -35,9 +32,7 @@ export class ChannelFunctionFormsComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private bufferService: BufferService
   ) {
-    this.mode$ = new BehaviorSubject<Colorspace>(this.savedColorspace || Colorspace.HSL);
-
-    this.channelToggleForm = this.fb.group({ r: [true], g: [true], b: [true] });
+    this.selectedColorspace$ = new BehaviorSubject<Colorspace>(this.savedSelectedColorspace || Colorspace.HSL);
 
     this.samplerForm = this.fb.group({
       rgb: this.fb.group({
@@ -52,8 +47,8 @@ export class ChannelFunctionFormsComponent implements OnInit, OnDestroy {
       }),
     });
 
-    this.channelSampler = this.mode$.pipe(
-      tap(mode => this.savedColorspace = mode),
+    this.channelSampler = this.selectedColorspace$.pipe(
+      tap(mode => this.savedSelectedColorspace = mode),
       switchMap(mode => {
         const formGroup = this.samplerForm.get(mode);
 
@@ -69,10 +64,13 @@ export class ChannelFunctionFormsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.mode$.pipe(
+    /**
+     * Manage the enabling and disabling of the colorspace-specific forms
+     */
+    this.selectedColorspace$.pipe(
       takeUntil(this.unsubscribe$),
       distinctUntilChanged(),
-      startWith(this.mode$.getValue() === Colorspace.HSL ? Colorspace.RGB : Colorspace.HSL),
+      startWith(this.selectedColorspace$.getValue() === Colorspace.HSL ? Colorspace.RGB : Colorspace.HSL),
       pairwise()
     )
     .subscribe(([newMode, oldMode]) => {
@@ -84,7 +82,7 @@ export class ChannelFunctionFormsComponent implements OnInit, OnDestroy {
     this.channelSampler.pipe(
       takeUntil(this.unsubscribe$)
     )
-    .subscribe(samplers => this.bufferService.setSourceFromSampler(samplers));
+    .subscribe(samplers => this.bufferService.setBufferStreamFromSampler(samplers));
   }
 
   toggleChannel({ checked }: MatSlideToggleChange, channel: string) {
@@ -92,12 +90,12 @@ export class ChannelFunctionFormsComponent implements OnInit, OnDestroy {
   }
 
   setMode(mode: Colorspace) {
-    this.mode$.next(mode);
+    this.selectedColorspace$.next(mode);
   }
 
   ngOnDestroy() {
     this.unsubscribe$.next('unsubscribe!');
     this.unsubscribe$.unsubscribe();
-    this.mode$.unsubscribe();
+    this.selectedColorspace$.unsubscribe();
   }
 }

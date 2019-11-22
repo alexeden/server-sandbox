@@ -7,24 +7,24 @@ import { AnimationClockService } from './animation-clock.service';
 
 @Injectable()
 export class BufferService {
-  private readonly source$ = new BehaviorSubject<Observable<Sample[]>>(empty());
+  private readonly selectedBufferStream$ = new BehaviorSubject<Observable<Sample[]>>(empty());
   readonly values: Observable<Sample[]>;
 
   constructor(
     private configService: DotstarDeviceConfigService,
     private clock: AnimationClockService
   ) {
-    this.values = this.source$.asObservable().pipe(
+    this.values = this.selectedBufferStream$.asObservable().pipe(
       switchAll(),
       share()
     );
   }
 
-  setSource(source: Observable<Sample[]>) {
-    this.source$.next(source);
+  setBufferStream(source: Observable<Sample[]>) {
+    this.selectedBufferStream$.next(source);
   }
 
-  setSourceFromSampler(sampler: ChannelSampler) {
+  setBufferStreamFromSampler(sampler: ChannelSampler) {
     const source = combineLatest(
       this.clock.t,
       this.configService.length.pipe(map(l => range(0, l))),
@@ -34,6 +34,6 @@ export class BufferService {
         )
     );
 
-    this.source$.next(source);
+    this.selectedBufferStream$.next(source);
   }
 }

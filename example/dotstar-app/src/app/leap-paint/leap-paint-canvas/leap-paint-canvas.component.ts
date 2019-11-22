@@ -166,7 +166,7 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
     //   });
     });
 
-    this.bufferService.setSource(this.mappedValues);
+    this.bufferService.setBufferStream(this.mappedValues);
   }
 
   static hueFromRoll(roll: number) {
