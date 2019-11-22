@@ -30,7 +30,7 @@ export const colors = {
 
 export enum SceneConst {
   FieldLength = 2000,
-  FieldHeight = 400,
+  FieldHeight = 2000,
   CameraX = -1000,
   CameraY = 0,
   CameraZ = 1000,
@@ -67,18 +67,18 @@ export class SceneUtils {
 
   // Lights
   static createLights() {
-    const ambientLight = new AmbientLight(0xffffff, 0.6);
+    const ambientLight = new AmbientLight(0xffffff, 0.001);
 
     const pointLightLocations = [
-      [100, SceneConst.FieldHeight - 50, 0],
+      // [100, SceneConst.FieldHeight - 50, 0],
       [100, 0, SceneConst.FieldHeight],
-      [100, 0, SceneConst.FieldHeight],
+      // [100, 0, SceneConst.FieldHeight],
       [100, SceneConst.FieldHeight, 2 * SceneConst.FieldHeight],
       [-SceneConst.FieldHeight, 0, 0],
     ];
 
     const pointLights = pointLightLocations.map(([x, y, z]) => {
-      const light = new PointLight(colors.white, 0.2, 0);
+      const light = new PointLight(colors.white, 0.01, 0);
       light.decay = 0.1;
       light.position.set(x, y, z);
       light.castShadow = true;
@@ -92,7 +92,7 @@ export class SceneUtils {
   // Platform (Floor + Grids)
   static createScenePlatform() {
     const gridXZ = new GridHelper(SceneConst.FieldLength, SceneConst.FieldLength / 100, colors.white, colors.white);
-    gridXZ.translateY(-SceneConst.FieldHeight);
+    gridXZ.translateY(-300);
     if (!Array.isArray(gridXZ.material)) {
       gridXZ.material.transparent = true;
       gridXZ.material.opacity = 0.15;

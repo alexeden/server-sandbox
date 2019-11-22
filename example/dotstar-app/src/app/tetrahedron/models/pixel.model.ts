@@ -16,6 +16,11 @@ export class PixelModel extends Object3D {
 
     this.mat = new MeshPhongMaterial({
       color: new Color().setHSL(this.pixel.i / this.config.pixelsTotal, 1, 0.5),
+      shininess: 100,
+      emissive: 0x000000,
+      specular: 0x000000,
+      fog: true,
+
     });
 
     this.mesh = new Mesh(this.geo, this.mat);
