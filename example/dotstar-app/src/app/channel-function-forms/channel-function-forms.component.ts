@@ -4,7 +4,6 @@ import { Subject, BehaviorSubject, Observable } from 'rxjs';
 import { takeUntil, filter, map, startWith, tap, switchMap, distinctUntilChanged, pairwise } from 'rxjs/operators';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { MatSlideToggleChange } from '@angular/material';
 import { samplerFnHead, DotstarConstants, RGB, HSL, Sampler, Triplet, SamplerUtils, Colorspace, ChannelSampler } from '../lib';
 import { LocalStorage } from '@app/shared';
 import { BufferService } from '../buffer.service';
@@ -57,7 +56,7 @@ export class ChannelFunctionFormsComponent implements OnInit, OnDestroy {
           filter(() => formGroup!.valid),
           tap(samplerStrs => this.savedSamplers = { ...this.savedSamplers, ...samplerStrs }),
           map(samplerStrs => Object.values(samplerStrs).map(body => eval(`${samplerFnHead}${body}`)) as Triplet<Sampler>),
-          map(SamplerUtils.samplersToChannelSampler(mode))
+          map(SamplerUtils.samplerCombinatorFromColorspace(mode))
         );
       })
     );
@@ -74,19 +73,17 @@ export class ChannelFunctionFormsComponent implements OnInit, OnDestroy {
       pairwise()
     )
     .subscribe(([newMode, oldMode]) => {
-      console.log(newMode, oldMode);
       this.samplerForm.get(oldMode)!.enable();
       this.samplerForm.get(newMode)!.disable();
     });
 
+    /**
+     * Send the samplers to the buffer service for buffer stream generation.
+     */
     this.channelSampler.pipe(
       takeUntil(this.unsubscribe$)
     )
     .subscribe(samplers => this.bufferService.setBufferStreamFromSampler(samplers));
-  }
-
-  toggleChannel({ checked }: MatSlideToggleChange, channel: string) {
-    // this.rgbSamplerForm.get(channel)[checked ? 'enable' : 'disable']();
   }
 
   setMode(mode: Colorspace) {
@@ -97,5 +94,6 @@ export class ChannelFunctionFormsComponent implements OnInit, OnDestroy {
     this.unsubscribe$.next('unsubscribe!');
     this.unsubscribe$.unsubscribe();
     this.selectedColorspace$.unsubscribe();
+    this.bufferService.resetBufferStream();
   }
 }

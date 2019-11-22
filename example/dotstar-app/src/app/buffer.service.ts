@@ -20,6 +20,10 @@ export class BufferService {
     );
   }
 
+  resetBufferStream() {
+    this.selectedBufferStream$.next(empty());
+  }
+
   setBufferStream(source: Observable<Sample[]>) {
     this.selectedBufferStream$.next(source);
   }

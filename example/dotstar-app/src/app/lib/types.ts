@@ -13,6 +13,8 @@ export type Sampler<T = number> = (t: number, i: number, n: number) => T;
 
 export type ChannelSampler = Sampler<Sample>;
 
+export type SamplerCombinator = (samplers: Triplet<Sampler>) => ChannelSampler;
+
 export enum Colorspace {
   RGB = 'rgb',
   HSL = 'hsl',
