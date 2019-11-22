@@ -82,7 +82,7 @@ export class ChannelFunctionFormsComponent implements OnInit, OnDestroy {
     });
 
     /**
-     * Send the samplers to the buffer service for buffer stream generation.
+     * Generate a buffer stream from the samplers and send to the buffer service.
      */
     this.channelSampler.pipe(
       takeUntil(this.unsubscribe$),

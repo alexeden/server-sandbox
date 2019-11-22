@@ -1,19 +1,20 @@
-import { Component, OnInit, ElementRef, Renderer2 } from '@angular/core';
-import { Scene, WebGLRenderer, PerspectiveCamera, Clock } from 'three';
-import { interval } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { animationFrame } from 'rxjs/internal/scheduler/animationFrame';
+import { Component, OnInit, ElementRef, Renderer2, OnDestroy } from '@angular/core';
+import { Scene, WebGLRenderer, PerspectiveCamera } from 'three';
+import { tap, takeUntil } from 'rxjs/operators';
 import CameraControls from 'camera-controls';
 import { CanvasService } from '../canvas.service';
 import { SceneUtils } from '../lib';
 import { GeometryService } from '../geometry.service';
+import { AnimationClockService } from '@app/animation-clock.service';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'dotstar-tetra-canvas',
   templateUrl: './tetra-canvas.component.html',
   styleUrls: ['./tetra-canvas.component.scss'],
 })
-export class TetraCanvasComponent implements OnInit {
+export class TetraCanvasComponent implements OnInit, OnDestroy {
+  private readonly unsubscribe$ = new Subject<any>();
 
   constructor(
     private readonly elRef: ElementRef,
@@ -23,8 +24,8 @@ export class TetraCanvasComponent implements OnInit {
     private readonly cameraControls: CameraControls,
     private readonly renderer: WebGLRenderer,
     private readonly canvasService: CanvasService,
-    private readonly clock: Clock,
     private readonly scene: Scene,
+    private readonly clock: AnimationClockService,
     readonly geoService: GeometryService
   ) {
     (window as any).tetraCanvasComponent = this;
@@ -33,7 +34,6 @@ export class TetraCanvasComponent implements OnInit {
   }
 
   ngOnInit() {
-
     this.canvasService.canvasRect.pipe(
       tap(() => {
         const hostRect = this.elRef.nativeElement!.getBoundingClientRect();
@@ -50,13 +50,16 @@ export class TetraCanvasComponent implements OnInit {
     .subscribe(model => this.scene.add(model));
 
     /** Render */
-    /* TODO: ADD AN UNSUBSCRIBE EMITTER HERE */
-    interval(0, animationFrame).subscribe(() => {
-      if (this.cameraControls.enabled) this.cameraControls.update(this.clock.getDelta());
+    this.clock.dt.pipe(takeUntil(this.unsubscribe$)).subscribe(dt => {
+      if (this.cameraControls.enabled) this.cameraControls.update(dt);
       this.renderer.render(this.scene, this.camera);
     });
 
     this.canvasService.start();
   }
 
+  ngOnDestroy() {
+    this.unsubscribe$.next('unsubscribe!');
+    this.unsubscribe$.unsubscribe();
+  }
 }

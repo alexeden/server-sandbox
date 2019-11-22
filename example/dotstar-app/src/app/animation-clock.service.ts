@@ -22,12 +22,14 @@ export class AnimationClockService {
         : (startTime => interval(0, animationFrameScheduler).pipe(
             map(() => Scheduler.now() - startTime)
           ))(Scheduler.now())
-      )
+      ),
+      share()
     );
 
     this.dt = this.t.pipe(
       pairwise(),
-      map(([t1, t2]) => t2 - t1)
+      map(([t1, t2]) => t2 - t1),
+      share()
     );
 
     this.fps = this.dt.pipe(

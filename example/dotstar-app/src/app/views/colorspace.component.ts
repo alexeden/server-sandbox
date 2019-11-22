@@ -24,7 +24,6 @@ export class ColorspaceFunctionsComponent {
     private configService: DotstarDeviceConfigService,
     private clock: AnimationClockService
   ) {
-
     this.bufferStreamGenerator = sampler =>
       combineLatest(
         this.clock.t,
