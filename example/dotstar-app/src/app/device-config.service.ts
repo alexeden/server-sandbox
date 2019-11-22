@@ -9,7 +9,7 @@ export class DotstarDeviceConfigService {
 
   private readonly deviceConfig$ = new BehaviorSubject<DotstarConfig>({
     devicePath: '/dev/null',
-    length: 576,
+    length: 144,
     clockSpeed: APA102C.CLK_MAX,
     startFrames: 1,
     endFrames: 4,
