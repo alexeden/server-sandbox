@@ -1,3 +1,5 @@
+import { Observable } from 'rxjs';
+
 export type RGB = 'r' | 'g' | 'b';
 export type HSL = 'h' | 's' | 'l';
 
@@ -14,6 +16,8 @@ export type Sampler<T = number> = (t: number, i: number, n: number) => T;
 export type ChannelSampler = Sampler<Sample>;
 
 export type SamplerCombinator = (samplers: Triplet<Sampler>) => ChannelSampler;
+
+export type BufferStreamGenerator = (sampler: ChannelSampler) => Observable<Sample[]>;
 
 export enum Colorspace {
   RGB = 'rgb',
