@@ -8,8 +8,8 @@ import { pluck, scan, tap } from 'rxjs/operators';
 export class DotstarDeviceConfigService {
 
   private readonly deviceConfig$ = new BehaviorSubject<DotstarConfig>({
-    devicePath: '/dev/null',
-    length: 144,
+    devicePath: '/dev/spidev0.0',
+    length: 576,
     clockSpeed: APA102C.CLK_MAX,
     startFrames: 1,
     endFrames: 4,
