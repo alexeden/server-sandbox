@@ -7,13 +7,16 @@ import CameraControls from 'camera-controls';
 import { TetraCanvasComponent } from './tetra-canvas/tetra-canvas.component';
 import { CanvasService } from './canvas.service';
 import { GeometryService } from './geometry.service';
+import { TetraMainComponent } from './tetra-main.component';
 
 @NgModule({
   declarations: [
     TetraCanvasComponent,
+    TetraMainComponent,
   ],
   exports: [
     TetraCanvasComponent,
+    TetraMainComponent,
   ],
   imports: [
     CommonModule,

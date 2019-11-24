@@ -8,9 +8,9 @@ import { map } from 'rxjs/operators';
 @Component({
   template: `
     <div class="column gap-10 p-20">
-      <dotstar-channel-function-forms
+      <dotstar-function-forms
         [bufferStreamGenerator]="bufferStreamGenerator">
-      </dotstar-channel-function-forms>
+      </dotstar-function-forms>
       <mat-card>
         <dotstar-visualizer></dotstar-visualizer>
       </mat-card>

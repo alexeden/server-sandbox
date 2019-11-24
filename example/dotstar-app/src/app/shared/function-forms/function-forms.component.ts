@@ -1,20 +1,20 @@
 // tslint:disable no-eval
 import { pathOr } from 'ramda';
-import { Subject, BehaviorSubject, Observable, empty } from 'rxjs';
+import { Subject, BehaviorSubject, Observable } from 'rxjs';
 import { takeUntil, filter, map, startWith, tap, switchMap, distinctUntilChanged, pairwise } from 'rxjs/operators';
-import { Component, OnDestroy, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, OnDestroy, OnInit, Input } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { samplerFnHead, DotstarConstants, RGB, HSL, Sampler, Triplet, SamplerUtils, Colorspace, ChannelSampler, BufferStreamGenerator } from '../lib';
-import { LocalStorage } from '@app/shared';
-import { BufferService } from '../buffer.service';
+import { samplerFnHead, DotstarConstants, RGB, HSL, Sampler, Triplet, SamplerUtils, Colorspace, ChannelSampler, BufferStreamGenerator } from '@app/lib';
+import { LocalStorage } from '../web-storage.decorators';
+import { BufferService } from '@app/buffer.service';
 import { functionBodyValidator } from './function-body.validator';
 
 @Component({
-  selector: 'dotstar-channel-function-forms',
-  templateUrl: './channel-function-forms.component.html',
-  styleUrls: ['./channel-function-forms.component.scss'],
+  selector: 'dotstar-function-forms',
+  templateUrl: './function-forms.component.html',
+  styleUrls: ['./function-forms.component.scss'],
 })
-export class ChannelFunctionFormsComponent implements OnInit, OnDestroy {
+export class FunctionFormsComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   private readonly fnValidator = functionBodyValidator(samplerFnHead, [0, 0, 1]);
   private readonly channelSampler: Observable<ChannelSampler>;

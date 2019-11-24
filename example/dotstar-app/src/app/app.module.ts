@@ -15,7 +15,6 @@ import { SocketNotifierComponent } from './dotstar-notifiers.component';
 import { VisualizerComponent } from './visualizer';
 import { DeviceConfigFormComponent } from './device-config-form';
 import { BufferService } from './buffer.service';
-import { ChannelFunctionFormsComponent } from './channel-function-forms';
 import { LeapPaintModule } from './leap-paint';
 import { LiveBufferBarComponent } from './live-buffer-bar';
 import { TetrahedronModule } from './tetrahedron/tetrahedron.module';
@@ -26,8 +25,8 @@ import { TetrahedronModule } from './tetrahedron/tetrahedron.module';
 import {
   ColorspaceFunctionsComponent,
   LeapPaintComponent,
-  TetrahedronComponent,
 } from './views';
+import { TetraMainComponent } from './tetrahedron/tetra-main.component';
 
 const appRoutes: Routes = [
   {
@@ -46,7 +45,7 @@ const appRoutes: Routes = [
   },
   {
     path: 'tetrahedron',
-    component: TetrahedronComponent,
+    component: TetraMainComponent,
     data: {
       label: 'Tetrahedron',
     },
@@ -63,12 +62,10 @@ const appRoutes: Routes = [
     ColorspaceFunctionsComponent,
     DeviceConfigFormComponent,
     LiveBufferBarComponent,
-    ChannelFunctionFormsComponent,
     SocketNotifierComponent,
     VisualizerComponent,
     ColorspaceFunctionsComponent,
     LeapPaintComponent,
-    TetrahedronComponent,
     AppComponent,
   ],
   providers: [
