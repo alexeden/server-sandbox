@@ -4,7 +4,7 @@ import { Subject, BehaviorSubject, Observable } from 'rxjs';
 import { takeUntil, filter, map, startWith, tap, switchMap, distinctUntilChanged, pairwise } from 'rxjs/operators';
 import { Component, OnDestroy, OnInit, Input } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { samplerFnHead, DotstarConstants, RGB, HSL, Sampler, Triplet, SamplerUtils, Colorspace, ChannelSampler, BufferStreamGenerator } from '@app/lib';
+import { samplerFnHead, DotstarConstants, Sampler, Triplet, SamplerUtils, Colorspace, ChannelSampler, BufferStreamGenerator } from '@app/lib';
 import { LocalStorage } from '../web-storage.decorators';
 import { BufferService } from '@app/buffer.service';
 import { functionBodyValidator } from './function-body.validator';
@@ -16,18 +16,18 @@ import { functionBodyValidator } from './function-body.validator';
 })
 export class FunctionFormsComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
-  private readonly fnValidator = functionBodyValidator(samplerFnHead, [0, 0, 1]);
   private readonly channelSampler: Observable<ChannelSampler>;
   readonly selectedColorspace$: BehaviorSubject<Colorspace>;
   readonly samplerForm: FormGroup;
 
   @Input() bufferStreamGenerator: BufferStreamGenerator;
+  @Input() samplerTemplate: (body: string) => string;
 
   @LocalStorage()
   private savedSelectedColorspace: Colorspace;
 
   @LocalStorage()
-  private savedSamplers: Record<RGB | HSL, Sampler>;
+  private savedSamplers: Record<'r' | 'g' | 'b' | 'h' | 's' | 'l', Sampler>;
 
   constructor(
     private fb: FormBuilder,
@@ -37,16 +37,18 @@ export class FunctionFormsComponent implements OnInit, OnDestroy {
 
     this.selectedColorspace$ = new BehaviorSubject<Colorspace>(this.savedSelectedColorspace || Colorspace.HSL);
 
+    const fnValidator = functionBodyValidator(samplerFnHead, [0, 0, 1]);
+
     this.samplerForm = this.fb.group({
       rgb: this.fb.group({
-        r: [pathOr(DotstarConstants.rSampler, ['r'], this.savedSamplers), [this.fnValidator]],
-        g: [pathOr(DotstarConstants.gSampler, ['g'], this.savedSamplers), [this.fnValidator]],
-        b: [pathOr(DotstarConstants.bSampler, ['b'], this.savedSamplers), [this.fnValidator]],
+        r: [pathOr(DotstarConstants.rSampler, ['r'], this.savedSamplers), [fnValidator]],
+        g: [pathOr(DotstarConstants.gSampler, ['g'], this.savedSamplers), [fnValidator]],
+        b: [pathOr(DotstarConstants.bSampler, ['b'], this.savedSamplers), [fnValidator]],
       }),
       hsl: this.fb.group({
-        h: [pathOr(DotstarConstants.hSampler, ['h'], this.savedSamplers), [this.fnValidator]],
-        s: [pathOr(DotstarConstants.sSampler, ['s'], this.savedSamplers), [this.fnValidator]],
-        l: [pathOr(DotstarConstants.lSampler, ['l'], this.savedSamplers), [this.fnValidator]],
+        h: [pathOr(DotstarConstants.hSampler, ['h'], this.savedSamplers), [fnValidator]],
+        s: [pathOr(DotstarConstants.sSampler, ['s'], this.savedSamplers), [fnValidator]],
+        l: [pathOr(DotstarConstants.lSampler, ['l'], this.savedSamplers), [fnValidator]],
       }),
     });
 
@@ -59,7 +61,7 @@ export class FunctionFormsComponent implements OnInit, OnDestroy {
           startWith(formGroup!.value),
           filter(() => formGroup!.valid),
           tap(samplerStrs => this.savedSamplers = { ...this.savedSamplers, ...samplerStrs }),
-          map(samplerStrs => Object.values(samplerStrs).map(body => eval(`${samplerFnHead}${body}`)) as Triplet<Sampler>),
+          map(samplerStrs => Object.values(samplerStrs).map(body => eval(`${this.samplerTemplate(body as string)}`)) as Triplet<Sampler>),
           map(SamplerUtils.samplerCombinatorFromColorspace(mode))
         );
       })
@@ -86,6 +88,7 @@ export class FunctionFormsComponent implements OnInit, OnDestroy {
      */
     this.channelSampler.pipe(
       takeUntil(this.unsubscribe$),
+      tap(samplers => console.log('samplers: ', samplers)),
       map(samplers => this.bufferStreamGenerator(samplers))
     )
     .subscribe(stream => this.bufferService.setBufferStream(stream));
