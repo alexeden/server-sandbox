@@ -7,7 +7,7 @@ export class SamplerUtils {
    * returns a function that, given the sampler arguments, returns the R, G, and B values
    * for that pixel.
    */
-  static samplerCombinatorFromColorspace(colorspace: Colorspace): SamplerCombinator {
+  static samplerCombinatorFromColorspace<T>(colorspace: Colorspace): SamplerCombinator {
     return samplers => {
       switch (colorspace) {
         case Colorspace.RGB: {

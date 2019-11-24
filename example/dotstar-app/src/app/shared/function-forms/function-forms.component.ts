@@ -4,7 +4,17 @@ import { Subject, BehaviorSubject, Observable } from 'rxjs';
 import { takeUntil, filter, map, startWith, tap, switchMap, distinctUntilChanged, pairwise } from 'rxjs/operators';
 import { Component, OnDestroy, OnInit, Input } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { samplerFnHead, DotstarConstants, Sampler, Triplet, SamplerUtils, Colorspace, ChannelSampler, BufferStreamGenerator } from '@app/lib';
+import {
+  samplerFnHead,
+  DotstarConstants,
+  Sampler,
+  Triplet,
+  SamplerUtils,
+  Colorspace,
+  BufferStreamGenerator,
+  SamplerTemplate,
+  CombinedSampler,
+} from '@app/lib';
 import { LocalStorage } from '../web-storage.decorators';
 import { BufferService } from '@app/buffer.service';
 import { functionBodyValidator } from './function-body.validator';
@@ -16,18 +26,18 @@ import { functionBodyValidator } from './function-body.validator';
 })
 export class FunctionFormsComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
-  private readonly channelSampler: Observable<ChannelSampler>;
+  private readonly combinedSampler: Observable<CombinedSampler<any>>;
   readonly selectedColorspace$: BehaviorSubject<Colorspace>;
   readonly samplerForm: FormGroup;
 
-  @Input() bufferStreamGenerator: BufferStreamGenerator;
-  @Input() samplerTemplate: (body: string) => string;
+  @Input() bufferStreamGenerator: BufferStreamGenerator<any>;
+  @Input() samplerTemplate: SamplerTemplate;
 
   @LocalStorage()
   private savedSelectedColorspace: Colorspace;
 
   @LocalStorage()
-  private savedSamplers: Record<'r' | 'g' | 'b' | 'h' | 's' | 'l', Sampler>;
+  private savedSamplers: Record<'r' | 'g' | 'b' | 'h' | 's' | 'l', Sampler<any>>;
 
   constructor(
     private fb: FormBuilder,
@@ -52,7 +62,7 @@ export class FunctionFormsComponent implements OnInit, OnDestroy {
       }),
     });
 
-    this.channelSampler = this.selectedColorspace$.pipe(
+    this.combinedSampler = this.selectedColorspace$.pipe(
       tap(mode => this.savedSelectedColorspace = mode),
       switchMap(mode => {
         const formGroup = this.samplerForm.get(mode);
@@ -61,7 +71,11 @@ export class FunctionFormsComponent implements OnInit, OnDestroy {
           startWith(formGroup!.value),
           filter(() => formGroup!.valid),
           tap(samplerStrs => this.savedSamplers = { ...this.savedSamplers, ...samplerStrs }),
-          map(samplerStrs => Object.values(samplerStrs).map(body => eval(`${this.samplerTemplate(body as string)}`)) as Triplet<Sampler>),
+          map(samplerStrs =>
+            Object.values(samplerStrs).map(body =>
+              eval(`${this.samplerTemplate(body as string)}`)
+            ) as Triplet<Sampler<any>>
+          ),
           map(SamplerUtils.samplerCombinatorFromColorspace(mode))
         );
       })
@@ -86,7 +100,7 @@ export class FunctionFormsComponent implements OnInit, OnDestroy {
     /**
      * Generate a buffer stream from the samplers and send to the buffer service.
      */
-    this.channelSampler.pipe(
+    this.combinedSampler.pipe(
       takeUntil(this.unsubscribe$),
       tap(samplers => console.log('samplers: ', samplers)),
       map(samplers => this.bufferStreamGenerator(samplers))

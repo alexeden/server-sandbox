@@ -1,14 +1,15 @@
 import { Component } from '@angular/core';
-import { BufferStreamGenerator, range, clamp, Sample } from '@app/lib';
+import { BufferStreamGenerator, clamp, Sample, SamplerTemplate } from '@app/lib';
 import { AnimationClockService } from '@app/animation-clock.service';
-import { DotstarDeviceConfigService } from '@app/device-config.service';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, withLatestFrom } from 'rxjs/operators';
+import { GeometryService } from './geometry.service';
+import { Tetrahedron } from './lib';
 @Component({
   template: `
     <div class="column gap-10 p-20">
       <dotstar-function-forms
-        [bufferStreamGenerator]="bufferStreamGenerator">
+        [bufferStreamGenerator]="bufferStreamGenerator"
+        [samplerTemplate]="samplerTemplate">
       </dotstar-function-forms>
       <mat-card class="p-0" style="overflow: hidden">
         <dotstar-tetra-canvas></dotstar-tetra-canvas>
@@ -17,20 +18,27 @@ import { map } from 'rxjs/operators';
   `,
 })
 export class TetraMainComponent {
-  bufferStreamGenerator: BufferStreamGenerator;
+  readonly bufferStreamGenerator: BufferStreamGenerator<Tetrahedron>;
+  readonly samplerTemplate: SamplerTemplate;
 
   constructor(
-    private configService: DotstarDeviceConfigService,
+    private geoService: GeometryService,
     private clock: AnimationClockService
   ) {
+    this.samplerTemplate = body => `
+      (t, i, tetra) => {
+        const n = tetra.pixels.length;
+        return ${body};
+      }
+    `;
+
     this.bufferStreamGenerator = sampler =>
-      combineLatest(
-        this.clock.t,
-        this.configService.length.pipe(map(l => range(0, l))),
-        (t, emptyBuffer) =>
-          emptyBuffer.map((_, i) =>
-            sampler(t, i, emptyBuffer.length).map(clamp(0x00, 0xff)) as Sample
+      this.clock.t.pipe(
+        withLatestFrom(this.geoService.tetra, (t, tetra) =>
+          tetra.pixels.map((_, i) =>
+            sampler(t, i, tetra).map(clamp(0x00, 0xff)) as Sample
           )
+        )
       );
   }
 }
