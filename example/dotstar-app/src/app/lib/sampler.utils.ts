@@ -1,5 +1,5 @@
 import { Colorspace, SamplerCombinator } from './types';
-import { clamp, clampLoop } from './utils';
+import { clamp, clampLoop } from './math.utils';
 
 export class SamplerUtils {
   /**
