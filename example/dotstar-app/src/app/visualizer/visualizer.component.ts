@@ -31,7 +31,7 @@ export class VisualizerComponent implements OnInit, OnDestroy {
     this.renderer.setStyle(this.canvas, 'height', `${this.height}px`);
     this.renderer.appendChild(this.elRef.nativeElement, this.canvas);
     this.space = new CanvasSpace(this.canvas, () => this.ready$.next(true)).setup({
-      bgcolor: '#ffffff',
+      bgcolor: '#424242',
       resize: true,
       retina: true,
     });

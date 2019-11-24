@@ -7,12 +7,12 @@ import { map } from 'rxjs/operators';
 @Component({
   template: `
     <div class="column gap-10 p-20">
-      <mat-card class="p-0" style="overflow: hidden">
-        <dotstar-tetra-canvas></dotstar-tetra-canvas>
-      </mat-card>
       <dotstar-channel-function-forms
         [bufferStreamGenerator]="bufferStreamGenerator">
       </dotstar-channel-function-forms>
+      <mat-card class="p-0" style="overflow: hidden">
+        <dotstar-tetra-canvas></dotstar-tetra-canvas>
+      </mat-card>
     </div>
   `,
 })

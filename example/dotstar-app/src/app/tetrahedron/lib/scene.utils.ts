@@ -1,15 +1,13 @@
 import * as THREE from 'three';
 import {
-  Mesh,
   GridHelper,
-  PlaneBufferGeometry,
   PointLight,
   AmbientLight,
   PerspectiveCamera,
   WebGLRenderer,
   Object3D,
-  MeshPhongMaterial,
   Color,
+  Scene,
 } from 'three'; // tslint:disable-line:no-duplicate-imports
 import CameraControls from 'camera-controls';
 
@@ -19,8 +17,8 @@ export const colors = {
   darkBlue: new Color('#00818f'),
   lightBlue: new Color('#00e4ff'),
   darkBrown: new Color('#3E2723'),
-  darkGray: new Color('#263238'),
-  gray: new Color('#aaaaaa'),
+  darkGray: new Color('#303030'),
+  gray: new Color('#393939'),
   orange: new Color('#ffab00'),
   green: new Color('#76ff03'),
   lightGray: new Color('#dddddd'),
@@ -44,6 +42,14 @@ export interface SceneTreeNode {
 }
 
 export class SceneUtils {
+  // Scene
+  static createScene() {
+    const scene = new Scene();
+    scene.background = new Color(colors.gray);
+
+    return scene;
+  }
+
   // Camera
   static createCamera() {
     const camera = new PerspectiveCamera(55, 1, 10, 3 * SceneConst.CameraMaxDistance);
