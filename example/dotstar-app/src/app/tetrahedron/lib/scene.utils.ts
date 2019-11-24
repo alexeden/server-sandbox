@@ -30,8 +30,8 @@ export enum SceneConst {
   FieldLength = 2000,
   FieldHeight = 2000,
   CameraX = -1000,
-  CameraY = 0,
-  CameraZ = 1000,
+  CameraY = 250,
+  CameraZ = 800,
   CameraMaxDistance = 3000,
 }
 
@@ -66,7 +66,7 @@ export class SceneUtils {
     controls.maxPolarAngle = Math.PI * 0.49;
     controls.minDistance = 1;
     controls.maxDistance = SceneConst.CameraMaxDistance;
-    controls.setTarget(0, 0, 0);
+    controls.setTarget(0, 150, 0);
 
     return controls;
   }
