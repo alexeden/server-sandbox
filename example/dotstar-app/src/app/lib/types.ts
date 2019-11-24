@@ -1,7 +1,5 @@
 import { Observable } from 'rxjs';
 
-export const samplerFnHead = '(t, i, n) =>';
-
 export type Triplet<T> = [T, T, T];
 
 export type Sample = Triplet<number>;

@@ -5,7 +5,6 @@ import { takeUntil, filter, map, startWith, tap, switchMap, distinctUntilChanged
 import { Component, OnDestroy, OnInit, Input } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import {
-  samplerFnHead,
   DotstarConstants,
   Sampler,
   Triplet,
@@ -75,7 +74,7 @@ export class FunctionFormsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    const fnValidator = functionBodyValidator(this.samplerTemplate, [0, 0, 1]);
+    const fnValidator = functionBodyValidator(this.samplerTemplate);
 
     this.samplerForm.addControl('rgb', this.fb.group({
       r: [pathOr(DotstarConstants.rSampler, ['r'], this.savedSamplers), [fnValidator]],
