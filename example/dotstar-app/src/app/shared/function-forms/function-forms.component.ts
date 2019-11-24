@@ -47,19 +47,19 @@ export class FunctionFormsComponent implements OnInit, OnDestroy {
 
     this.selectedColorspace$ = new BehaviorSubject<Colorspace>(this.savedSelectedColorspace || Colorspace.HSL);
 
-    const fnValidator = functionBodyValidator(samplerFnHead, [0, 0, 1]);
+    // const fnValidator = () => null; // functionBodyValidator(samplerFnHead, [0, 0, 1]);
 
     this.samplerForm = this.fb.group({
-      rgb: this.fb.group({
-        r: [pathOr(DotstarConstants.rSampler, ['r'], this.savedSamplers), [fnValidator]],
-        g: [pathOr(DotstarConstants.gSampler, ['g'], this.savedSamplers), [fnValidator]],
-        b: [pathOr(DotstarConstants.bSampler, ['b'], this.savedSamplers), [fnValidator]],
-      }),
-      hsl: this.fb.group({
-        h: [pathOr(DotstarConstants.hSampler, ['h'], this.savedSamplers), [fnValidator]],
-        s: [pathOr(DotstarConstants.sSampler, ['s'], this.savedSamplers), [fnValidator]],
-        l: [pathOr(DotstarConstants.lSampler, ['l'], this.savedSamplers), [fnValidator]],
-      }),
+      // rgb: this.fb.group({
+      //   r: [pathOr(DotstarConstants.rSampler, ['r'], this.savedSamplers), [fnValidator]],
+      //   g: [pathOr(DotstarConstants.gSampler, ['g'], this.savedSamplers), [fnValidator]],
+      //   b: [pathOr(DotstarConstants.bSampler, ['b'], this.savedSamplers), [fnValidator]],
+      // }),
+      // hsl: this.fb.group({
+      //   h: [pathOr(DotstarConstants.hSampler, ['h'], this.savedSamplers), [fnValidator]],
+      //   s: [pathOr(DotstarConstants.sSampler, ['s'], this.savedSamplers), [fnValidator]],
+      //   l: [pathOr(DotstarConstants.lSampler, ['l'], this.savedSamplers), [fnValidator]],
+      // }),
     });
 
     this.combinedSampler = this.selectedColorspace$.pipe(
@@ -83,6 +83,20 @@ export class FunctionFormsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    const fnValidator = functionBodyValidator(this.samplerTemplate, [0, 0, 1]);
+
+    this.samplerForm.addControl('rgb', this.fb.group({
+      r: [pathOr(DotstarConstants.rSampler, ['r'], this.savedSamplers), [fnValidator]],
+      g: [pathOr(DotstarConstants.gSampler, ['g'], this.savedSamplers), [fnValidator]],
+      b: [pathOr(DotstarConstants.bSampler, ['b'], this.savedSamplers), [fnValidator]],
+    }));
+
+    this.samplerForm.addControl('hsl', this.fb.group({
+      h: [pathOr(DotstarConstants.hSampler, ['h'], this.savedSamplers), [fnValidator]],
+      s: [pathOr(DotstarConstants.sSampler, ['s'], this.savedSamplers), [fnValidator]],
+      l: [pathOr(DotstarConstants.lSampler, ['l'], this.savedSamplers), [fnValidator]],
+    }));
+
     /**
      * Manage the enabling and disabling of the colorspace-specific forms
      */
@@ -103,7 +117,11 @@ export class FunctionFormsComponent implements OnInit, OnDestroy {
     this.combinedSampler.pipe(
       takeUntil(this.unsubscribe$),
       tap(samplers => console.log('samplers: ', samplers)),
-      map(samplers => this.bufferStreamGenerator(samplers))
+      map(samplers =>
+        this.bufferStreamGenerator(samplers).pipe(
+
+        )
+      )
     )
     .subscribe(stream => this.bufferService.setBufferStream(stream));
   }

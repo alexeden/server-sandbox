@@ -27,7 +27,10 @@ export class TetraMainComponent {
   ) {
     this.samplerTemplate = body => `
       (t, i, tetra) => {
+        const ts = t / 1000;
         const n = tetra.pixels.length;
+        const pixel = tetra.pixels[i];
+
         return ${body};
       }
     `;
