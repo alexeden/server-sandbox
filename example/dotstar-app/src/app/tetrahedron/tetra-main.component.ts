@@ -30,6 +30,7 @@ export class TetraMainComponent {
         const ts = t / 1000;
         const n = tetra.pixels.length;
         const pixel = tetra.pixels[i];
+        const ei = pixel.edge.i;
 
         return ${body};
       }
