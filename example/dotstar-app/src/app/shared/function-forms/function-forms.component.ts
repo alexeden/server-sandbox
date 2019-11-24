@@ -1,7 +1,7 @@
 // tslint:disable no-eval
 import { pathOr } from 'ramda';
-import { Subject, BehaviorSubject, Observable } from 'rxjs';
-import { takeUntil, filter, map, startWith, tap, switchMap, distinctUntilChanged, pairwise } from 'rxjs/operators';
+import { Subject, BehaviorSubject, Observable, empty } from 'rxjs';
+import { takeUntil, filter, map, startWith, tap, switchMap, distinctUntilChanged, pairwise, retryWhen, take, catchError } from 'rxjs/operators';
 import { Component, OnDestroy, OnInit, Input } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import {
@@ -27,6 +27,7 @@ import { functionBodyValidator } from './function-body.validator';
 export class FunctionFormsComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   private readonly combinedSampler: Observable<CombinedSampler<any>>;
+  readonly errorCaught = new Subject<boolean>();
   readonly selectedColorspace$: BehaviorSubject<Colorspace>;
   readonly samplerForm: FormGroup;
 
@@ -46,21 +47,7 @@ export class FunctionFormsComponent implements OnInit, OnDestroy {
     (window as any).channelFunctionFormsComponent = this;
 
     this.selectedColorspace$ = new BehaviorSubject<Colorspace>(this.savedSelectedColorspace || Colorspace.HSL);
-
-    // const fnValidator = () => null; // functionBodyValidator(samplerFnHead, [0, 0, 1]);
-
-    this.samplerForm = this.fb.group({
-      // rgb: this.fb.group({
-      //   r: [pathOr(DotstarConstants.rSampler, ['r'], this.savedSamplers), [fnValidator]],
-      //   g: [pathOr(DotstarConstants.gSampler, ['g'], this.savedSamplers), [fnValidator]],
-      //   b: [pathOr(DotstarConstants.bSampler, ['b'], this.savedSamplers), [fnValidator]],
-      // }),
-      // hsl: this.fb.group({
-      //   h: [pathOr(DotstarConstants.hSampler, ['h'], this.savedSamplers), [fnValidator]],
-      //   s: [pathOr(DotstarConstants.sSampler, ['s'], this.savedSamplers), [fnValidator]],
-      //   l: [pathOr(DotstarConstants.lSampler, ['l'], this.savedSamplers), [fnValidator]],
-      // }),
-    });
+    this.samplerForm = this.fb.group({ });
 
     this.combinedSampler = this.selectedColorspace$.pipe(
       tap(mode => this.savedSelectedColorspace = mode),
@@ -70,12 +57,17 @@ export class FunctionFormsComponent implements OnInit, OnDestroy {
         return formGroup!.valueChanges.pipe(
           startWith(formGroup!.value),
           filter(() => formGroup!.valid),
+          /** Clear the error caught stream  */
+          tap(() => this.errorCaught.next(false)),
+          /** Save the changed form values to session */
           tap(samplerStrs => this.savedSamplers = { ...this.savedSamplers, ...samplerStrs }),
+          /** Generate the sampler function triplet */
           map(samplerStrs =>
             Object.values(samplerStrs).map(body =>
               eval(`${this.samplerTemplate(body as string)}`)
             ) as Triplet<Sampler<any>>
           ),
+          /** Merge the samplers */
           map(SamplerUtils.samplerCombinatorFromColorspace(mode))
         );
       })
@@ -116,10 +108,13 @@ export class FunctionFormsComponent implements OnInit, OnDestroy {
      */
     this.combinedSampler.pipe(
       takeUntil(this.unsubscribe$),
-      tap(samplers => console.log('samplers: ', samplers)),
       map(samplers =>
         this.bufferStreamGenerator(samplers).pipe(
-
+          catchError(() => {
+            /** Notifiy that an error was caught, it'll be cleared on form change */
+            this.errorCaught.next(true);
+            return empty();
+          })
         )
       )
     )

@@ -52,3 +52,8 @@
     </div>
   </div>
 </div>
+
+<div *ngIf="errorCaught | async" class="row gap-5 align-center mat-h3">
+  <mat-icon style="font-size: 2rem; height: auto; width: auto" color="error">error</mat-icon>
+  <span>One of the sampler functions threw an error. Buffer streaming has been paused until it's corrected.</span>
+</div>
