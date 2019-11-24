@@ -1,4 +1,4 @@
-import { Vector3, Line3 } from 'three';
+import { Vector3 } from 'three';
 
 export enum VertexId {
   A,
@@ -58,35 +58,28 @@ export interface TetrahedronConfig extends TetrahedronConfigOptions {
 
 export interface Vertex {
   // label: VertexId;
-  pos: Vector3;
+  position: Vector3;
 }
 
 export interface Edge {
   v0: Vertex;
   v1: Vertex;
-  i: number;
-  norm: Vector3;
-  // label: EdgeId;
+  index: number;
+  midpoint: Vector3;
 }
 
 export interface Pixel {
-  pos: Vector3;
+  position: Vector3;
   edge: Edge;
-  i: number;
-  // next: Pixel | undefined;
+  index: number;
+  /** Normalized x-coordinate wrt the tetrahedron center */
+  x: number;
+  /** Normalized y-coordinate wrt the tetrahedron center */
+  y: number;
+  /** Normalized z-coordinate wrt the tetrahedron center */
+  z: number;
+  /** Normalized distance from the tetrahedron center */
+  dOrigin: number;
+  /** Normalized distance from this pixel's edge midpoint */
+  dMidpoint: number;
 }
-
-// export interface Tetrahedron extends TetrahedronConfig {
-//   /**
-//    *
-//    */
-//   vertices: Vertex[];
-//   /**
-//    *
-//    */
-//   edges: Edge[];
-//   /**
-//    *
-//    */
-//   pixels: Pixel[];
-// }
