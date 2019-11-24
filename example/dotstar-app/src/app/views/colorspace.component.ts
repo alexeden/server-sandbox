@@ -17,7 +17,7 @@ import { map } from 'rxjs/operators';
   `,
 })
 export class ColorspaceFunctionsComponent {
-  bufferStreamGenerator: BufferStreamGenerator;
+  bufferStreamGenerator: BufferStreamGenerator<number>;
 
   constructor(
     private configService: DotstarDeviceConfigService,

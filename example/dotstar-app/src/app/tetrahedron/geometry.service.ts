@@ -9,12 +9,18 @@ import { DotstarDeviceConfigService } from '@app/device-config.service';
 export class GeometryService {
   private readonly tetraConfigOptions$ = new BehaviorSubject<TetrahedronConfigOptions>({
     edgeRoute: [
-      [V.A, V.B],
+      [V.D, V.B],
       [V.B, V.C],
+      [V.C, V.D],
       [V.C, V.A],
-      [V.A, V.D],
-      [V.D, V.C],
-      [V.B, V.D],
+      [V.A, V.B],
+      [V.D, V.A],
+      // [V.A, V.B],
+      // [V.B, V.C],
+      // [V.C, V.A],
+      // [V.A, V.D],
+      // [V.D, V.C],
+      // [V.B, V.D],
     ],
     pixelsPerEdge: 96,
     edgePadding: 5,
@@ -34,6 +40,7 @@ export class GeometryService {
     )
     .pipe(
       map(configOptions => Tetrahedron.fromConfigOptions(configOptions)),
+      // tap(tet => (window as any).tet = tet),
       shareReplay(1)
     );
 
