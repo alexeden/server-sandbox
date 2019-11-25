@@ -1,0 +1,15 @@
+:host {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  min-height: 100%;
+  width: 100%;
+
+  & ::ng-deep canvas {
+    height: 100%;
+    width: 100%;
+    display: block;
+    min-height: 700px;
+    max-height: 100vh;
+  }
+}

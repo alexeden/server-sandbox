@@ -1,0 +1,35 @@
+<div [formGroup]="configForm" class="column gap-10">
+  <div class="mat-h2 m-b-20 row gap-5 align-center">
+    <mat-icon>wb_sunny</mat-icon>
+    <span>Configure the lights</span>
+  </div>
+  <mat-form-field>
+    <input type="text" placeholder="Device Path" matInput formControlName="devicePath" [matAutocomplete]="auto">
+    <mat-autocomplete #auto="matAutocomplete">
+      <mat-option *ngFor="let path of devicePaths | async" [value]="path">
+        {{path}}
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput placeholder="URL" formControlName="url">
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="number" placeholder="Number of LEDs" formControlName="length" min="1" max="1024">
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="number" placeholder="Number of Start Frames" formControlName="startFrames" min="1" max="10">
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="number" placeholder="Number of End Frames" formControlName="endFrames" min="1" max="10">
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="number" placeholder="Clock Speed" formControlName="clockSpeed">
+    <span matSuffix>Hz</span>
+  </mat-form-field>
+</div>
+<div class="mat-h3 m-0">Transmissions per second</div>
+<div class="row gap-5 align-center">
+  <div class="mat-caption">{{ socketService.txps | async }}</div>
+  <mat-slider class="p-0 m-0" [formControl]="txpsControl" [min]="txpsMin" [max]="txpsMax"></mat-slider>
+</div>

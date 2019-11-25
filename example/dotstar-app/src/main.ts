@@ -1,4 +1,3 @@
-import 'hammerjs'; // tslint:disable-line:no-import-side-effect
 import { enableProdMode } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 

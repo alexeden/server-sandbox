@@ -1,60 +1,20 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FlexLayoutModule } from '@angular/flex-layout';
-import {
-  MatAutocompleteModule,
-  MatBadgeModule,
-  MatBottomSheetModule,
-  MatButtonModule,
-  MatCardModule,
-  MatCheckboxModule,
-  MatExpansionModule,
-  MatFormFieldModule,
-  MatIconModule,
-  MatInputModule,
-  MatMenuModule,
-  MatRadioModule,
-  MatSelectModule,
-  MatSidenavModule,
-  MatSliderModule,
-  MatSlideToggleModule,
-  MatSnackBarModule,
-  MatTabsModule,
-  MatToolbarModule,
-  MatTooltipModule,
-} from '@angular/material';
-import { ReactiveFormsModule } from '@angular/forms';
+import { VendorModule } from './vendor.module';
 import { SpinDirective } from './spin.directive';
+import { FunctionFormsComponent } from './function-forms';
 
 @NgModule({
-  exports: [
-    CommonModule,
-    FlexLayoutModule,
-    ReactiveFormsModule,
-    MatAutocompleteModule,
-    MatBadgeModule,
-    MatBottomSheetModule,
-    MatButtonModule,
-    MatCardModule,
-    MatCheckboxModule,
-    MatExpansionModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatMenuModule,
-    MatRadioModule,
-    MatSelectModule,
-    MatSidenavModule,
-    MatSliderModule,
-    MatSlideToggleModule,
-    MatSnackBarModule,
-    MatTabsModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    SpinDirective,
+  imports: [
+    VendorModule,
   ],
   declarations: [
+    FunctionFormsComponent,
     SpinDirective,
+  ],
+  exports: [
+    VendorModule,
+    SpinDirective,
+    FunctionFormsComponent,
   ],
 })
 export class SharedModule { }

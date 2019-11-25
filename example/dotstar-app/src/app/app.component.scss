@@ -1,0 +1,29 @@
+@import '~@angular/material/theming';
+
+@import 'variables';
+
+:host {
+  min-height: 100vh;
+  margin-bottom: 84px;
+  display: flex;
+  flex-direction: column;
+
+  nav, .nav {
+    background-color: $primary;
+  }
+  .nav {
+    @include mat-elevation(22);
+    align-items: center;
+  }
+  nav {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    flex-shrink: 0;
+  }
+
+  mat-sidenav {
+    max-width: 33vw;
+    width: 250px;
+  }
+}
