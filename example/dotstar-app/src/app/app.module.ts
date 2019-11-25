@@ -15,6 +15,7 @@ import { SocketNotifierComponent } from './dotstar-notifiers.component';
 import { VisualizerComponent } from './visualizer';
 import { DeviceConfigFormComponent } from './device-config-form';
 import { BufferService } from './buffer.service';
+import { FunctionLibraryService } from './function-library.service';
 import { LeapPaintModule } from './leap-paint';
 import { LiveBufferBarComponent } from './live-buffer-bar';
 import { TetrahedronModule } from './tetrahedron/tetrahedron.module';
@@ -72,6 +73,7 @@ const appRoutes: Routes = [
     AnimationClockService,
     BufferService,
     DotstarDeviceConfigService,
+    FunctionLibraryService,
     SocketService,
   ],
   bootstrap: [
