@@ -6,7 +6,6 @@
     "es6": true,
     "amd": false
   },
-  "ignorePatterns": "**/wasm/pkg/*",
   "overrides": [
     {
       "files": [
