@@ -39,6 +39,6 @@ export class InteractionBox {
   }
 
   toString() {
-    return 'InteractionBox [ width:' + this.width + ' | height:' + this.height + ' | depth:' + this.depth + ' ]';
+    return `InteractionBox [ width:${  this.width  } | height:${  this.height  } | depth:${  this.depth  } ]`;
   }
 }

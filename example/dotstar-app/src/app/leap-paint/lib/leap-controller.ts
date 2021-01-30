@@ -36,8 +36,8 @@ export interface FrameEventMap {
 }
 
 export type FrameEvent<K extends keyof FrameEventMap> = {
-  type: K,
-  state: FrameEventMap[K],
+  type: K;
+  state: FrameEventMap[K];
 };
 
 

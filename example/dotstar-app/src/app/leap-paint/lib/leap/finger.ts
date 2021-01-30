@@ -101,7 +101,7 @@ export class Finger extends Pointable {
   }
 
   toString() {
-    return 'Finger [ id:' + this.id + ' ' + this.length + 'mmx | width:' + this.width + 'mm | direction:' + this.direction + ' ]';
+    return `Finger [ id:${  this.id  } ${  this.length  }mmx | width:${  this.width  }mm | direction:${  this.direction  } ]`;
   }
 
 }

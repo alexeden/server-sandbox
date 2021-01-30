@@ -66,7 +66,7 @@ export class Frame {
 
   toString() {
     // tslint:disable-next-line:max-line-length
-    let str = 'Frame [ id:' + this.id + ' | timestamp:' + this.timestamp + ' | Hand count:(' + this.hands.length + ') | Pointable count:(' + this.pointables.length + ')';
+    let str = `Frame [ id:${  this.id  } | timestamp:${  this.timestamp  } | Hand count:(${  this.hands.length  }) | Pointable count:(${  this.pointables.length  })`;
     return str += ' ]';
   }
 }

@@ -100,6 +100,6 @@ export class Hand {
 
   toString() {
     // tslint:disable-next-line:max-line-length
-    return 'Hand (' + this.type + ') [ id: ' + this.id + ' | palm velocity:' + this.palmVelocity + ' | sphere center:' + this.sphereCenter + ' ] ';
+    return `Hand (${  this.type  }) [ id: ${  this.id  } | palm velocity:${  this.palmVelocity  } | sphere center:${  this.sphereCenter  } ] `;
   }
 }

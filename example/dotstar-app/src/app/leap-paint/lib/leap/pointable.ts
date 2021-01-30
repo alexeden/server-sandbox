@@ -59,6 +59,6 @@ export class Pointable {
   }
 
   toString() {
-    return 'Pointable [ id:' + this.id + ' ' + this.length + 'mmx | width:' + this.width + 'mm | direction:' + this.direction + ' ]';
+    return `Pointable [ id:${  this.id  } ${  this.length  }mmx | width:${  this.width  }mm | direction:${  this.direction  } ]`;
   }
 }

@@ -30,29 +30,21 @@ import { TetraMainComponent } from './tetra-main.component';
     {
       provide: HTMLCanvasElement,
       deps: [RendererFactory2],
-      useFactory: (rendererFactory: RendererFactory2) => {
-        return rendererFactory.createRenderer(null, null).createElement('canvas');
-      },
+      useFactory: (rendererFactory: RendererFactory2) => rendererFactory.createRenderer(null, null).createElement('canvas'),
     },
     {
       provide: CameraControls,
       deps: [PerspectiveCamera, HTMLCanvasElement],
-      useFactory: (camera: PerspectiveCamera, canvas: HTMLCanvasElement) => {
-        return SceneUtils.createCameraControls(camera, canvas);
-      },
+      useFactory: (camera: PerspectiveCamera, canvas: HTMLCanvasElement) => SceneUtils.createCameraControls(camera, canvas),
     },
     {
       provide: WebGLRenderer,
       deps: [HTMLCanvasElement],
-      useFactory: (canvas: HTMLCanvasElement) => {
-        return SceneUtils.createRenderer(canvas);
-      },
+      useFactory: (canvas: HTMLCanvasElement) => SceneUtils.createRenderer(canvas),
     },
     {
       provide: Scene,
-      useFactory: () => {
-        return SceneUtils.createScene();
-      },
+      useFactory: () => SceneUtils.createScene(),
     },
     // {
     //   provide: Clock,

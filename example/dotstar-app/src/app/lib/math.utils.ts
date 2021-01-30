@@ -7,9 +7,7 @@ export const range = (from: number, to: number) => {
   return result;
 };
 
-export const clamp = curry((min: number, max: number, value: number) => {
-  return Math.max(min, Math.min(max, value));
-});
+export const clamp = curry((min: number, max: number, value: number) => Math.max(min, Math.min(max, value)));
 
 export const clampLoop = curry((min: number, max: number, value: number) => {
   const len = Math.abs(max - min);

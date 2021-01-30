@@ -21,9 +21,9 @@ interface DotstarValues {
 
 type DotstarMessage
   = { type: DotstarMessageType.Closed }
-  | { type: DotstarMessageType.Config, data: DotstarConfig }
+  | { type: DotstarMessageType.Config; data: DotstarConfig }
   | { type: DotstarMessageType.Opened }
-  | { type: DotstarMessageType.Values, data: DotstarValues };
+  | { type: DotstarMessageType.Values; data: DotstarValues };
 
 @Injectable()
 export class SocketService {
