@@ -1,4 +1,3 @@
-// tslint:disable no-eval
 import { ValidatorFn, FormControl } from '@angular/forms';
 
 export const functionBodyValidator = (templateFn: (body: string) => any): ValidatorFn => (control: FormControl): {[key: string]: any} | null => {

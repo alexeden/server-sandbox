@@ -1,12 +1,12 @@
-import { NgModule, RendererFactory2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule, RendererFactory2 } from '@angular/core';
 import { SharedModule } from '@app/shared';
-import { PerspectiveCamera, WebGLRenderer, Clock, Scene } from 'three';
-import { SceneUtils } from './lib';
 import CameraControls from 'camera-controls';
-import { TetraCanvasComponent } from './tetra-canvas/tetra-canvas.component';
+import { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 import { CanvasService } from './canvas.service';
 import { GeometryService } from './geometry.service';
+import { SceneUtils } from './lib';
+import { TetraCanvasComponent } from './tetra-canvas/tetra-canvas.component';
 import { TetraMainComponent } from './tetra-main.component';
 
 @NgModule({

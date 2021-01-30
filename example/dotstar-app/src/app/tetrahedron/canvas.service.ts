@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject, BehaviorSubject, fromEvent } from 'rxjs';
-import { scan, tap, startWith, shareReplay, map } from 'rxjs/operators';
+import { BehaviorSubject, fromEvent, Observable, Subject } from 'rxjs';
+import { map, scan, shareReplay, startWith, tap } from 'rxjs/operators';
 
 // tslint:disable-next-line: no-empty-interface
 export interface CanvasParams {
@@ -14,7 +14,7 @@ export class CanvasService {
   };
 
   readonly canvasRect: Observable<DOMRect>;
-  private readonly ready: Observable<boolean>;
+  // private readonly ready: Observable<boolean>;
   readonly renderingParams: Observable<CanvasParams>;
   private readonly paramsUpdate$: Subject<CanvasParamsUpdate>;
   private readonly modelsReady$ = new BehaviorSubject(false);
@@ -22,7 +22,7 @@ export class CanvasService {
   constructor(
     private readonly canvas: HTMLCanvasElement
   ) {
-    this.ready = this.modelsReady$.asObservable();
+    // this.ready = this.modelsReady$.asObservable();
 
     // Canvas params
     this.paramsUpdate$ = new Subject();

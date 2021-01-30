@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject, BehaviorSubject, ConnectableObservable, merge, empty, combineLatest } from 'rxjs';
-import { map, switchMap, retryWhen, takeUntil, publishReplay, tap, distinctUntilChanged, sampleTime, scan } from 'rxjs/operators';
-import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { DotstarConstants, Sample } from './lib';
 import { DotstarConfig } from 'dotstar-node/dist/types';
-import { DotstarDeviceConfigService } from './device-config.service';
+import { BehaviorSubject, combineLatest, ConnectableObservable, empty, Observable, Subject } from 'rxjs';
+import { distinctUntilChanged, map, publishReplay, retryWhen, sampleTime, switchMap, takeUntil } from 'rxjs/operators';
+import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { BufferService } from './buffer.service';
+import { DotstarDeviceConfigService } from './device-config.service';
+import { DotstarConstants } from './lib';
 
 
 enum DotstarMessageType {

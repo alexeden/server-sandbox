@@ -1,5 +1,5 @@
-import { Object3D, MeshPhongMaterial, Color, Mesh, SphereBufferGeometry } from 'three';
-import { Pixel, colors, TetrahedronConfig } from '../lib';
+import { Color, Mesh, MeshPhongMaterial, Object3D, SphereBufferGeometry } from 'three';
+import { Pixel, TetrahedronConfig } from '../lib';
 
 export class PixelModel extends Object3D {
   readonly mat: MeshPhongMaterial;

@@ -1,21 +1,14 @@
-// tslint:disable no-eval
-import { pathOr } from 'ramda';
-import { Subject, BehaviorSubject, Observable, empty } from 'rxjs';
-import { takeUntil, filter, map, startWith, tap, switchMap, distinctUntilChanged, pairwise, retryWhen, take, catchError } from 'rxjs/operators';
-import { Component, OnDestroy, OnInit, Input } from '@angular/core';
-import { FormGroup, FormBuilder } from '@angular/forms';
-import {
-  DotstarConstants,
-  Sampler,
-  Triplet,
-  SamplerUtils,
-  Colorspace,
-  BufferStreamGenerator,
-  SamplerTemplate,
-  CombinedSampler,
-} from '@app/lib';
-import { LocalStorage } from '../web-storage.decorators';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { BufferService } from '@app/buffer.service';
+import {
+  BufferStreamGenerator, Colorspace, CombinedSampler, DotstarConstants,
+  Sampler, SamplerTemplate, SamplerUtils, Triplet
+} from '@app/lib';
+import { pathOr } from 'ramda';
+import { BehaviorSubject, empty, Observable, Subject } from 'rxjs';
+import { catchError, distinctUntilChanged, filter, map, pairwise, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { LocalStorage } from '../web-storage.decorators';
 import { functionBodyValidator } from './function-body.validator';
 
 @Component({

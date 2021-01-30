@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { BufferStreamGenerator, clamp, Sample, SamplerTemplate } from '@app/lib';
 import { AnimationClockService } from '@app/animation-clock.service';
-import { map, withLatestFrom } from 'rxjs/operators';
+import { BufferStreamGenerator, clamp, Sample, SamplerTemplate } from '@app/lib';
+import { withLatestFrom } from 'rxjs/operators';
 import { GeometryService } from './geometry.service';
 import { Tetrahedron } from './lib';
 @Component({

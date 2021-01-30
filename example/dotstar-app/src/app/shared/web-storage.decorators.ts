@@ -22,19 +22,19 @@ class WebStorageUtility {
 
 
 function WebStorage(storage: Storage, overrideKey?: string): PropertyDecorator {
-  return (target: {}, propertyName: string): void => {
+  return (target: {}, propertyName: string | symbol): void => {
     const key = overrideKey || propertyName;
 
     Object.defineProperty(target, propertyName, {
       get() {
-        return WebStorageUtility.get(storage, key);
+        return WebStorageUtility.get(storage, `${String(key)}`);
       },
       set(value: any) {
         if (typeof value === 'undefined' || value === null) {
-          WebStorageUtility.remove(storage, key);
+          WebStorageUtility.remove(storage, `${String(key)}`);
         }
         else {
-          WebStorageUtility.set(storage, key, value);
+          WebStorageUtility.set(storage, `${String(key)}`, value);
         }
       },
     });

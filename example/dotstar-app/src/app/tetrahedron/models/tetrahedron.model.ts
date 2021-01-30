@@ -1,4 +1,4 @@
-import { Group, LineBasicMaterial, Geometry, Vector3, Line, Color } from 'three';
+import { Color, Group } from 'three';
 import { Tetrahedron } from '../lib';
 import { PixelModel } from './pixel.model';
 
