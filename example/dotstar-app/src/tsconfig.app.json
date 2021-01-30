@@ -6,11 +6,18 @@
       "node"
     ]
   },
-  "exclude": [
-    "test.ts",
-    "**/*.spec.ts"
+  "include": [
+    "**/*.d.ts"
+  ],
+  "files": [
+    "polyfills.ts",
+    "main.ts"
   ],
   "angularCompilerOptions": {
-    "disableTypeScriptVersionCheck": true
+    "disableTypeScriptVersionCheck": true,
+    "enableIvy": true,
+    "fullTemplateTypeCheck": true,
+    "strictInjectionParameters": true,
+    "strictTemplates": true
   }
 }
