@@ -40,6 +40,7 @@
     "raspberry",
     "rpi",
     "sk9822",
+    "serial",
     "spi",
     "strip"
   ],
@@ -57,7 +58,6 @@
     "typescript": "^4.1.3"
   },
   "dependencies": {
-    "gradient-string": "^1.2.0",
     "spi-node": "^3.0.0"
   }
 }
