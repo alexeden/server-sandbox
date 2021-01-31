@@ -1,6 +1,6 @@
 {
   "name": "dotstar-node",
-  "version": "1.0.8",
+  "version": "2.0.0",
   "description": "Control Dotstar (APA102 or SK9822) LEDs via Node.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
