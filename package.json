@@ -8,7 +8,7 @@
     "node": ">=10.0.0"
   },
   "scripts": {
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "npm run lint && npm run build",
     "build": "rm -rf dist && tsc -p src",
     "build:all": "npm run build && (cd app/server && npm run build) && (cd app/browser && npm run build)",
     "format": "prettier --write \"src/**/*.ts\"",
