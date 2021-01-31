@@ -4,8 +4,5 @@
     "baseUrl": ".",
     "declaration": true,
     "outDir": "../dist"
-  },
-  "exclude": [
-    "legacy"
-  ]
+  }
 }

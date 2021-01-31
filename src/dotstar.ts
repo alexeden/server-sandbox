@@ -16,7 +16,7 @@ export class Dotstar {
       devicePath,
       Math.max(0, config.length || 144),
       config.startFrames || 1,
-      config.endFrames || 4
+      config.endFrames || 4,
     );
   }
 
@@ -31,7 +31,7 @@ export class Dotstar {
     readonly devicePath: string,
     readonly length: number,
     readonly startFrames: number,
-    readonly endFrames: number
+    readonly endFrames: number,
   ) {
     this.totalFrames = this.length + this.startFrames + this.endFrames;
     this.bufferSize = APA102C.FRAME_SIZE * this.totalFrames;
@@ -42,8 +42,8 @@ export class Dotstar {
     ]);
 
     this.ledSlices = range(0, this.length)
-      .map(i => (i + this.startFrames) * APA102C.FRAME_SIZE)
-      .map(offset => this.buffer.slice(offset + 1, offset + 4));
+      .map((i) => (i + this.startFrames) * APA102C.FRAME_SIZE)
+      .map((offset) => this.buffer.slice(offset + 1, offset + 4));
   }
 
   private write(led: Buffer, color: number) {
@@ -66,17 +66,17 @@ export class Dotstar {
   }
 
   read(): number[] {
-    return this.ledSlices.map(led => led.readUIntBE(0, 3));
+    return this.ledSlices.map((led) => led.readUIntBE(0, 3));
   }
 
   set(color: number, ...is: number[]) {
-    is.filter(i => i >= 0 && i < this.length).forEach(i => {
+    is.filter((i) => i >= 0 && i < this.length).forEach((i) => {
       this.write(this.ledSlices[i], color);
     });
   }
 
   setAll(color: number) {
-    this.ledSlices.forEach(slice => this.write(slice, color));
+    this.ledSlices.forEach((slice) => this.write(slice, color));
   }
 
   async shutdown() {
@@ -86,17 +86,24 @@ export class Dotstar {
     this.closed = true;
   }
 
-  async sync(): Promise<any> {
+  async sync(): Promise<Buffer> {
     if (this.closed) console.warn('attempted to sync when SPI is closed!');
-    if (this.devicePath === '/dev/null') return;
-    await this.spi.write(this.buffer);
+    if (this.devicePath === '/dev/null') return Buffer.of();
+    return this.spi.write(this.buffer);
   }
 
   printBuffer(): string {
-    const colors = this.read().map(c => `rgb(${c & 0xFF}, ${(c >> 8) & 0xFF}, ${c >> 16 & 0xFF})`);
-    const gradientGen = this.length < 2
-      ? gradientString([...this.read(), ...this.read()])
-      : gradientString(colors);
-    return gradientGen(range(0, this.length).map(() => '✹').join(''));
+    const colors = this.read().map(
+      (c) => `rgb(${c & 0xff}, ${(c >> 8) & 0xff}, ${(c >> 16) & 0xff})`,
+    );
+    const gradientGen =
+      this.length < 2
+        ? gradientString([...this.read(), ...this.read()])
+        : gradientString(colors);
+    return gradientGen(
+      range(0, this.length)
+        .map(() => '✹')
+        .join(''),
+    );
   }
 }
