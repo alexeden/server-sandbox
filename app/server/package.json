@@ -1,5 +1,5 @@
 {
-  "name": "@example/dotstar-node-server",
+  "name": "@app/dotstar-node-server",
   "main": "dist/index.js",
   "version": "0.0.0",
   "scripts": {

@@ -18,7 +18,7 @@ const app = express();
 const server = https.createServer(httpsOptions, app).listen(4000, '0.0.0.0', () => console.log('listening on port 4000'));
 const wss = new websockets.Server({ noServer: true });
 
-app.use(express.static(path.resolve(__dirname, '../../dotstar-app/dist/dotstar-app')));
+app.use(express.static(path.resolve(__dirname, '../../browser/dist/dotstar-app')));
 
 app.get('/api/dev', (req, res, next) => {
   fs.readdir('/dev', (err, files) => {
@@ -41,7 +41,7 @@ app.get('/api/dev', (req, res, next) => {
 // Catch all other routes and return the index file
 app.get('/*', (req, res) => {
   if (!res.headersSent) {
-    res.sendFile(path.join(__dirname, '../../dotstar-app/dist/dotstar-app/index.html'));
+    res.sendFile(path.join(__dirname, '../../browser/dist/dotstar-app/index.html'));
   }
 });
 
@@ -58,6 +58,7 @@ wss.on('connection', (socket, req) => {
   const parsed = url.parse(req.url || '');
   // Parse the config values into numbers where necessary
   const config = Object.entries(qs.parse(parsed.query || '')).reduce(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (accum, [k, v]: [string, any]) => ({
       ...accum,
       [k]: Number.isSafeInteger(parseInt(v, 10)) ? parseInt(v, 10) : v,
@@ -70,14 +71,12 @@ wss.on('connection', (socket, req) => {
     dotstar = Dotstar.create(config);
     dotstar.setAll(0);
     dotstar.sync();
-
-    console.log(dotstar && dotstar.printBuffer());
   }
   liveClients.add(socket);
 
   socket.on('pong', liveClients.add.bind(liveClients, socket));
 
-  socket.on('message', (data: string = '{}') => {
+  socket.on('message', (data = '{}') => {
     if (typeof data === 'string' && data.length > 0 && data !== 'undefined') {
       const { values }: { values: Array<[number, number, number]> } = JSON.parse(data);
       if (dotstar && values) {
@@ -97,7 +96,6 @@ wss.on('connection', (socket, req) => {
       console.log('last client closed! turning stuff off');
       dotstar.setAll(0);
       await dotstar.sync();
-      console.log(dotstar.printBuffer());
       dotstar = null;
     }
   });
@@ -107,10 +105,8 @@ setInterval(
   () => wss.clients.forEach(socket => {
     if (!liveClients.has(socket)) socket.terminate();
     liveClients.delete(socket);
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     socket.ping(() => {});
-    if (dotstar) {
-      console.log(dotstar.printBuffer());
-    }
   }),
   1000
 );

@@ -10,7 +10,7 @@
   "scripts": {
     "prepublishOnly": "npm run build",
     "build": "rm -rf dist && tsc -p src",
-    "build:all": "npm run build && (cd example/server && npm run build) && (cd example/dotstar-app && npm run build)",
+    "build:all": "npm run build && (cd app/server && npm run build) && (cd app/browser && npm run build)",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint src/**/*.ts",
     "sync-build": "nodemon --config nodemon.build-sync.config.json",
