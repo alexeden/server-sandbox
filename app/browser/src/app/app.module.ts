@@ -9,7 +9,6 @@ import { BufferService } from './buffer.service';
 import { DeviceConfigFormComponent } from './device-config-form';
 import { DotstarDeviceConfigService } from './device-config.service';
 import { SocketNotifierComponent } from './dotstar-notifiers.component';
-import { FunctionLibraryService } from './function-library.service';
 import { LiveBufferBarComponent } from './live-buffer-bar';
 import { SocketService } from './socket.service';
 import { TetraMainComponent } from './tetrahedron/tetra-main.component';
@@ -57,7 +56,6 @@ const appRoutes: Routes = [
     AnimationClockService,
     BufferService,
     DotstarDeviceConfigService,
-    FunctionLibraryService,
     SocketService,
   ],
   bootstrap: [
