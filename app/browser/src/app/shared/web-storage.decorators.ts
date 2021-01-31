@@ -1,8 +1,8 @@
+/* eslint-disable prefer-arrow/prefer-arrow-functions */
 class WebStorageUtility {
   static get(storage: Storage, key: string): any {
     const value = storage.getItem(key);
     try {
-      // tslint:disable-next-line:no-non-null-assertion
       return JSON.parse(value!);
     }
     catch (e) {
@@ -21,29 +21,26 @@ class WebStorageUtility {
 }
 
 
-function WebStorage(storage: Storage, overrideKey?: string): PropertyDecorator {
-  return (target: {}, propertyName: string | symbol): void => {
+// eslint-disable-next-line @typescript-eslint/naming-convention,no-underscore-dangle,id-blacklist,id-match
+const WebStorageProxy = (storage: Storage, overrideKey?: string): PropertyDecorator => (target, propertyName): void => {
     const key = overrideKey || propertyName;
 
     Object.defineProperty(target, propertyName, {
       get() {
-        return WebStorageUtility.get(storage, `${String(key)}`);
+        return WebStorageUtility.get(storage, String(key));
       },
       set(value: any) {
         if (typeof value === 'undefined' || value === null) {
-          WebStorageUtility.remove(storage, `${String(key)}`);
+          WebStorageUtility.remove(storage, String(key));
         }
         else {
-          WebStorageUtility.set(storage, `${String(key)}`, value);
+          WebStorageUtility.set(storage, String(key), value);
         }
       },
     });
   };
-}
 
-export function LocalStorage(key?: string): PropertyDecorator {
-  return WebStorage(localStorage, key);
-}
-export function SessionStorage(key?: string): PropertyDecorator {
-  return WebStorage(sessionStorage, key);
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention,no-underscore-dangle,id-blacklist,id-match
+export const LocalStorageProxy = (key?: string): PropertyDecorator => WebStorageProxy(localStorage, key);
+// eslint-disable-next-line @typescript-eslint/naming-convention, no-underscore-dangle, id-blacklist, id-match
+export const SessionStorageProxy = (key?: string): PropertyDecorator => WebStorageProxy(sessionStorage, key);

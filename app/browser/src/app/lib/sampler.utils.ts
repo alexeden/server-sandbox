@@ -7,7 +7,7 @@ export class SamplerUtils {
    * returns a function that, given the sampler arguments, returns the R, G, and B values
    * for that pixel.
    */
-  static samplerCombinatorFromColorspace<T>(colorspace: Colorspace): SamplerCombinator {
+  static samplerCombinatorFromColorspace(colorspace: Colorspace): SamplerCombinator {
     return samplers => {
       switch (colorspace) {
         case Colorspace.RGB: {
@@ -28,6 +28,7 @@ export class SamplerUtils {
             const hue$ = hue / 60;
             const x = c * (1 - Math.abs(hue$ % 2 - 1));
 
+            // eslint-disable-next-line complexity
             const [r$, g$, b$] = (() => {
               if (hue$ >= 0 && hue$ <= 1) return [c, x, 0];
               if (hue$ >= 1 && hue$ <= 2) return [x, c, 0];

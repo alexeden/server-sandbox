@@ -3,8 +3,9 @@ import { Subject, BehaviorSubject, Observable } from 'rxjs';
 import { takeUntil, map, tap, skipWhile } from 'rxjs/operators';
 import { CanvasSpace, CanvasForm, Group } from 'pts';
 import { transpose } from 'ramda';
-import { Colors, mapToRange } from '../lib';
+import { mapToRange } from '../lib';
 import { BufferService } from '../buffer.service';
+import { Colors } from 'dotstar-node/dist/colors';
 
 @Component({
   selector: 'dotstar-visualizer',
@@ -59,12 +60,12 @@ export class VisualizerComponent implements OnInit, OnDestroy {
       skipWhile(() => !this.ready$.getValue()),
       tap(() => this.space.clear())
     ).subscribe(([ r, g, b ]) => {
-      this.form.strokeOnly(Colors.Red, 2).line(r);
-      this.form.strokeOnly(Colors.Green, 2).line(g);
-      this.form.strokeOnly(Colors.Blue, 2).line(b);
-      this.form.fillOnly(Colors.Red).points(r, 4, 'circle');
-      this.form.fillOnly(Colors.Green).points(g, 4, 'circle');
-      this.form.fillOnly(Colors.Blue).points(b, 4, 'circle');
+      this.form.strokeOnly(`${Colors.Red}`, 2).line(r);
+      this.form.strokeOnly(`${Colors.Green}`, 2).line(g);
+      this.form.strokeOnly(`${Colors.Blue}`, 2).line(b);
+      this.form.fillOnly(`${Colors.Red}`).points(r, 4, 'circle');
+      this.form.fillOnly(`${Colors.Green}`).points(g, 4, 'circle');
+      this.form.fillOnly(`${Colors.Blue}`).points(b, 4, 'circle');
     });
   }
 

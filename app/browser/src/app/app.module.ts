@@ -1,33 +1,25 @@
-// tslint:disable-next-line: no-import-side-effect
-import 'hammerjs';
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
-import { AppComponent } from './app.component';
 import { BrowserModule } from '@angular/platform-browser';
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterModule, Routes } from '@angular/router';
 import { SharedModule } from '@app/shared';
 import { AnimationClockService } from './animation-clock.service';
-import { DotstarDeviceConfigService } from './device-config.service';
-import { SocketService } from './socket.service';
-import { SocketNotifierComponent } from './dotstar-notifiers.component';
-import { VisualizerComponent } from './visualizer';
-import { DeviceConfigFormComponent } from './device-config-form';
+import { AppComponent } from './app.component';
 import { BufferService } from './buffer.service';
+import { DeviceConfigFormComponent } from './device-config-form';
+import { DotstarDeviceConfigService } from './device-config.service';
+import { SocketNotifierComponent } from './dotstar-notifiers.component';
 import { FunctionLibraryService } from './function-library.service';
-import { LeapPaintModule } from './leap-paint';
 import { LiveBufferBarComponent } from './live-buffer-bar';
+import { SocketService } from './socket.service';
+import { TetraMainComponent } from './tetrahedron/tetra-main.component';
 import { TetrahedronModule } from './tetrahedron/tetrahedron.module';
-
 /**
  * Views
  */
-import {
-  ColorspaceFunctionsComponent,
-  LeapPaintComponent,
-} from './views';
-import { TetraMainComponent } from './tetrahedron/tetra-main.component';
+import { ColorspaceFunctionsComponent } from './views';
+import { VisualizerComponent } from './visualizer';
+
 
 const appRoutes: Routes = [
   {
@@ -35,13 +27,6 @@ const appRoutes: Routes = [
     component: ColorspaceFunctionsComponent,
     data: {
       label: 'Colorspace Functions',
-    },
-  },
-  {
-    path: 'leap-paint',
-    component: LeapPaintComponent,
-    data: {
-      label: 'Leap Paint',
     },
   },
   {
@@ -66,7 +51,6 @@ const appRoutes: Routes = [
     SocketNotifierComponent,
     VisualizerComponent,
     ColorspaceFunctionsComponent,
-    LeapPaintComponent,
     AppComponent,
   ],
   providers: [
@@ -83,7 +67,6 @@ const appRoutes: Routes = [
     BrowserModule,
     BrowserAnimationsModule,
     SharedModule,
-    LeapPaintModule,
     TetrahedronModule,
     RouterModule.forRoot(appRoutes),
   ],

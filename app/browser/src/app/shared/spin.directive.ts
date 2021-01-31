@@ -1,6 +1,7 @@
 import { Directive, ElementRef, Renderer2, Input, OnDestroy } from '@angular/core';
 
 @Directive({
+  // eslint-disable-next-line @angular-eslint/directive-selector
   selector: '[spin]',
 })
 export class SpinDirective implements OnDestroy {

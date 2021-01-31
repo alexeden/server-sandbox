@@ -12,11 +12,3 @@ export class DotstarConstants {
   static readonly minBrightness = 0;
   static readonly maxBrightness = 0xFF;
 }
-
-export enum Colors {
-  Black = '#000000',
-  Blue = '#00e4ff',
-  Green = '#76ff03',
-  Red = '#ff2b35',
-  White = '#ffffff',
-}

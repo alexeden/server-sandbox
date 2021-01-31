@@ -3,12 +3,12 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { BufferService } from '@app/buffer.service';
 import {
   BufferStreamGenerator, Colorspace, CombinedSampler, DotstarConstants,
-  Sampler, SamplerTemplate, SamplerUtils, Triplet
+  Sampler, SamplerTemplate, SamplerUtils, Triplet,
 } from '@app/lib';
 import { pathOr } from 'ramda';
 import { BehaviorSubject, empty, Observable, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, filter, map, pairwise, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { LocalStorage } from '../web-storage.decorators';
+import { LocalStorageProxy } from '../web-storage.decorators';
 import { functionBodyValidator } from './function-body.validator';
 
 @Component({
@@ -26,10 +26,10 @@ export class FunctionFormsComponent implements OnInit, OnDestroy {
   @Input() bufferStreamGenerator: BufferStreamGenerator<any>;
   @Input() samplerTemplate: SamplerTemplate;
 
-  @LocalStorage()
+  @LocalStorageProxy()
   private savedSelectedColorspace: Colorspace;
 
-  @LocalStorage()
+  @LocalStorageProxy()
   private savedSamplers: Record<'r' | 'g' | 'b' | 'h' | 's' | 'l', Sampler<any>>;
 
   constructor(
@@ -56,6 +56,7 @@ export class FunctionFormsComponent implements OnInit, OnDestroy {
           /** Generate the sampler function triplet */
           map(samplerStrs =>
             Object.values(samplerStrs).map(body =>
+              // eslint-disable-next-line no-eval
               eval(`${this.samplerTemplate(body as string)}`)
             ) as Triplet<Sampler<any>>
           ),
