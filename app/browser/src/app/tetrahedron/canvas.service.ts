@@ -1,37 +1,34 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, fromEvent, Observable, Subject } from 'rxjs';
-import { map, scan, shareReplay, startWith, tap } from 'rxjs/operators';
+import { BehaviorSubject, fromEvent, Observable } from 'rxjs';
+import { map, shareReplay, startWith } from 'rxjs/operators';
 
-// tslint:disable-next-line: no-empty-interface
-export interface CanvasParams {
-}
+// export interface CanvasParams {
+// }
 
-type CanvasParamsUpdate = (params: CanvasParams) => CanvasParams;
+// type CanvasParamsUpdate = (params: CanvasParams) => CanvasParams;
 
 @Injectable()
 export class CanvasService {
-  private initialCanvasParams: CanvasParams = {
-  };
+  // private initialCanvasParams: CanvasParams = {
+  // };
 
   readonly canvasRect: Observable<DOMRect>;
-  // private readonly ready: Observable<boolean>;
-  readonly renderingParams: Observable<CanvasParams>;
-  private readonly paramsUpdate$: Subject<CanvasParamsUpdate>;
+  // readonly renderingParams: Observable<CanvasParams>;
+  // private readonly paramsUpdate$: Subject<CanvasParamsUpdate>;
   private readonly modelsReady$ = new BehaviorSubject(false);
 
   constructor(
     private readonly canvas: HTMLCanvasElement
   ) {
-    // this.ready = this.modelsReady$.asObservable();
 
     // Canvas params
-    this.paramsUpdate$ = new Subject();
-    this.renderingParams = this.paramsUpdate$.pipe(
-      scan<CanvasParamsUpdate, CanvasParams>((state, update) => update(state), this.initialCanvasParams),
-      tap(params => this.initialCanvasParams = params),
-      startWith(this.initialCanvasParams),
-      shareReplay(1)
-    );
+    // this.paramsUpdate$ = new Subject();
+    // this.renderingParams = this.paramsUpdate$.pipe(
+    //   scan<CanvasParamsUpdate, CanvasParams>((state, update) => update(state), this.initialCanvasParams),
+    //   tap(params => this.initialCanvasParams = params),
+    //   startWith(this.initialCanvasParams),
+    //   shareReplay(1)
+    // );
 
     /** Canvas's resize bounding client rectangle */
     this.canvasRect = fromEvent(window, 'resize').pipe(
@@ -45,10 +42,10 @@ export class CanvasService {
     if (!this.modelsReady$.getValue()) this.modelsReady$.next(true);
   }
 
-  updateCanvasParams<K extends keyof CanvasParams>(valueObj: Partial<Pick<CanvasParams, K>>) {
-    this.paramsUpdate$.next(params => ({
-      ...params,
-      ...valueObj,
-    }));
-  }
+  // updateCanvasParams<K extends keyof CanvasParams>(valueObj: Partial<Pick<CanvasParams, K>>) {
+  //   this.paramsUpdate$.next(params => ({
+  //     ...params,
+  //     ...valueObj,
+  //   }));
+  // }
 }

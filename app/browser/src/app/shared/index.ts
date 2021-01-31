@@ -1,2 +1,2 @@
 export * from './shared.module';
-export { SessionStorage, LocalStorage } from './web-storage.decorators';
+export { SessionStorageProxy, LocalStorageProxy } from './web-storage.decorators';
