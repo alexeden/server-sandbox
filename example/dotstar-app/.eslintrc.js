@@ -1,4 +1,4 @@
-{
+module.exports = {
   "root": true,
   "env": {
     "browser": true,
@@ -15,6 +15,7 @@
       "parserOptions": {
         "ecmaVersion": 2020,
         "sourceType": "module",
+        tsconfigRootDir: __dirname,
         "project": [
           "src/tsconfig.app.json"
         ],
@@ -25,11 +26,13 @@
         "@angular-eslint"
       ],
       "extends": [
+        'plugin:@typescript-eslint/recommended',
         "plugin:@angular-eslint/ng-cli-compat",
         "plugin:@angular-eslint/ng-cli-compat--formatting-add-on",
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "rules": {
+        "@typescript-eslint/explicit-module-boundary-types": "off",
         "@angular-eslint/directive-selector": [
           "error",
           {
@@ -108,6 +111,10 @@
         "@typescript-eslint/no-namespace": "off",
         "@typescript-eslint/no-this-alias": "error",
         "@typescript-eslint/no-unused-expressions": "off",
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": ["error", {
+          "args": "none"
+        }],
         "@typescript-eslint/no-var-requires": "error",
         "arrow-parens": [
           "error",

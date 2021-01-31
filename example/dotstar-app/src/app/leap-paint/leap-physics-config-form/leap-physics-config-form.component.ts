@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Subject, Observable } from 'rxjs';
-import { startWith, filter, tap, takeUntil, take, switchMapTo } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { filter, switchMapTo, take, takeUntil, tap } from 'rxjs/operators';
 import { LeapPhysicsConfigService } from '../leap-physics-config.service';
 import { PHYSICAL_CONSTS, PhysicsConfig } from '../lib';
 

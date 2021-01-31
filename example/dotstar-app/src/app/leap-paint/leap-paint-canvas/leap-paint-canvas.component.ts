@@ -1,13 +1,12 @@
-import { Component, OnInit, OnDestroy, Renderer2, ElementRef } from '@angular/core';
-import { Subject, BehaviorSubject, Observable, combineLatest } from 'rxjs';
+import { Component, ElementRef, OnDestroy, OnInit, Renderer2 } from '@angular/core';
 import { AnimationClockService } from '@app/animation-clock.service';
-import { Bound, CanvasForm, CanvasSpace, Pt, World, Num, Particle, Color } from 'pts';
-import { skipWhile, takeUntil, sample, map, withLatestFrom, tap, take } from 'rxjs/operators';
-import { Colors, mapToRange, clamp, range, Sample, normalize, clampLoop } from '@app/lib';
-import { LeapPaintService } from '../leap-paint.service';
-import { DotstarDeviceConfigService } from '@app/device-config.service';
 import { BufferService } from '@app/buffer.service';
-import { Hand, InteractionBox } from '../lib';
+import { DotstarDeviceConfigService } from '@app/device-config.service';
+import { clamp, clampLoop, mapToRange, normalize, range, Sample } from '@app/lib';
+import { Bound, CanvasForm, CanvasSpace, Color, Num, Particle, Pt, World } from 'pts';
+import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs';
+import { map, skipWhile, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { LeapPaintService } from '../leap-paint.service';
 import { LeapPhysicsConfigService } from '../leap-physics-config.service';
 
 @Component({
@@ -152,7 +151,8 @@ export class LeapPaintCanvasComponent implements OnInit, OnDestroy {
       this.particles$.next({ particles });
 
     // tslint:disable-next-line:max-line-length
-    //   hands.forEach(({ stabilizedPalmPosition: stablePalm, palmPosition: palm, pitch, roll, pinchStrength, palmWidth, sphereRadius, }) => {
+    //   hands.forEach(({ stabilizedPalmPosition: stablePalm, palmPosition: palm,
+    // pitch, roll, pinchStrength, palmWidth, sphereRadius, }) => {
     //     const stablePalmPt = new Pt(mapToCanvasSpaceX(stablePalm[0]), mapToCanvasSpaceY(stablePalm[1]));
     //     const radius = Math.max(0.1, 1 - pinchStrength) * 50;
 

@@ -26,7 +26,7 @@ export class DotstarDeviceConfigService {
     this.length = this.deviceConfig.pipe(pluck('length'), tap(l => console.log('length: ', l)));
 
     this.devicePaths = this.devicePaths$.asObservable().pipe(
-      scan((paths, newPaths) => Array.from(new Set<string>([...paths, ...newPaths])), [])
+      scan<string[], string[]>((paths, newPaths) => [...new Set<string>([...paths, ...newPaths])], [])
     );
   }
 

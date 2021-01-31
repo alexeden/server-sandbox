@@ -1,6 +1,6 @@
-import { Observable, BehaviorSubject, empty, interval, animationFrameScheduler, Scheduler, ConnectableObservable } from 'rxjs';
-import { distinctUntilChanged, switchMap, map, share, scan, pairwise, publishReplay } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
+import { animationFrameScheduler, BehaviorSubject, empty, interval, Observable, Scheduler } from 'rxjs';
+import { distinctUntilChanged, map, pairwise, scan, share, switchMap } from 'rxjs/operators';
 
 @Injectable()
 export class AnimationClockService {

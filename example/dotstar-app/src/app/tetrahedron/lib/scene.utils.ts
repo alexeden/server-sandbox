@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+// eslint-disable-next-line no-duplicate-imports
 import {
   GridHelper,
   PointLight,
@@ -8,7 +9,7 @@ import {
   Object3D,
   Color,
   Scene,
-} from 'three'; // tslint:disable-line:no-duplicate-imports
+} from 'three';
 import CameraControls from 'camera-controls';
 
 export const colors = {

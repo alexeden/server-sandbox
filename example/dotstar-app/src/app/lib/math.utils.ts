@@ -1,4 +1,4 @@
-import { curryN, curry } from 'ramda';
+import { curry } from 'ramda';
 
 export const range = (from: number, to: number) => {
   const result = [];

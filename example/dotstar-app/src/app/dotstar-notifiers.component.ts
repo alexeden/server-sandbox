@@ -1,6 +1,6 @@
 import { switchMap, map, skip } from 'rxjs/operators';
 import { Component } from '@angular/core';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SocketService } from './socket.service';
 
 @Component({

@@ -17,8 +17,6 @@ export class Tetrahedron {
   private constructor(
     readonly config: TetrahedronConfig
   ) {
-    (window as any).tet = this;
-
     this.vertices = TetrahedronUtils.verticesFromCircumRadius(this.config.circumRadius);
 
     this.edges = this.config.edgeRoute.map(([vId0, vId1], i) =>

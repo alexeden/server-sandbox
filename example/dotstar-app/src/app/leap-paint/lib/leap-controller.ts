@@ -1,9 +1,9 @@
-import { Subject, Observable, BehaviorSubject, fromEvent } from 'rxjs';
-import { distinctUntilChanged, map, startWith, takeUntil, share, scan, filter } from 'rxjs/operators';
+import { BehaviorSubject, fromEvent, Observable, Subject } from 'rxjs';
+import { distinctUntilChanged, filter, map, startWith, takeUntil } from 'rxjs/operators';
+import { Assertions } from './leap/assertions';
 import { Frame } from './leap/frame';
 import { Hand } from './leap/hand';
-import { DeviceEventState, ServiceMessage, ControllerOptions, FrameMessage } from './leap/types';
-import { Assertions } from './leap/assertions';
+import { ControllerOptions, DeviceEventState, FrameMessage, ServiceMessage } from './leap/types';
 
 
 /**
@@ -107,11 +107,13 @@ export class LeapController implements ControllerOptions {
 
     // Grab a list of changed properties in the device device
     const changed: { [K in keyof DeviceEventState]?: boolean } = {};
-    // tslint:disable-next-line:forin
     for (const property in newInfo) {
       // If a property i doesn't exist the cache, or has changed...
-      // tslint:disable-next-line:max-line-length
-      if (!oldInfo || !oldInfo.hasOwnProperty(property) || oldInfo[property as keyof DeviceEventState] !== newInfo[property  as keyof DeviceEventState]) {
+      if (
+        !oldInfo
+        || !oldInfo.hasOwnProperty(property)
+        || oldInfo[property as keyof DeviceEventState] !== newInfo[property  as keyof DeviceEventState]
+      ) {
         changed[property as keyof DeviceEventState] = true;
       }
     }
@@ -224,7 +226,7 @@ export class LeapController implements ControllerOptions {
     return this;
   }
 
-  private send(state: object): this {
+  private send(state: Record<string, unknown>): this {
     if (this.socketConnected$.getValue()) {
       this.socket!.send(JSON.stringify(state));
     }
