@@ -1,5 +1,15 @@
 # Changelog
 
+## [4.0.0] - Not Released
+
+### Features
+
+- Add the ability to define a 3D structure of LEDs using a simple JSON data spec
+
+### BREAKIGN CHANGES
+
+- Removes support for Leap Motion controller in browser app
+
 ## [3.0.0] - 2021-01-30
 
 Upgrades all dependencies.
