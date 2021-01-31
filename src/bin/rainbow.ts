@@ -32,7 +32,7 @@ const {
   demandOption: 'The number of LEDs to test must be provided.',
 });
 
-const dotstar = Dotstar.create({ length });
+const dotstar = Dotstar.create({ length, });
 
 dotstar.setAll(0);
 dotstar.sync();
@@ -41,8 +41,8 @@ range(0, length - 1)
   .map((i) => mapToRange(0, length, 0, 0xff, i))
   .map((h) => hsl2rgb(h, 1, 0.5))
   .map(([r, g, b]) => ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff))
-  .forEach((color, i) => {
-    dotstar.set(color, i);
-  });
+  .forEach((color, i) => dotstar.set(color, i));
 
 dotstar.sync();
+
+setTimeout(() => dotstar.shutdown(), 30000);
