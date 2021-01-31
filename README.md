@@ -1,5 +1,7 @@
-![npm version](https://img.shields.io/npm/v/dotstar-node.svg?style=for-the-badge&logo=npm&color=c41949)
-
+![npm version](https://img.shields.io/npm/v/dotstar-node/latest?style=for-the-badge)
+![npm version](https://img.shields.io/npm/types/dotstar-node?style=for-the-badge)
+![npm version](https://img.shields.io/librariesio/release/npm/dotstar-node?style=for-the-badge&logoColor=white)
+![npm version](https://img.shields.io/node/v/dotstar-node?style=for-the-badge&logo=node.js&logoColor=white)
 # Dotstar Node
 
 Control a [Dotstar](https://learn.adafruit.com/adafruit-dotstar-leds/overview) LED ([APA102 Datasheet](https://cdn-shop.adafruit.com/datasheets/APA102.pdf)) strip in Node.

@@ -18,10 +18,10 @@
     "sourceMap": false,
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": false,
-    "strictPropertyInitialization": true,
+    "strict": true,
     "types": [
       "node"
     ],
-    "target": "esnext"
+    "target": "es2015"
   }
 }

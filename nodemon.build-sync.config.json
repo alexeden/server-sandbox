@@ -4,6 +4,6 @@
   "events": {},
   "watch": [
     "src/",
-    "example/server/src"
+    "app/server/src"
   ]
 }

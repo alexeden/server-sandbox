@@ -1,4 +1,4 @@
-export { DotstarConfig } from './types';
-export { Dotstar } from './dotstar';
 export { Colors } from './colors';
-export { APA102C } from './apa102c';
+export { Dotstar } from './dotstar';
+export { DotstarConfig } from './types';
+export { Protocol } from './protocol';
