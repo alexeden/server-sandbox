@@ -9,7 +9,7 @@ export class Dotstar {
     const spi = SPI.fromDevicePath(devicePath);
     spi.speed = Math.max(
       Protocol.CLK_MIN,
-      config.clockSpeed ?? Protocol.CLK_MIN,
+      config.clockSpeed ?? Protocol.CLK_MIN
     );
     spi.mode = Mode.M0;
 
@@ -18,7 +18,7 @@ export class Dotstar {
       devicePath,
       Math.max(0, config.length ?? 144),
       config.startFrames ?? 1,
-      config.endFrames ?? 4,
+      config.endFrames ?? 4
     );
   }
 
@@ -33,7 +33,7 @@ export class Dotstar {
     readonly devicePath: string,
     readonly length: number,
     readonly startFrames: number,
-    readonly endFrames: number,
+    readonly endFrames: number
   ) {
     this.totalFrames = this.length + this.startFrames + this.endFrames;
     this.bufferSize = Protocol.FRAME_SIZE * this.totalFrames;
@@ -72,9 +72,11 @@ export class Dotstar {
   }
 
   set(color: number, ...indexes: number[]) {
-    indexes.filter((i) => i >= 0 && i < this.length).forEach((i) => {
-      this.write(this.ledSlices[i], color);
-    });
+    indexes
+      .filter((i) => i >= 0 && i < this.length)
+      .forEach((i) => {
+        this.write(this.ledSlices[i], color);
+      });
   }
 
   setAll(color: number) {

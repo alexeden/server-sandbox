@@ -3,7 +3,7 @@ export const mapToRange = (
   b: number,
   c: number,
   d: number,
-  x: number,
+  x: number
 ) => {
   const r = (d - c) / (b - a);
   return (x - a) * r + c;

@@ -32,7 +32,7 @@ const {
   demandOption: 'The number of LEDs to test must be provided.',
 });
 
-const dotstar = Dotstar.create({ length, });
+const dotstar = Dotstar.create({ length });
 
 dotstar.setAll(0);
 dotstar.sync();
