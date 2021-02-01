@@ -13,14 +13,14 @@ import { TetrahedronGroup } from './lib';
 @Component({
   template: `
     <div class="column gap-10 p-20">
+      <mat-card class="p-0" style="overflow: hidden">
+        <hedron-canvas></hedron-canvas>
+      </mat-card>
       <dotstar-function-forms
         [bufferStreamGenerator]="bufferStreamGenerator"
         [samplerTemplate]="samplerTemplate"
       >
       </dotstar-function-forms>
-      <mat-card class="p-0" style="overflow: hidden">
-        <hedron-canvas></hedron-canvas>
-      </mat-card>
     </div>
   `,
 })
