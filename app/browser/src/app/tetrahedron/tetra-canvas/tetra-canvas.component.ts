@@ -5,14 +5,19 @@ import {
   Renderer2,
   OnDestroy,
 } from '@angular/core';
-import { Scene, WebGLRenderer, PerspectiveCamera, Color } from 'three';
-import { tap, takeUntil, map, switchMap } from 'rxjs/operators';
+import {
+  Scene,
+  WebGLRenderer,
+  PerspectiveCamera,
+  Color,
+  PointLight,
+  AmbientLight,
+} from 'three';
+import { tap, takeUntil, map, switchMap, startWith } from 'rxjs/operators';
 import CameraControls from 'camera-controls';
-import { CanvasService } from '../canvas.service';
-import { SceneUtils } from '../lib';
 import { GeometryService } from '../geometry.service';
 import { ClockService } from '@app/clock.service';
-import { Subject, Observable } from 'rxjs';
+import { Subject, Observable, fromEvent } from 'rxjs';
 import { BufferService } from '@app/buffer.service';
 
 @Component({
@@ -29,7 +34,6 @@ export class TetraCanvasComponent implements OnInit, OnDestroy {
     private readonly camera: PerspectiveCamera,
     private readonly cameraControls: CameraControls,
     private readonly canvas: HTMLCanvasElement,
-    private readonly canvasService: CanvasService,
     private readonly clock: ClockService,
     private readonly elRef: ElementRef,
     private readonly geoService: GeometryService,
@@ -38,7 +42,7 @@ export class TetraCanvasComponent implements OnInit, OnDestroy {
     private readonly scene: Scene
   ) {
     this.renderer2.appendChild(this.elRef.nativeElement, this.canvas);
-    this.scene.add(...SceneUtils.createLights());
+    this.scene.add(...TetraCanvasComponent.createLights());
 
     this.colorBuffer = this.bufferService.values.pipe(
       map(rgbs => rgbs.map(([r, g, b]) => new Color().setRGB(r, g, b)))
@@ -49,8 +53,11 @@ export class TetraCanvasComponent implements OnInit, OnDestroy {
     /**
      * Handle resize events and resize the canvas.
      */
-    this.canvasService.canvasRect
+    /** Canvas's resize bounding client rectangle */
+    fromEvent(window, 'resize')
       .pipe(
+        startWith(this.canvas),
+        map(() => this.canvas.getBoundingClientRect() as DOMRect),
         takeUntil(this.unsubscribe$),
         tap(() => {
           const hostRect = this.elRef.nativeElement!.getBoundingClientRect();
@@ -82,15 +89,34 @@ export class TetraCanvasComponent implements OnInit, OnDestroy {
       if (this.cameraControls.enabled) this.cameraControls.update(dt);
       this.renderer.render(this.scene, this.camera);
     });
-
-    /**
-     * Start the canvas service.
-     */
-    this.canvasService.start();
   }
 
   ngOnDestroy() {
     this.unsubscribe$.next('unsubscribe!');
     this.unsubscribe$.unsubscribe();
+  }
+
+  // Lights
+  static createLights() {
+    const ambientLight = new AmbientLight(0xffffff, 0.001);
+
+    const pointLightLocations = [
+      [100, 2000 - 50, 0],
+      [100, 0, 2000],
+      [100, -2000, 2000],
+      [100, 2000, 2 * 2000],
+      [-2000, 0, 0],
+    ];
+
+    const pointLights = pointLightLocations.map(([x, y, z]) => {
+      const light = new PointLight(new Color('#ffffff'), 0.01, 0);
+      light.decay = 0.1;
+      light.position.set(x, y, z);
+      light.castShadow = true;
+
+      return light;
+    });
+
+    return [ambientLight, ...pointLights];
   }
 }

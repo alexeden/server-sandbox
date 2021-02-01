@@ -5,7 +5,6 @@ import CameraControls from 'camera-controls';
 import * as THREE from 'three';
 // eslint-disable-next-line no-duplicate-imports
 import { Color, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
-import { CanvasService } from './canvas.service';
 import { GeometryService } from './geometry.service';
 import { TetraCanvasComponent } from './tetra-canvas/tetra-canvas.component';
 import { TetraMainComponent } from './tetra-main.component';
@@ -73,7 +72,6 @@ import { TetraMainComponent } from './tetra-main.component';
         return scene;
       },
     },
-    CanvasService,
     GeometryService,
   ],
 })
