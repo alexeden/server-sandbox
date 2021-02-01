@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { ROUTES, Route } from '@angular/router';
 import { SocketService } from './socket.service';
-import { AnimationClockService } from './animation-clock.service';
+import { ClockService } from './clock.service';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +14,7 @@ export class AppComponent {
   constructor(
     @Inject(ROUTES) public injectedRoutes: Route[][],
     readonly socketService: SocketService,
-    readonly clock: AnimationClockService
+    readonly clock: ClockService
   ) {
     this.dotstarRoutes = this.injectedRoutes[0].filter(route => route.path && route.path.length > 0);
   }

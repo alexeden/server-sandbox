@@ -1,6 +1,11 @@
 import { Component } from '@angular/core';
-import { AnimationClockService } from '@app/animation-clock.service';
-import { BufferStreamGenerator, clamp, Sample, SamplerTemplate } from '@app/lib';
+import { ClockService } from '@app/clock.service';
+import {
+  BufferStreamGenerator,
+  clamp,
+  Sample,
+  SamplerTemplate,
+} from '@app/lib';
 import { withLatestFrom } from 'rxjs/operators';
 import { GeometryService } from './geometry.service';
 import { Tetrahedron } from './lib';
@@ -9,7 +14,8 @@ import { Tetrahedron } from './lib';
     <div class="column gap-10 p-20">
       <dotstar-function-forms
         [bufferStreamGenerator]="bufferStreamGenerator"
-        [samplerTemplate]="samplerTemplate">
+        [samplerTemplate]="samplerTemplate"
+      >
       </dotstar-function-forms>
       <mat-card class="p-0" style="overflow: hidden">
         <dotstar-tetra-canvas></dotstar-tetra-canvas>
@@ -23,7 +29,7 @@ export class TetraMainComponent {
 
   constructor(
     private geoService: GeometryService,
-    private clock: AnimationClockService
+    private clock: ClockService
   ) {
     this.samplerTemplate = body => `
       (t, i, tetra) => {
@@ -38,9 +44,9 @@ export class TetraMainComponent {
 
     this.bufferStreamGenerator = sampler =>
       this.clock.t.pipe(
-        withLatestFrom(this.geoService.tetra, (t, tetra) =>
-          tetra.pixels.map((_, i) =>
-            sampler(t, i, tetra).map(clamp(0x00, 0xff)) as Sample
+        withLatestFrom(this.geoService.tetra, ([t], tetra) =>
+          tetra.pixels.map(
+            (_, i) => sampler(t, i, tetra).map(clamp(0x00, 0xff)) as Sample
           )
         )
       );

@@ -13,9 +13,13 @@ export type CombinedSampler<T> = (t: number, i: number, data?: T) => Sample;
  */
 export type SamplerTemplate = (body: string) => string;
 
-export type SamplerCombinator = <T>(samplers: Triplet<Sampler<T>>) => CombinedSampler<T>;
+export type SamplerCombinator = <T>(
+  samplers: Triplet<Sampler<T>>
+) => CombinedSampler<T>;
 
-export type BufferStreamGenerator<T> = (sampler: CombinedSampler<T>) => Observable<Sample[]>;
+export type BufferStreamGenerator<T> = (
+  sampler: CombinedSampler<T>
+) => Observable<Sample[]>;
 
 export enum Colorspace {
   RGB = 'rgb',

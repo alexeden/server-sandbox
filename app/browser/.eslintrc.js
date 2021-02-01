@@ -32,6 +32,7 @@ module.exports = {
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "rules": {
+        "no-console": "off",
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "@angular-eslint/directive-selector": [
           "error",

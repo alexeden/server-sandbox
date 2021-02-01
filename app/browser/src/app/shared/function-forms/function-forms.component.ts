@@ -2,13 +2,29 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BufferService } from '@app/buffer.service';
 import {
-  BufferStreamGenerator, Colorspace, CombinedSampler, DotstarConstants,
-  Sampler, SamplerTemplate, SamplerUtils, Triplet,
+  BufferStreamGenerator,
+  Colorspace,
+  CombinedSampler,
+  DotstarConstants,
+  Sampler,
+  SamplerTemplate,
+  SamplerUtils,
+  Triplet,
 } from '@app/lib';
 import { pathOr } from 'ramda';
 import { BehaviorSubject, empty, Observable, Subject } from 'rxjs';
-import { catchError, distinctUntilChanged, filter, map, pairwise, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { LocalStorageProxy } from '../web-storage.decorators';
+import {
+  catchError,
+  distinctUntilChanged,
+  filter,
+  map,
+  pairwise,
+  startWith,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
+import { LocalStorageProxy } from '../../lib/web-storage.decorators';
 import { functionBodyValidator } from './function-body.validator';
 
 @Component({
@@ -30,19 +46,21 @@ export class FunctionFormsComponent implements OnInit, OnDestroy {
   private savedSelectedColorspace: Colorspace;
 
   @LocalStorageProxy()
-  private savedSamplers: Record<'r' | 'g' | 'b' | 'h' | 's' | 'l', Sampler<any>>;
+  private savedSamplers: Record<
+    'r' | 'g' | 'b' | 'h' | 's' | 'l',
+    Sampler<any>
+  >;
 
-  constructor(
-    private fb: FormBuilder,
-    private bufferService: BufferService
-  ) {
+  constructor(private fb: FormBuilder, private bufferService: BufferService) {
     (window as any).channelFunctionFormsComponent = this;
 
-    this.selectedColorspace$ = new BehaviorSubject<Colorspace>(this.savedSelectedColorspace || Colorspace.HSL);
-    this.samplerForm = this.fb.group({ });
+    this.selectedColorspace$ = new BehaviorSubject<Colorspace>(
+      this.savedSelectedColorspace || Colorspace.HSL
+    );
+    this.samplerForm = this.fb.group({});
 
     this.combinedSampler = this.selectedColorspace$.pipe(
-      tap(mode => this.savedSelectedColorspace = mode),
+      tap(mode => (this.savedSelectedColorspace = mode)),
       switchMap(mode => {
         const formGroup = this.samplerForm.get(mode);
 
@@ -52,13 +70,17 @@ export class FunctionFormsComponent implements OnInit, OnDestroy {
           /** Clear the error caught stream  */
           tap(() => this.errorCaught.next(false)),
           /** Save the changed form values to session */
-          tap(samplerStrs => this.savedSamplers = { ...this.savedSamplers, ...samplerStrs }),
+          tap(
+            samplerStrs =>
+              (this.savedSamplers = { ...this.savedSamplers, ...samplerStrs })
+          ),
           /** Generate the sampler function triplet */
-          map(samplerStrs =>
-            Object.values(samplerStrs).map(body =>
-              // eslint-disable-next-line no-eval
-              eval(`${this.samplerTemplate(body as string)}`)
-            ) as Triplet<Sampler<any>>
+          map(
+            samplerStrs =>
+              Object.values(samplerStrs).map(body =>
+                // eslint-disable-next-line no-eval
+                eval(`${this.samplerTemplate(body as string)}`)
+              ) as Triplet<Sampler<any>>
           ),
           /** Merge the samplers */
           map(SamplerUtils.samplerCombinatorFromColorspace(mode))
@@ -70,48 +92,78 @@ export class FunctionFormsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     const fnValidator = functionBodyValidator(this.samplerTemplate);
 
-    this.samplerForm.addControl('rgb', this.fb.group({
-      r: [pathOr(DotstarConstants.rSampler, ['r'], this.savedSamplers), [fnValidator]],
-      g: [pathOr(DotstarConstants.gSampler, ['g'], this.savedSamplers), [fnValidator]],
-      b: [pathOr(DotstarConstants.bSampler, ['b'], this.savedSamplers), [fnValidator]],
-    }));
+    this.samplerForm.addControl(
+      'rgb',
+      this.fb.group({
+        r: [
+          pathOr(DotstarConstants.rSampler, ['r'], this.savedSamplers),
+          [fnValidator],
+        ],
+        g: [
+          pathOr(DotstarConstants.gSampler, ['g'], this.savedSamplers),
+          [fnValidator],
+        ],
+        b: [
+          pathOr(DotstarConstants.bSampler, ['b'], this.savedSamplers),
+          [fnValidator],
+        ],
+      })
+    );
 
-    this.samplerForm.addControl('hsl', this.fb.group({
-      h: [pathOr(DotstarConstants.hSampler, ['h'], this.savedSamplers), [fnValidator]],
-      s: [pathOr(DotstarConstants.sSampler, ['s'], this.savedSamplers), [fnValidator]],
-      l: [pathOr(DotstarConstants.lSampler, ['l'], this.savedSamplers), [fnValidator]],
-    }));
+    this.samplerForm.addControl(
+      'hsl',
+      this.fb.group({
+        h: [
+          pathOr(DotstarConstants.hSampler, ['h'], this.savedSamplers),
+          [fnValidator],
+        ],
+        s: [
+          pathOr(DotstarConstants.sSampler, ['s'], this.savedSamplers),
+          [fnValidator],
+        ],
+        l: [
+          pathOr(DotstarConstants.lSampler, ['l'], this.savedSamplers),
+          [fnValidator],
+        ],
+      })
+    );
 
     /**
      * Manage the enabling and disabling of the colorspace-specific forms
      */
-    this.selectedColorspace$.pipe(
-      takeUntil(this.unsubscribe$),
-      distinctUntilChanged(),
-      startWith(this.selectedColorspace$.getValue() === Colorspace.HSL ? Colorspace.RGB : Colorspace.HSL),
-      pairwise()
-    )
-    .subscribe(([newMode, oldMode]) => {
-      this.samplerForm.get(oldMode)!.enable();
-      this.samplerForm.get(newMode)!.disable();
-    });
+    this.selectedColorspace$
+      .pipe(
+        takeUntil(this.unsubscribe$),
+        distinctUntilChanged(),
+        startWith(
+          this.selectedColorspace$.getValue() === Colorspace.HSL
+            ? Colorspace.RGB
+            : Colorspace.HSL
+        ),
+        pairwise()
+      )
+      .subscribe(([newMode, oldMode]) => {
+        this.samplerForm.get(oldMode)!.enable();
+        this.samplerForm.get(newMode)!.disable();
+      });
 
     /**
      * Generate a buffer stream from the samplers and send to the buffer service.
      */
-    this.combinedSampler.pipe(
-      takeUntil(this.unsubscribe$),
-      map(samplers =>
-        this.bufferStreamGenerator(samplers).pipe(
-          catchError(() => {
-            /** Notifiy that an error was caught, it'll be cleared on form change */
-            this.errorCaught.next(true);
-            return empty();
-          })
+    this.combinedSampler
+      .pipe(
+        takeUntil(this.unsubscribe$),
+        map(samplers =>
+          this.bufferStreamGenerator(samplers).pipe(
+            catchError(() => {
+              /** Notifiy that an error was caught, it'll be cleared on form change */
+              this.errorCaught.next(true);
+              return empty();
+            })
+          )
         )
       )
-    )
-    .subscribe(stream => this.bufferService.setBufferStream(stream));
+      .subscribe(stream => this.bufferService.setBufferStream(stream));
   }
 
   setMode(mode: Colorspace) {

@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule, Routes } from '@angular/router';
 import { SharedModule } from '@app/shared';
-import { AnimationClockService } from './animation-clock.service';
+import { ClockService } from './clock.service';
 import { AppComponent } from './app.component';
 import { BufferService } from './buffer.service';
 import { DeviceConfigFormComponent } from './device-config-form';
@@ -17,7 +17,6 @@ import { TetrahedronModule } from './tetrahedron/tetrahedron.module';
  */
 import { ColorspaceFunctionsComponent } from './views';
 import { VisualizerComponent } from './visualizer';
-
 
 const appRoutes: Routes = [
   {
@@ -51,14 +50,12 @@ const appRoutes: Routes = [
     AppComponent,
   ],
   providers: [
-    AnimationClockService,
+    ClockService,
     BufferService,
     DotstarDeviceConfigService,
     SocketService,
   ],
-  bootstrap: [
-    AppComponent,
-  ],
+  bootstrap: [AppComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -67,4 +64,4 @@ const appRoutes: Routes = [
     RouterModule.forRoot(appRoutes),
   ],
 })
-export class AppModule { }
+export class AppModule {}

@@ -7,40 +7,36 @@ import { DotstarDeviceConfigService } from '@app/device-config.service';
 
 @Injectable()
 export class GeometryService {
-  private readonly tetraConfigOptions$ = new BehaviorSubject<TetrahedronConfigOptions>({
-    edgeRoute: [
-      // [V.D, V.B],
-      // [V.B, V.C],
-      // [V.C, V.D],
-      // [V.C, V.A],
-      // [V.A, V.B],
-      // [V.D, V.A],
-      [V.A, V.B],
-      [V.B, V.C],
-      [V.C, V.A],
-      [V.A, V.D],
-      [V.D, V.C],
-      [V.B, V.D],
-    ],
-    pixelsPerEdge: 96,
-    edgePadding: 5,
-    paddedEdgeLength: 1010,
-  });
+  private readonly tetraConfigOptions$ = new BehaviorSubject<TetrahedronConfigOptions>(
+    {
+      edgeRoute: [
+        [V.A, V.B],
+        [V.B, V.C],
+        [V.C, V.A],
+        [V.A, V.D],
+        [V.D, V.C],
+        [V.B, V.D],
+      ],
+      pixelsPerEdge: 96,
+      edgePadding: 5,
+      paddedEdgeLength: 1010,
+    }
+  );
 
   readonly tetra: Observable<Tetrahedron>;
   readonly tetraModel: Observable<TetrahedronModel>;
 
-  constructor(
-    private configService: DotstarDeviceConfigService
-  ) {
+  constructor(private configService: DotstarDeviceConfigService) {
     this.tetra = combineLatest(
       this.tetraConfigOptions$,
-      this.configService.deviceConfig,
-      (configOptions, { length }) => ({ ...configOptions, pixelsPerEdge: length / 6 })
-    )
-    .pipe(
-      map(configOptions => Tetrahedron.fromConfigOptions(configOptions)),
-      // tap(tet => (window as any).tet = tet),
+      this.configService.deviceConfig
+    ).pipe(
+      map(([configOptions, { length }]) =>
+        Tetrahedron.fromConfigOptions({
+          ...configOptions,
+          pixelsPerEdge: length / 6,
+        })
+      ),
       shareReplay(1)
     );
 
