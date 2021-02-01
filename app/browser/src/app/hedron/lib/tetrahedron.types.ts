@@ -8,7 +8,14 @@ export enum VertexId {
 }
 
 type EdgeRouteSegment = [VertexId, VertexId];
-export type EdgeRoute = [EdgeRouteSegment, EdgeRouteSegment, EdgeRouteSegment, EdgeRouteSegment, EdgeRouteSegment, EdgeRouteSegment];
+export type EdgeRoute = [
+  EdgeRouteSegment,
+  EdgeRouteSegment,
+  EdgeRouteSegment,
+  EdgeRouteSegment,
+  EdgeRouteSegment,
+  EdgeRouteSegment
+];
 
 export interface TetrahedronConfigOptions {
   /**
@@ -30,7 +37,6 @@ export interface TetrahedronConfigOptions {
    */
   paddedEdgeLength: number;
 }
-
 
 export interface TetrahedronConfig extends TetrahedronConfigOptions {
   /**
@@ -56,21 +62,21 @@ export interface TetrahedronConfig extends TetrahedronConfigOptions {
   circumRadius: number;
 }
 
-export interface Vertex {
+export interface TetVertex {
   // label: VertexId;
   position: Vector3;
 }
 
-export interface Edge {
-  v0: Vertex;
-  v1: Vertex;
+export interface TetEdge {
+  v0: TetVertex;
+  v1: TetVertex;
   index: number;
   midpoint: Vector3;
 }
 
 export interface Pixel {
   position: Vector3;
-  edge: Edge;
+  edge: TetEdge;
   index: number;
   /** Normalized x-coordinate wrt the tetrahedron center */
   x: number;

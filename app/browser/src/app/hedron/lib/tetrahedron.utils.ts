@@ -1,12 +1,12 @@
 import { mapToRange } from '@app/lib';
 import { Line3, Vector3 } from 'three';
 import {
-  Edge,
+  TetEdge,
   EdgeRoute,
   Pixel,
   TetrahedronConfig,
   TetrahedronConfigOptions,
-  Vertex,
+  TetVertex,
   VertexId as V,
 } from './tetrahedron.types';
 
@@ -36,7 +36,7 @@ export class TetrahedronUtils {
     };
   }
 
-  static verticesFromCircumRadius(circumRadius: number): Vertex[] {
+  static verticesFromCircumRadius(circumRadius: number): TetVertex[] {
     const A = new Vector3(0, circumRadius, 0);
     const B = A.clone().applyAxisAngle(
       new Vector3(1, 0, 0),
@@ -48,7 +48,7 @@ export class TetrahedronUtils {
     return [A, B, C, D].map(position => ({ position }));
   }
 
-  static edgeFromVertices(v0: Vertex, v1: Vertex, index: number): Edge {
+  static edgeFromVertices(v0: TetVertex, v1: TetVertex, index: number): TetEdge {
     return {
       v0,
       v1,
@@ -59,7 +59,7 @@ export class TetrahedronUtils {
     };
   }
 
-  static pixelsFromEdge(edge: Edge, config: TetrahedronConfig): Pixel[] {
+  static pixelsFromEdge(edge: TetEdge, config: TetrahedronConfig): Pixel[] {
     const mapCoordValue = mapToRange(
       -config.circumRadius,
       config.circumRadius,
@@ -117,11 +117,11 @@ export class TetrahedronUtils {
     const providedSegments = route.map(verts => [...verts].sort().join(''));
 
     if ([...new Set(providedSegments)].length !== allSegments.length) {
-      throw new Error(`Edge route contains a duplicate segment!`);
+      throw new Error(`TetEdge route contains a duplicate segment!`);
     }
 
     if (!providedSegments.every(seg => allSegments.includes(seg))) {
-      throw new Error(`Edge route contains an invalid segment!`);
+      throw new Error(`TetEdge route contains an invalid segment!`);
     }
 
     return true;

@@ -19,6 +19,13 @@ import { GeometryService } from '../geometry.service';
 import { ClockService } from '@app/clock.service';
 import { Subject, Observable, fromEvent } from 'rxjs';
 import { BufferService } from '@app/buffer.service';
+import { name, edges } from '../geometries/icosahedron.json';
+import { HedronUtils } from '../lib';
+import { GeometryData } from '../lib/geometry.types';
+
+console.log(
+  HedronUtils.hedronFromGeometryData({ name, edges } as GeometryData)
+);
 
 @Component({
   selector: 'hedron-canvas',

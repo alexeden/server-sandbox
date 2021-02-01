@@ -7,11 +7,11 @@ import {
   SphereBufferGeometry,
 } from 'three';
 import {
-  Edge,
+  TetEdge,
   Pixel,
   TetrahedronConfig,
   TetrahedronConfigOptions,
-  Vertex,
+  TetVertex,
 } from './tetrahedron.types';
 import { TetrahedronUtils } from './tetrahedron.utils';
 
@@ -49,8 +49,8 @@ export class PixelModel extends Object3D {
 
 export class TetrahedronGroup extends Group {
   readonly pixelModels: PixelModel[];
-  readonly vertices: Vertex[];
-  readonly edges: Edge[];
+  readonly vertices: TetVertex[];
+  readonly edges: TetEdge[];
   readonly pixels: Pixel[];
 
   static fromConfigOptions(
