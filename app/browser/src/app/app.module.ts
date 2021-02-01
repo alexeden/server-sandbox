@@ -9,7 +9,6 @@ import { BufferService } from './buffer.service';
 import { DeviceConfigFormComponent } from './device-config-form';
 import { DotstarDeviceConfigService } from './device-config.service';
 import { SocketNotifierComponent } from './dotstar-notifiers.component';
-import { LiveBufferBarComponent } from './live-buffer-bar';
 import { SocketService } from './socket.service';
 import { TetraMainComponent } from './tetrahedron/tetra-main.component';
 import { TetrahedronModule } from './tetrahedron/tetrahedron.module';
@@ -46,7 +45,6 @@ const appRoutes: Routes = [
   declarations: [
     ColorspaceFunctionsComponent,
     DeviceConfigFormComponent,
-    LiveBufferBarComponent,
     SocketNotifierComponent,
     VisualizerComponent,
     ColorspaceFunctionsComponent,
