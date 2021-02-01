@@ -6,12 +6,12 @@ import * as THREE from 'three';
 // eslint-disable-next-line no-duplicate-imports
 import { Color, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 import { GeometryService } from './geometry.service';
-import { TetraCanvasComponent } from './tetra-canvas/tetra-canvas.component';
-import { TetraMainComponent } from './tetra-main.component';
+import { HedronCanvasComponent } from './hedron-canvas/hedron-canvas.component';
+import { HedronMainComponent } from './hedron-main.component';
 
 @NgModule({
-  declarations: [TetraCanvasComponent, TetraMainComponent],
-  exports: [TetraCanvasComponent, TetraMainComponent],
+  declarations: [HedronCanvasComponent, HedronMainComponent],
+  exports: [HedronCanvasComponent, HedronMainComponent],
   imports: [CommonModule, SharedModule],
   providers: [
     // Camera
@@ -75,4 +75,4 @@ import { TetraMainComponent } from './tetra-main.component';
     GeometryService,
   ],
 })
-export class TetrahedronModule {}
+export class HedronModule {}

@@ -1,9 +1,12 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
-import { shareReplay, map } from 'rxjs/operators';
-import { TetrahedronConfigOptions, Tetrahedron, VertexId as V } from './lib';
-import { TetrahedronModel } from './models';
 import { DotstarDeviceConfigService } from '@app/device-config.service';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { map, shareReplay } from 'rxjs/operators';
+import {
+  TetrahedronConfigOptions,
+  TetrahedronGroup,
+  VertexId as V,
+} from './lib';
 
 @Injectable()
 export class GeometryService {
@@ -23,25 +26,19 @@ export class GeometryService {
     }
   );
 
-  readonly tetra: Observable<Tetrahedron>;
-  readonly tetraModel: Observable<TetrahedronModel>;
+  readonly tetraModel: Observable<TetrahedronGroup>;
 
   constructor(private configService: DotstarDeviceConfigService) {
-    this.tetra = combineLatest(
+    this.tetraModel = combineLatest(
       this.tetraConfigOptions$,
       this.configService.deviceConfig
     ).pipe(
       map(([configOptions, { length }]) =>
-        Tetrahedron.fromConfigOptions({
+        TetrahedronGroup.fromConfigOptions({
           ...configOptions,
           pixelsPerEdge: length / 6,
         })
       ),
-      shareReplay(1)
-    );
-
-    this.tetraModel = this.tetra.pipe(
-      map(tetra => new TetrahedronModel(tetra)),
       shareReplay(1)
     );
   }

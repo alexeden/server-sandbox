@@ -8,7 +8,8 @@ import {
 } from '@app/lib';
 import { withLatestFrom } from 'rxjs/operators';
 import { GeometryService } from './geometry.service';
-import { Tetrahedron } from './lib';
+import { TetrahedronGroup } from './lib';
+
 @Component({
   template: `
     <div class="column gap-10 p-20">
@@ -18,13 +19,13 @@ import { Tetrahedron } from './lib';
       >
       </dotstar-function-forms>
       <mat-card class="p-0" style="overflow: hidden">
-        <dotstar-tetra-canvas></dotstar-tetra-canvas>
+        <hedron-canvas></hedron-canvas>
       </mat-card>
     </div>
   `,
 })
-export class TetraMainComponent {
-  readonly bufferStreamGenerator: BufferStreamGenerator<Tetrahedron>;
+export class HedronMainComponent {
+  readonly bufferStreamGenerator: BufferStreamGenerator<TetrahedronGroup>;
   readonly samplerTemplate: SamplerTemplate;
 
   constructor(
@@ -44,7 +45,7 @@ export class TetraMainComponent {
 
     this.bufferStreamGenerator = sampler =>
       this.clock.t.pipe(
-        withLatestFrom(this.geoService.tetra, ([t], tetra) =>
+        withLatestFrom(this.geoService.tetraModel, ([t], tetra) =>
           tetra.pixels.map(
             (_, i) => sampler(t, i, tetra).map(clamp(0x00, 0xff)) as Sample
           )

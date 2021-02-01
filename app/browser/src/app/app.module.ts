@@ -10,8 +10,8 @@ import { DeviceConfigFormComponent } from './device-config-form';
 import { DotstarDeviceConfigService } from './device-config.service';
 import { SocketNotifierComponent } from './dotstar-notifiers.component';
 import { SocketService } from './socket.service';
-import { TetraMainComponent } from './tetrahedron/tetra-main.component';
-import { TetrahedronModule } from './tetrahedron/tetrahedron.module';
+import { HedronMainComponent } from './hedron/hedron-main.component';
+import { HedronModule } from './hedron/hedron.module';
 /**
  * Views
  */
@@ -23,14 +23,14 @@ const appRoutes: Routes = [
     path: 'functions',
     component: ColorspaceFunctionsComponent,
     data: {
-      label: 'Colorspace Functions',
+      label: '2D Colorspace',
     },
   },
   {
     path: 'tetrahedron',
-    component: TetraMainComponent,
+    component: HedronMainComponent,
     data: {
-      label: 'Tetrahedron',
+      label: 'Hedron',
     },
   },
   {
@@ -60,7 +60,7 @@ const appRoutes: Routes = [
     BrowserModule,
     BrowserAnimationsModule,
     SharedModule,
-    TetrahedronModule,
+    HedronModule,
     RouterModule.forRoot(appRoutes),
   ],
 })

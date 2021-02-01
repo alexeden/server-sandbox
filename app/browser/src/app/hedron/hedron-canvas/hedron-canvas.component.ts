@@ -21,11 +21,11 @@ import { Subject, Observable, fromEvent } from 'rxjs';
 import { BufferService } from '@app/buffer.service';
 
 @Component({
-  selector: 'dotstar-tetra-canvas',
+  selector: 'hedron-canvas',
   template: '',
-  styleUrls: ['./tetra-canvas.component.scss'],
+  styleUrls: ['./hedron-canvas.component.scss'],
 })
-export class TetraCanvasComponent implements OnInit, OnDestroy {
+export class HedronCanvasComponent implements OnInit, OnDestroy {
   private readonly unsubscribe$ = new Subject<any>();
   private readonly colorBuffer: Observable<Color[]>;
 
@@ -42,7 +42,7 @@ export class TetraCanvasComponent implements OnInit, OnDestroy {
     private readonly scene: Scene
   ) {
     this.renderer2.appendChild(this.elRef.nativeElement, this.canvas);
-    this.scene.add(...TetraCanvasComponent.createLights());
+    this.scene.add(...HedronCanvasComponent.createLights());
 
     this.colorBuffer = this.bufferService.values.pipe(
       map(rgbs => rgbs.map(([r, g, b]) => new Color().setRGB(r, g, b)))
