@@ -3,9 +3,7 @@ import { Vector3 } from 'three';
 export interface Hedron {
   name: string;
   edges: Edge[];
-  /**
-   * The total number of LEDs comprising this polyhedron
-   */
+  /** The total number of LEDs comprising this polyhedron */
   n: number;
 }
 
@@ -15,26 +13,21 @@ export interface Edge {
   index: number;
   leds: Led[];
   midpoint: Vector3;
-  /**
-   * The number of LEDs along this edge
-   */
+  /** The number of LEDs along this edge */
+  edgeN: number;
+  /** The total number of LEDs comprising this polyhedron */
   n: number;
 }
 
 export interface Led {
   position: Vector3;
-  // edge: Edge;
   edgeIndex: number;
   /** Global index */
-  hedronIndex: number;
-  // /** X-coordinate wrt the hedron center */
-  // x: number;
-  // /** Y-coordinate wrt the hedron center */
-  // y: number;
-  // /** Z-coordinate wrt the hedron center */
-  // z: number;
+  index: number;
   /** Distance from the hedron center */
   dOrigin: number;
   /** Distance from this pixel's edge midpoint */
   dMidpoint: number;
+  /** The total number of LEDs comprising this polyhedron */
+  n: number;
 }

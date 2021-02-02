@@ -1,27 +1,26 @@
 import {
   Component,
-  OnInit,
   ElementRef,
-  Renderer2,
   OnDestroy,
+  OnInit,
+  Renderer2,
 } from '@angular/core';
+import { BufferService } from '@app/buffer.service';
+import { ClockService } from '@app/clock.service';
+import CameraControls from 'camera-controls';
+import { fromEvent, Observable, Subject } from 'rxjs';
+import { map, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
 import {
-  Scene,
-  WebGLRenderer,
-  PerspectiveCamera,
-  Color,
   // PointLight,
   AmbientLight,
+  Color,
+  PerspectiveCamera,
+  Scene,
+  WebGLRenderer,
 } from 'three';
-import { tap, takeUntil, map, switchMap, startWith } from 'rxjs/operators';
-import CameraControls from 'camera-controls';
+import { edges, name } from '../geometries/icosahedron.json';
 import { GeometryService } from '../geometry.service';
-import { ClockService } from '@app/clock.service';
-import { Subject, Observable, fromEvent } from 'rxjs';
-import { BufferService } from '@app/buffer.service';
-import { name, edges } from '../geometries/icosahedron.json';
-import { HedronUtils } from '../lib';
-import { GeometryData } from '../lib/geometry.types';
+import { GeometryData, HedronUtils } from '../lib';
 
 console.log(
   HedronUtils.hedronFromGeometryData({ name, edges } as GeometryData)

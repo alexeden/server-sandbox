@@ -33,10 +33,9 @@ export class HedronMainComponent {
     private clock: ClockService
   ) {
     this.samplerTemplate = body => `
-      (t, i, hedron) => {
+      (t, i, led) => {
         // const ts = t / 1000;
-        // const n = hedron.leds.length;
-        // const led = hedron.leds[i];
+        // const n = led.leds.length;
         // const ei = led.edgeIndex;
 
         return ${body};
@@ -47,13 +46,13 @@ export class HedronMainComponent {
       this.clock.t.pipe(
         withLatestFrom(this.geoService.model, ([t], model) =>
           model.leds.map(
-            (led, i) => sampler(t, i, led.data).map(clamp(0x00, 0xff)) as Sample
+            (led, i) =>
+              sampler(t, i, led.data).map(clamp(0x00, 0xff)) as Sample
           )
         )
       );
   }
 }
-
 
 // 330
 // [330, 240, 120, 25, 9, 0][Math.floor(Math.abs(6*Math.sin(ts / 2) + 6*i/n)) % 6]

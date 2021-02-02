@@ -1,10 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
-// import { edges, name } from './geometries/icosahedron.json';
-import { GeometryUtils, Hedron, HedronUtils } from './lib';
-// import { GeometryData } from './lib/geometry.types';
-import { HedronGroup } from './lib/hedron.group';
+import { GeometryUtils, Hedron, HedronGroup, HedronUtils } from './lib';
 
 @Injectable()
 export class GeometryService {
@@ -12,7 +9,6 @@ export class GeometryService {
     HedronUtils.hedronFromGeometryData(
       GeometryUtils.generateIcosahedronGeometryData(20)
     )
-    // { name, edges } as GeometryData)
   );
 
   readonly model: Observable<HedronGroup>;

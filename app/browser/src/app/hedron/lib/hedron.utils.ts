@@ -7,7 +7,8 @@ export class HedronUtils {
     name,
     edges: edgeData,
   }: GeometryData): Hedron {
-    const edges = edgeData.map(([vertex0, vertex1, n], index) => {
+    const n = edgeData.reduce((sum, [, , n]) => sum + n, 0);
+    const edges = edgeData.map(([vertex0, vertex1, edgeN], index) => {
       const v0 = new Vector3().fromArray(vertex0);
       const v1 = new Vector3().fromArray(vertex1);
       const midpoint = new Line3(v0, v1).getCenter(new Vector3(0, 0, 0));
@@ -15,14 +16,16 @@ export class HedronUtils {
       return {
         index,
         midpoint,
-        leds: HedronUtils.ticks(v0, v1, n).map((position, edgeIndex) => ({
+        leds: HedronUtils.ticks(v0, v1, edgeN).map((position, edgeIndex) => ({
           position,
           edgeIndex,
-          hedronIndex: 0,
+          index: 0,
+          n,
           dOrigin: position.length(),
           dMidpoint: Math.abs(position.distanceTo(midpoint)),
         })),
         n,
+        edgeN,
         v0,
         v1,
       };
@@ -31,7 +34,7 @@ export class HedronUtils {
     return {
       name,
       edges,
-      n: edges.reduce((sum, { n }) => sum + n, 0),
+      n,
     };
   }
 
