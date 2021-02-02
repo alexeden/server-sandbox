@@ -57,9 +57,6 @@ export class HedronCanvasComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    /**
-     * Handle resize events and resize the canvas.
-     */
     /** Canvas's resize bounding client rectangle */
     fromEvent(window, 'resize')
       .pipe(

@@ -1,4 +1,3 @@
-// import { clampLoop } from '@app/lib';
 import {
   Color,
   Group,
@@ -22,19 +21,12 @@ export class LedModel extends Object3D {
     super();
 
     this.geo = new SphereBufferGeometry(0.01, 12, 12);
-    // const color = new Color().setHSL(
-    //   // clampLoop(0, 255, this.data.edgeIndex) / 0xff,
-    //   0.5,
-    //   1,
-    //   0.5
-    // );
 
     this.mat = new MeshPhongMaterial({
       color: new Color(),
       shininess: 100,
       emissive: 0x000000,
       specular: 0x000000,
-      fog: true,
     });
 
     this.mesh = new Mesh(this.geo, this.mat);
@@ -44,6 +36,8 @@ export class LedModel extends Object3D {
 
   setColor(color: Color) {
     this.mat.color = color;
+    const { r, g, b } = color;
+    this.mat.opacity = (Math.max(r, g, b) + Math.min(r, g, b)) / 0xff;
   }
 }
 
