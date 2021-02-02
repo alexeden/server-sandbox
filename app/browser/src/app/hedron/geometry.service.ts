@@ -1,45 +1,24 @@
 import { Injectable } from '@angular/core';
-import { DotstarDeviceConfigService } from '@app/device-config.service';
-import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
-import {
-  TetrahedronConfigOptions,
-  TetrahedronGroup,
-  VertexId as V,
-} from './lib';
+import { edges, name } from './geometries/icosahedron.json';
+import { Hedron, HedronUtils } from './lib';
+import { GeometryData } from './lib/geometry.types';
+import { HedronGroup } from './lib/hedron.group';
 
 @Injectable()
 export class GeometryService {
-  private readonly tetraConfigOptions$ = new BehaviorSubject<TetrahedronConfigOptions>(
-    {
-      edgeRoute: [
-        [V.A, V.B],
-        [V.B, V.C],
-        [V.C, V.A],
-        [V.A, V.D],
-        [V.D, V.C],
-        [V.B, V.D],
-      ],
-      pixelsPerEdge: 96,
-      edgePadding: 5,
-      paddedEdgeLength: 1010,
-    }
+  private readonly hedron$ = new BehaviorSubject<Hedron>(
+    HedronUtils.hedronFromGeometryData({ name, edges } as GeometryData)
   );
 
-  readonly tetraModel: Observable<TetrahedronGroup>;
+  readonly model: Observable<HedronGroup>;
 
-  constructor(private configService: DotstarDeviceConfigService) {
-    this.tetraModel = combineLatest(
-      this.tetraConfigOptions$,
-      this.configService.deviceConfig
-    ).pipe(
-      map(([configOptions, { length }]) =>
-        TetrahedronGroup.fromConfigOptions({
-          ...configOptions,
-          pixelsPerEdge: length / 6,
-        })
-      ),
-      shareReplay(1)
-    );
+  constructor() {
+    this.model = this.hedron$.pipe(map(HedronGroup.ofHedron), shareReplay(1));
+  }
+
+  setHedron(hedron: Hedron) {
+    this.hedron$.next(hedron);
   }
 }

@@ -7,9 +7,7 @@ import {
   Object3D,
   SphereBufferGeometry,
 } from 'three';
-import { GeometryData } from './geometry.types';
 import { Edge, Hedron, Led } from './hedron.types';
-import { HedronUtils } from './hedron.utils';
 
 export class LedModel extends Object3D {
   private readonly mat: MeshPhongMaterial;
@@ -51,8 +49,8 @@ export class HedronGroup extends Group {
   readonly leds: LedModel[];
   readonly edges: Edge[];
 
-  static fromGeoData(geoData: GeometryData): HedronGroup {
-    return new HedronGroup(HedronUtils.hedronFromGeometryData(geoData));
+  static ofHedron(hedron: Hedron): HedronGroup {
+    return new HedronGroup(hedron);
   }
 
   private constructor({ name, edges, n }: Hedron) {

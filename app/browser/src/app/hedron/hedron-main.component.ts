@@ -8,7 +8,7 @@ import {
 } from '@app/lib';
 import { withLatestFrom } from 'rxjs/operators';
 import { GeometryService } from './geometry.service';
-import { TetrahedronGroup } from './lib';
+import { Led } from './lib';
 
 @Component({
   template: `
@@ -25,7 +25,7 @@ import { TetrahedronGroup } from './lib';
   `,
 })
 export class HedronMainComponent {
-  readonly bufferStreamGenerator: BufferStreamGenerator<TetrahedronGroup>;
+  readonly bufferStreamGenerator: BufferStreamGenerator<Led>;
   readonly samplerTemplate: SamplerTemplate;
 
   constructor(
@@ -45,9 +45,9 @@ export class HedronMainComponent {
 
     this.bufferStreamGenerator = sampler =>
       this.clock.t.pipe(
-        withLatestFrom(this.geoService.tetraModel, ([t], tetra) =>
-          tetra.pixels.map(
-            (_, i) => sampler(t, i, tetra).map(clamp(0x00, 0xff)) as Sample
+        withLatestFrom(this.geoService.model, ([t], model) =>
+          model.leds.map(
+            (led, i) => sampler(t, i, led.data).map(clamp(0x00, 0xff)) as Sample
           )
         )
       );

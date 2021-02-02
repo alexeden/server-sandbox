@@ -75,7 +75,7 @@ export class HedronCanvasComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    this.geoService.tetraModel
+    this.geoService.model
       .pipe(
         takeUntil(this.unsubscribe$),
         /** TODO: Dispose of the old model before adding a new one */
