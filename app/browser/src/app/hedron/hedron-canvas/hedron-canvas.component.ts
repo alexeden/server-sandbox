@@ -10,7 +10,7 @@ import {
   WebGLRenderer,
   PerspectiveCamera,
   Color,
-  PointLight,
+  // PointLight,
   AmbientLight,
 } from 'three';
 import { tap, takeUntil, map, switchMap, startWith } from 'rxjs/operators';
@@ -105,25 +105,27 @@ export class HedronCanvasComponent implements OnInit, OnDestroy {
 
   // Lights
   static createLights() {
-    const ambientLight = new AmbientLight(0xffffff, 0.001);
+    const ambientLight = new AmbientLight(0xffffff, 0.01);
 
-    const pointLightLocations = [
-      [100, 2000 - 50, 0],
-      [100, 0, 2000],
-      [100, -2000, 2000],
-      [100, 2000, 2 * 2000],
-      [-2000, 0, 0],
-    ];
+    // const pointLightLocations = [
+    //   [0, 2, 0],
+    //   // [0, -2, 0],
+    //   // [1.5, 1.5, 0],
+    //   // [1.5, 0, 1.5],
+    //   // [1.5, -1.5, 1.5],
+    //   // [1.5, 1.5, 1.5],
+    //   // [-1.5, 0, 0],
+    // ];
 
-    const pointLights = pointLightLocations.map(([x, y, z]) => {
-      const light = new PointLight(new Color('#ffffff'), 0.01, 0);
-      light.decay = 0.1;
-      light.position.set(x, y, z);
-      light.castShadow = true;
+    // const pointLights = pointLightLocations.map(([x, y, z]) => {
+    //   const light = new PointLight(new Color('#ffffff'), 0.01, 0);
+    //   // light.decay = 0.001;
+    //   light.position.set(x, y, z);
+    //   // light.castShadow = true;
 
-      return light;
-    });
+    //   return light;
+    // });
 
-    return [ambientLight, ...pointLights];
+    return [ambientLight]; // , ...pointLights];
   }
 }

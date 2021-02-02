@@ -18,8 +18,8 @@ import { HedronMainComponent } from './hedron-main.component';
     {
       provide: PerspectiveCamera,
       useFactory: () => {
-        const camera = new PerspectiveCamera(55, 1, 10, 9000);
-        camera.position.set(-1000, 250, 800);
+        const camera = new PerspectiveCamera(45, 1, 0.1, 10);
+        camera.position.set(0.7, 1, 3);
 
         return camera;
       },
@@ -39,9 +39,9 @@ import { HedronMainComponent } from './hedron-main.component';
         const controls = new CameraControls(camera, canvas);
         controls.minPolarAngle = 0;
         controls.maxPolarAngle = Math.PI * 0.49;
-        controls.minDistance = 1;
-        controls.maxDistance = camera.far;
-        controls.setTarget(0, 150, 0);
+        controls.minDistance = 0.5;
+        controls.maxDistance = 6;
+        controls.setTarget(0, 0, 0);
 
         return controls;
       },

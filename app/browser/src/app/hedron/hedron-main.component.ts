@@ -33,11 +33,11 @@ export class HedronMainComponent {
     private clock: ClockService
   ) {
     this.samplerTemplate = body => `
-      (t, i, tetra) => {
-        const ts = t / 1000;
-        const n = tetra.pixels.length;
-        const pixel = tetra.pixels[i];
-        const ei = pixel.edge.index;
+      (t, i, hedron) => {
+        // const ts = t / 1000;
+        // const n = hedron.leds.length;
+        // const led = hedron.leds[i];
+        // const ei = led.edgeIndex;
 
         return ${body};
       }
@@ -53,3 +53,10 @@ export class HedronMainComponent {
       );
   }
 }
+
+
+// 330
+// [330, 240, 120, 25, 9, 0][Math.floor(Math.abs(6*Math.sin(ts / 2) + 6*i/n)) % 6]
+// [330, 240, 120, 25, 9, 0][Math.floor(Math.abs(6*Math.sin(ts) + pixel.dMidpoint))]
+// 0.5
+// 2 * Math.sin(-1 * Math.PI * ts + pixel.y - pixel.x) - 1.5

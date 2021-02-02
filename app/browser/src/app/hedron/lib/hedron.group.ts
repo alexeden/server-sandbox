@@ -1,4 +1,4 @@
-import { clampLoop } from '@app/lib';
+// import { clampLoop } from '@app/lib';
 import {
   Color,
   Group,
@@ -14,21 +14,23 @@ export class LedModel extends Object3D {
   private readonly geo: SphereBufferGeometry;
   private readonly mesh: Mesh;
 
-  static fromLed(led: Led): LedModel {
-    return new LedModel(led);
+  static fromLed(led: Led, edge: Edge): LedModel {
+    return new LedModel(led, edge);
   }
 
-  private constructor(readonly data: Led) {
+  private constructor(readonly data: Led, readonly parentEdge: Edge) {
     super();
 
-    this.geo = new SphereBufferGeometry(5, 12, 12);
+    this.geo = new SphereBufferGeometry(0.01, 12, 12);
+    // const color = new Color().setHSL(
+    //   // clampLoop(0, 255, this.data.edgeIndex) / 0xff,
+    //   0.5,
+    //   1,
+    //   0.5
+    // );
 
     this.mat = new MeshPhongMaterial({
-      color: new Color().setHSL(
-        clampLoop(0, 0xff, this.data.edgeIndex),
-        1,
-        0.5
-      ),
+      color: new Color(),
       shininess: 100,
       emissive: 0x000000,
       specular: 0x000000,
@@ -57,7 +59,9 @@ export class HedronGroup extends Group {
     super();
     this.name = name;
     this.edges = edges;
-    this.leds = this.edges.flatMap(edge => edge.leds.map(LedModel.fromLed));
+    this.leds = this.edges.flatMap(edge =>
+      edge.leds.map(led => LedModel.fromLed(led, edge))
+    );
     this.add(...this.leds);
   }
 

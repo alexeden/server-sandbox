@@ -25,12 +25,14 @@ export class PixelModel extends Object3D {
 
     this.geo = new SphereBufferGeometry(5, 12, 12);
 
+    const color = new Color().setHSL(
+      this.pixel.index / this.config.pixelsTotal,
+      1,
+      0.5
+    );
+
     this.mat = new MeshPhongMaterial({
-      color: new Color().setHSL(
-        this.pixel.index / this.config.pixelsTotal,
-        1,
-        0.5
-      ),
+      color,
       shininess: 100,
       emissive: 0x000000,
       specular: 0x000000,
@@ -43,7 +45,7 @@ export class PixelModel extends Object3D {
   }
 
   setColor(color: Color) {
-    this.mat.color = color;
+    // this.mat.color = color;
   }
 }
 

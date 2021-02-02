@@ -9,10 +9,10 @@ export class GeometryUtils {
     const lat = Math.atan(0.5);
     const ySpacing = (2 * Math.PI) / 5;
     const yAxis = new Vector3(0, 1, 0);
-    const zAxis = new Vector3(0, 0, 1);
+    const xAxis = new Vector3(1, 0, 0);
     const a: Vertex = [0, -1, 0];
     const d: Vertex = [0, +1, 0];
-    const b = new Vector3(1, 0, 0).applyAxisAngle(zAxis, lat);
+    const b = new Vector3(0, 0, 1).applyAxisAngle(xAxis, +lat);
     const b0 = b.clone().toArray();
     const b1 = b
       .clone()
@@ -30,7 +30,9 @@ export class GeometryUtils {
       .clone()
       .applyAxisAngle(yAxis, 4 * ySpacing)
       .toArray();
-    const c = new Vector3(-1, 0, 0).applyAxisAngle(zAxis, lat);
+    const c = new Vector3(0, 0, 1)
+      .applyAxisAngle(xAxis, -lat)
+      .applyAxisAngle(yAxis, ySpacing / 2);
     const c0 = c.clone().toArray();
     const c1 = c
       .clone()
