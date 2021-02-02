@@ -27,10 +27,10 @@ const appRoutes: Routes = [
     },
   },
   {
-    path: 'tetrahedron',
+    path: 'polyhedron',
     component: HedronMainComponent,
     data: {
-      label: 'Hedron',
+      label: 'Polyhedron',
     },
   },
   {

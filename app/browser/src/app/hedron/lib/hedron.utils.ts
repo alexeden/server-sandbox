@@ -15,12 +15,12 @@ export class HedronUtils {
       return {
         index,
         midpoint,
-        leds: HedronUtils.ticks(v0, v1, n).map((p, edgeIndex) => ({
-          p,
+        leds: HedronUtils.ticks(v0, v1, n).map((position, edgeIndex) => ({
+          position,
           edgeIndex,
           hedronIndex: 0,
-          dOrigin: p.length(),
-          dMidpoint: Math.abs(p.distanceTo(midpoint)),
+          dOrigin: position.length(),
+          dMidpoint: Math.abs(position.distanceTo(midpoint)),
         })),
         n,
         v0,

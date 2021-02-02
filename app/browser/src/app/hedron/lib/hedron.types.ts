@@ -22,7 +22,7 @@ export interface Edge {
 }
 
 export interface Led {
-  p: Vector3;
+  position: Vector3;
   // edge: Edge;
   edgeIndex: number;
   /** Global index */
